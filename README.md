@@ -6,20 +6,21 @@ Appfwk DAQModules, utilities, and scripts for DUNE-ND Upstream DAQ Low Bandwidth
 ## Building
 
 For the readout dependencies, only the DUNEdaq packages are required.
+
 To use the ND-LAr data generator you will need python packages:
 - larpix-control - tested on version 3.4.0
 - pyzmq - tested on version 18.1.1
 
 ## ND-LAr: Configure the PACMAN card
-Please ensure the following:
+Confugiration steps:
    1. TBD
 
 ## ND-GAr: TBD
-Please ensure the following:
+Confugiration steps:
    1. TBD
 
 ## SAND: TBD
-Please ensure the following:
+Confugiration steps:
    1. TBD
 
 ## Examples
