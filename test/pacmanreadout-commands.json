@@ -1,0 +1,67 @@
+[
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "output",
+                                "inst": "id_0",
+                                "name": "output0"
+                            }
+                        ]
+                    },
+                    "inst": "pacman-source",
+                    "plugin": "PacmanCardReader"
+                }
+            ],
+            "queues": [
+                {
+                    "capacity": 1000000,
+                    "inst": "id_0",
+                    "kind": "FollySPSCQueue"
+                }
+            ]
+        },
+        "id": "init"
+    },
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {
+                      "card_id": 0,
+                      "logical_unit": 0
+                    },
+                    "match": "pacman-source"
+                }
+            ]
+        },
+        "id": "conf"
+    },
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {
+                      "run": 42                      
+                    },
+                    "match": ""
+                }
+            ]
+        },
+        "id": "start"
+    },
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {},
+                    "match": ""
+                } 
+            ]
+        },
+        "id": "stop"
+    }
+]
