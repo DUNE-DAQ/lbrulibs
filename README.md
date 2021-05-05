@@ -43,5 +43,6 @@ Then start typing commands as follows.
    1. Test the ZMQ link model when variable size payload type gets implemented in framework 2.6
    2. Make PacmanCardWrapper to make instances of the plugin for testing
    3. Write test apps
-   4. Create a set packet format analogous to felix (ask larpix to make a cpp version of their libraries)?
-   5. Scale to many ZMQ links
+   4. Build a passthrough for CCM commands.
+   5. Create a set packet format analogous to felix (ask larpix to make a cpp version of their libraries)?
+   6. Scale to many ZMQ links
