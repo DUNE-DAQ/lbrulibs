@@ -84,4 +84,4 @@ private:
 } // namespace lbrulibs
 } // namespace dunedaq
 
-#endif // lbruLIBS_SRC_ZMQLinkCONCEPT_HPP_
+#endif // LBRULIBS_SRC_ZMQLINKCONCEPT_HPP_
