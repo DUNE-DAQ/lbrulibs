@@ -76,7 +76,7 @@ PacmanCardReader::init(const data_t& args)
       std::vector<std::string> words;
       tokenize(target, delim, words);
 #warning RS FIXME -> Unhandled potential exception.
-      TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ElinkModel for target queue: " << target; 
+      TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
       m_zmqlink = createZMQLinkModel(qi.inst);
       m_zmqlink->init(args, m_queue_capacity);
     }
@@ -99,7 +99,7 @@ PacmanCardReader::do_configure(const data_t& args)
 
   // Configure components
   TLOG(TLVL_WORK_STEPS) << "Configuring ZMQLinkHandler";
-  m_zmqlink->set_id(m_card_id, m_logical_unit, lid, tag);
+  m_zmqlink->set_id(m_card_id, m_logical_unit);
   m_zmqlink->conf(args);
 }
 

@@ -40,9 +40,9 @@ To test readout through the framework in a separate terminal launch a readout em
 Then start typing commands as follows.
 
 ## Next development steps:
-   1. Make ZMQLinkModel to handle sockets and data collection 
+   1. Test the ZMQ link model when variable size payload type gets implemented in framework 2.6
    2. Make PacmanCardWrapper to make instances of the plugin for testing
-   3. Implement parser operations
-   4. Write test apps
+   3. Write test apps
+   4. Build a passthrough for CCM commands.
    5. Create a set packet format analogous to felix (ask larpix to make a cpp version of their libraries)?
    6. Scale to many ZMQ links

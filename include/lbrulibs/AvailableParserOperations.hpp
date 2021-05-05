@@ -11,7 +11,6 @@
 #include "appfwk/DAQSink.hpp"
 #include "readout/ReadoutTypes.hpp"
 
-//#include "packetformat/block_format.hpp" - add a packetformat once we get a usable one from larpix
 
 #include <sstream>
 #include <cstdlib>
@@ -52,84 +51,28 @@ dump_to_buffer(const char* data, std::size_t size,
   }
 }
 
-//// Implement here any DUNE specific chunk/block to User payload parsers based on Felix implementations:
-
-/*
-template<class TargetStruct>
-inline std::function<void(const felix::packetformat::chunk& chunk)>
-fixsizedChunkInto(std::unique_ptr<appfwk::DAQSink<TargetStruct>>& sink, 
-                  std::chrono::milliseconds timeout = std::chrono::milliseconds(100))
+inline std::function<void(const data)>
+varsizedChunkIntoWrapper(std::unique_ptr<appfwk::DAQSink<readout::types::VariableSizePayloadWrapper>>& sink,
+                         std::chrono::milliseconds timeout = std::chrono::milliseconds(100))
 {
-  return [&](const felix::packetformat::chunk& chunk) { 
-    // Chunk info
-    auto subchunk_data = chunk.subchunks();
-    auto subchunk_sizes = chunk.subchunk_lengths();
-    auto n_subchunks = chunk.subchunk_number();
-    std::size_t target_size = sizeof(TargetStruct); 
+  return [&](const data) {
+    auto data_length = sizeof(data);
 
-    // Only dump to buffer if possible
-    if (chunk.length() != target_size) {
-      // report? Add custom way of handling unexpected user payloads.
-      //   In this case -> not fixed size chunk -> chunk-to-userbuff not possible
-      // Can't throw, and can't print as it may flood output
-    } else {
-      TargetStruct payload;
-      uint32_t bytes_copied_chunk = 0; // NOLINT
-      for(unsigned i=0; i<n_subchunks; i++) {
-        dump_to_buffer(subchunk_data[i], subchunk_sizes[i],
-                       static_cast<void*>(&payload.data),
-                       bytes_copied_chunk, 
-                       target_size);
-        bytes_copied_chunk += subchunk_sizes[i];
-      }
-      try {
-        // finally, push to sink
-        sink->push(std::move(payload), timeout);
-      } catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt) {
-        //ers::error(ParserOperationQueuePushFailure(ERS_HERE, " "));
-      }
+    char* payload = static_cast<char*>( malloc(data_length * sizeof(char)) );
+    uint32_t bytes_copied = 0;
+    dump_to_buffer(data, data_length,
+                    static_cast<void*>(payload),
+                    bytes_copied,
+                    data_length);
+    }
+    readout::types::VariableSizePayloadWrapper payload_wrapper(data_length, payload);
+    try {
+      sink->push(std::move(payload_wrapper), timeout);
+    } catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt) {
+      // ers 
     }
   };
 }
-
-template<class TargetStruct>
-inline std::function<void(const felix::packetformat::chunk& chunk)>
-fixsizedChunkViaHeap(std::unique_ptr<appfwk::DAQSink<TargetStruct*>>& sink,
-                     //std::unique_ptr<appfwk::DAQSink<std::unique_ptr<TargetStruct>>>& sink, 
-                     std::chrono::milliseconds timeout = std::chrono::milliseconds(100))
-{
-  return [&](const felix::packetformat::chunk& chunk) { 
-    // Chunk info
-    auto subchunk_data = chunk.subchunks();
-    auto subchunk_sizes = chunk.subchunk_lengths();
-    auto n_subchunks = chunk.subchunk_number();
-    auto target_size = sizeof(TargetStruct); 
-
-    // Only dump to buffer if possible
-    if (chunk.length() != target_size) {
-      // report? Add custom way of handling unexpected user payloads.
-      //   In this case -> not fixed size chunk -> chunk-to-userbuff not possible
-    } else {
-      TargetStruct* payload = new TargetStruct[sizeof(TargetStruct)];
-      //std::unique_ptr<TargetStruct> payload = std::make_unique<TargetStruct>();
-      uint_fast32_t bytes_copied_chunk = 0; // NOLINT
-      for(unsigned i=0; i<n_subchunks; i++) {
-        dump_to_buffer(subchunk_data[i], subchunk_sizes[i],
-                       static_cast<void*>(payload), //static_cast<void*>(&payload_ptr->data),
-                       bytes_copied_chunk, 
-                       target_size);
-        bytes_copied_chunk += subchunk_sizes[i];
-      }
-      try {
-        // finally, push to sink
-        sink->push(payload, timeout); //std::move(std::make_unique<TargetStruct>(payload)), timeout);
-      } catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt) {
-        //ers::error(ParserOperationQueuePushFailure(ERS_HERE, " "));
-      }
-    }
-  };
-}
-*/
 
 } // namespace parsers
 } // namespace dunedaq

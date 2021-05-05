@@ -20,14 +20,15 @@ namespace lbrulibs {
 
 createZMQLinkModel(const std::string& target)
 {   
-  if (target.find("output") != std::string::npos) {
+  if (target.find("varsize") != std::string::npos) {
     // Create Model
-    zmqlink_model = std::make_unique<ZMQLinkModel>();
+    auto zmqlink_model = std::make_unique<ZMQLinkModel<readout::types::VariableSizePayloadWrapper>>();
 
     // Setup sink (acquire pointer from QueueRegistry)
     zmqlink_model->set_sink(target);
 
     // Get parser and sink
+    auto& parser = elink_model->get_parser();
     auto& sink = zmqlink_model->get_sink();
 
     // Return with setup model
