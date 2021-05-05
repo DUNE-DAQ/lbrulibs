@@ -81,7 +81,7 @@ private:
 
 };
 
-} // namespace flxlibs
+} // namespace lbrulibs
 } // namespace dunedaq
 
-#endif // FLXLIBS_SRC_ZMQLinkCONCEPT_HPP_
+#endif // lbruLIBS_SRC_ZMQLinkCONCEPT_HPP_
