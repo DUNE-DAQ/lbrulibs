@@ -13,6 +13,7 @@
 #include "DefaultParserImpl.hpp"
 
 #include <nlohmann/json.hpp>
+#include "ipm/Subscriber.hpp"
 
 #include <memory>
 #include <sstream>
@@ -24,12 +25,9 @@ namespace lbrulibs {
 class ZMQLinkConcept {
 public:
   ZMQLinkConcept()
-    : m_parser_impl()
-    , m_card_id(0)
+    : m_card_id(0)
     , m_logical_unit(0)
-  { 
-    m_parser = std::make_unique<DefaultParserImpl<>>( m_parser_impl ); //FIX ME - figure out how to make this work properly
-  }
+  {}
   ~ZMQLinkConcept() {}
 
   ZMQLinkConcept(const ZMQLinkConcept&)
@@ -47,36 +45,30 @@ public:
   virtual void start(const nlohmann::json& args) = 0;
   virtual void stop(const nlohmann::json& args) = 0;
 
-  DefaultParserImpl& get_parser() { 
-    return std::ref(m_parser_impl); 
-  }
 
-  void set_ids(int card, int slr, int id, int tag) {
-    m_card_id = card;
-    m_logical_unit = slr;
+    void set_ids(int card, int slr) {
+        m_card_id = card;
+        m_logical_unit = slr;
 
-    std::ostringstream lidstrs;
-    lidstrs << "ZMQLink["
-            << "cid:" << std::to_string(m_card_id) << "|"
-            << "slr:" << std::to_string(m_logical_unit) << "|";
-    m_ZMQLink_str = lidstrs.str();
+        std::ostringstream lidstrs;
+        lidstrs << "ZMQLink["
+                << "cid:" << std::to_string(m_card_id) << "|"
+                << "slr:" << std::to_string(m_logical_unit) << "|";
+        m_ZMQLink_commandLink = lidstrs.str();
 
-    std::ostringstream tidstrs;
-    tidstrs << "ept-" << std::to_string(m_card_id) 
-            << "-" << std::to_string(m_logical_unit);
-    m_ZMQLink_source_tid = tidstrs.str();
-  }
+        std::ostringstream tidstrs;
+        tidstrs << "ept-" << std::to_string(m_card_id) 
+                << "-" << std::to_string(m_logical_unit);
+        m_ZMQLink_sourceLink = tidstrs.str();
+    }
 
 protected:
-  // Block Parser
-  DefaultParserImpl m_parser_impl;
-  std::unique_ptr<DefaultParserImpl<>> m_parser; //FIX ME - figure out how to make this work properly
-
-  int m_card_id;
-  int m_logical_unit;
-  std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
-  std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
-
+    std::shared_ptr<Subscriber> m_input;
+    std::chrono::milliseconds m_queue_timeout;
+    int m_card_id;
+    int m_logical_unit;
+    std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
+    std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
 private:
 
 };
