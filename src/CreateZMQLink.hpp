@@ -9,7 +9,6 @@
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
 #include "readout/ReadoutTypes.hpp"
-#include "lbrulibs/AvailableParserOperations.hpp"
 #include "ZMQLinkModel.hpp"
 
 #include <memory>
@@ -28,7 +27,7 @@ createZMQLinkModel(const std::string& target)
     zmqlink_model->set_sink(target);
 
     // Get parser and sink
-    auto& parser = elink_model->get_parser();
+    auto& parser = zmqlink_model->get_parser();
     auto& sink = zmqlink_model->get_sink();
 
     // Return with setup model

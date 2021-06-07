@@ -10,8 +10,6 @@
 #ifndef LBRULIBS_SRC_ZMQLINKCONCEPT_HPP_
 #define LBRULIBS_SRC_ZMQLINKCONCEPT_HPP_
 
-#include "DefaultParserImpl.hpp"
-
 #include <nlohmann/json.hpp>
 #include "ipm/Subscriber.hpp"
 
@@ -63,7 +61,7 @@ public:
     }
 
 protected:
-    std::shared_ptr<Subscriber> m_input;
+    std::shared_ptr<ipm::Subscriber> m_input;
     std::chrono::milliseconds m_queue_timeout;
     int m_card_id;
     int m_logical_unit;
