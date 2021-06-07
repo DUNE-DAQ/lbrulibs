@@ -67,7 +67,7 @@ PacmanCardReader::init(const data_t& args)
   auto ini = args.get<appfwk::app::ModInit>();
   for (const auto& qi : ini.qinfos) {
     if (qi.dir != "output") {
-      ers::error(InitializationError(ERS_HERE, "Only output queues are supported in this module!"));
+      // ers::error("Only output queues are supported in this module!");
       continue;
     } else {
       TLOG_DEBUG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << qi.inst;

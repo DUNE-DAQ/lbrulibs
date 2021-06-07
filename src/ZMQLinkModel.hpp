@@ -30,7 +30,6 @@ template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
 public:
   using sink_t = appfwk::DAQSink<TargetPayloadType>;
-  using inherited = ZMQLinkConcept;
   using data_t = nlohmann::json;
 
   /**
@@ -58,16 +57,16 @@ public:
   }
 
   void init(const data_t& /*args*/) {
-    std::shared_ptr<Subscriber> subscriber=makeIPMReceiver("ZmqSubscriber");
-    subscriber->connect_for_receives({ {"connection_string", inherited::m_ZMQLink_sourceLink} });
+    std::shared_ptr<Subscriber> subscriber=ipm::make_ipm_receiver("ZmqSubscriber");
+    subscriber->connect_for_receives({ {"connection_string", ZMQLinkConcept::m_ZMQLink_sourceLink} });
+    subscriber->subscribe("");
   }
 
   void conf(const data_t& /*args*/) {
     if (m_configured) {
       TLOG_DEBUG(5) << "ZMQLinkModel is already configured!";
     } else {
-      m_parser_thread.set_name(inherited::m_ZMQLink_sourceLink);
-      subscriber->subscribe("");
+      m_parser_thread.set_name(ZMQLinkConcept::m_ZMQLink_sourceLink);
       m_configured=true;
     } 
   }
@@ -131,10 +130,10 @@ private:
     std::ostringstream oss;
     while (m_run_marker.load()) {
         if (m_input->can_receive()) {
-            TLOG_DEBUG(1) << get_name() << ": Creating output vector";
+            TLOG_DEBUG(1) << ": Creating output vector";
             std::vector<std::byte> output();
         try {
-            auto recvd = m_input->receive(inherited::m_queue_timeout);
+            auto recvd = m_input->receive(ZMQLinkConcept::m_queue_timeout);
             if (recvd.data.size() == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
@@ -142,7 +141,7 @@ private:
 
             memcpy(&output[0], &recvd.data[0]);
 
-            oss << ": Received vector " << counter << " with size " << output.size();
+            oss << ": Received vector " << counter;
             ers::info(SubscriberProgressUpdate(ERS_HERE, get_name(), oss.str()));
             oss.str("");
         } catch (ReceiveTimeoutExpired const& rte) {
@@ -150,14 +149,14 @@ private:
         continue;
         }
 
-        TLOG_DEBUG(1) << get_name() << ": Pushing vector into output_queue";
+        TLOG_DEBUG(1) << ": Pushing vector into output_queue";
         try {
-            m_sink_queue->push(std::move(output), inherited::m_queue_timeout);
+            m_sink_queue->push(std::move(output), ZMQLinkConcept::m_queue_timeout);
         } catch (const appfwk::QueueTimeoutExpired& ex) {
             ers::warning(ex);
         }
 
-        TLOG_DEBUG(1) << get_name() << ": End of do_work loop";
+        TLOG_DEBUG(1) << ": End of do_work loop";
         counter++;
         } else {
             std::this_thread::sleep_for(std::chrono::seconds(1));
