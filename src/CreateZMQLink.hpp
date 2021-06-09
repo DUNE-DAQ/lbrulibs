@@ -26,8 +26,7 @@ createZMQLinkModel(const std::string& target)
     // Setup sink (acquire pointer from QueueRegistry)
     zmqlink_model->set_sink(target);
 
-    // Get parser and sink
-    auto& parser = zmqlink_model->get_parser();
+    // Get sink
     auto& sink = zmqlink_model->get_sink();
 
     // Return with setup model
