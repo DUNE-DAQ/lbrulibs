@@ -33,3 +33,4 @@
 *.exe
 *.out
 *.app
+scripts/readout-test.h5
