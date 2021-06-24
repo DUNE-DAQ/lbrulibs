@@ -16,24 +16,50 @@
 namespace dunedaq {
 
 /**
- * @brief PACMAN header struct
+ * @brief PACMAN frame
  */
-struct PACMANHeader
+class PACMANFrame
 {
-  const uint32_t msg_bytes;
-  uint8_t msg_type;
-  uint16_t msg_words;
-  uint32_t msg_unix_ts;
-  void msg_word;
-
+  public:
+  #define WORD_LEN   8  // bytes
+  #define HEADER_LEN 16 // bytes
+  
+  struct PACMANHeader
+  {
+    // To be implemented
+  };
+  
   enum msg_type { // message type declarations
     DATA_MSG = 0x44,
     REQ_MSG  = 0x3F,
     REP_MSG  = 0x21
   };
 
-  #define WORD_LEN   8  // bytes
-  #define HEADER_LEN 16 // bytes
+  enum word_type { // word type declarations
+    DATA_WORD  = 0x44,
+    TRIG_WORD  = 0x54,
+    SYNC_WORD  = 0x53,
+    PING_WORD  = 0x50,
+    WRITE_WORD = 0x57,
+    READ_WORD  = 0x52,
+    TX_WORD    = 0x44,
+    ERR_WORD   = 0x45
+  };
+  enum packet_type { // packet type declarations
+    DATA_PACKET         = 0x0,
+    CONFIG_WRITE_PACKET = 0x2,
+    CONFIG_READ_PACKET  = 0x3
+  };
+
+
+  #define MSG_TYPE_OFFSET  0 // bytes
+  #define MSG_WORDS_OFFSET 6 // bytes
+  #define UNIX_TS_OFFSET   1 // bytes
+  #define WORD_TYPE_OFFSET         0 // bytes
+  #define IO_CHANNEL_OFFSET        1 // bytes
+  #define RECEIPT_TIMESTAMP_OFFSET 4 // bytes
+  #define PACKET_OFFSET            8 // bytes
+
 
   /* ~~~ Access into message header and message contents ~~~ */
 
@@ -61,43 +87,8 @@ struct PACMANHeader
     // get pointer to word within message
     return (void*)(((uint8_t*)msg) + HEADER_LEN + WORD_LEN * i);
   }
-};
 
-/**
- * @brief PACMAN frame
- */
-class PACMANFrame
-{
-  public:
-
-  const PACMANHeader* get_pacman_header() const { return &m_head; }
-  PACMANHeader* get_pacman_header() { return &m_head; }
-
-  enum word_type { // word type declarations
-    DATA_WORD  = 0x44,
-    TRIG_WORD  = 0x54,
-    SYNC_WORD  = 0x53,
-    PING_WORD  = 0x50,
-    WRITE_WORD = 0x57,
-    READ_WORD  = 0x52,
-    TX_WORD    = 0x44,
-    ERR_WORD   = 0x45
-  };
-  enum packet_type { // packet type declarations
-    DATA_PACKET         = 0x0,
-    CONFIG_WRITE_PACKET = 0x2,
-    CONFIG_READ_PACKET  = 0x3
-  };
-
-
-  #define MSG_TYPE_OFFSET  0 // bytes
-  #define MSG_WORDS_OFFSET 6 // bytes
-  #define UNIX_TS_OFFSET   1 // bytes
-  #define WORD_TYPE_OFFSET         0 // bytes
-  #define IO_CHANNEL_OFFSET        1 // bytes
-  #define RECEIPT_TIMESTAMP_OFFSET 4 // bytes
-  #define PACKET_OFFSET            8 // bytes
-
+  
   /* ~~~ Access into message words ~~~ */
 
   uint8_t* get_word_type(void* word) {
@@ -205,7 +196,7 @@ class PACMANFrame
   friend std::ostream& operator<<(std::ostream& o, PACMANFrame const& frame);
 
 private:
-  PACMANHeader m_head;
+  
 };
 
 } // namespace dunedaq
