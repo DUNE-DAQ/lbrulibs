@@ -21,12 +21,15 @@ def readout():
         
         print("Press ENTER to start listening...")
         input()
+        '''
         commander.send(b'')
         print("Signal sent to PACMAN card.")
         commander.recv()
+        '''
 
         messages = 0
         while True:
+            print("Listening on port:",data,"...")
             message = reader.recv()
             print("Message received:", message)
             messages += 1

@@ -65,6 +65,7 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         data_socket.bind(_data_server)
         echo_socket.bind(_echo_server)
         
+        '''
         # Synchronisation with readout
         # Set up a poller, wait for signal from readout to start sending data
         print("Setting up a poller for registering CCM commands...")
@@ -76,7 +77,13 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
             message = cmd_socket.recv()
             print("Signal received.")
             cmd_socket.send(b'')
+        '''
         
+        print('Press any key to start sending data...')
+        input()
+        print('Initialising...')
+        time.sleep(1)
+        print('Sending PACMAN messages.')
 
         # Send messages in intervals based on timestamps
         messageCount = 0
