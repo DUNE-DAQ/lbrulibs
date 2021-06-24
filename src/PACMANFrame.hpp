@@ -17,70 +17,24 @@
 
 namespace dunedaq {
 
-using word_t = uint32_t; // NOLINT(build/unsigned)
-using adc_t = uint16_t;  // NOLINT(build/unsigned)
-
 /**
  * @brief PACMAN header struct
  */
 struct PACMANHeader
 {
-  /* example from WIB
-  word_t sof : 8, version : 5, fiber_no : 3, crate_no : 5, slot_no : 3, reserved_1 : 8;
-  word_t mm : 1, oos : 1, reserved_2 : 14, wib_errors : 16;
-  word_t timestamp_1;
-  word_t timestamp_2 : 16, wib_counter_1 : 15, z : 1;
-  */
-
-};
-
-/* example from WIB of printing header for debugging
-inline std::ostream&
-operator<<(std::ostream& o, PACMANHeader const& h)
-{
-  return o << "SOF:" << unsigned(h.sof) << " version:" << unsigned(h.version) << " fiber:" << unsigned(h.fiber_no)
-           << " slot:" << unsigned(h.slot_no) << " crate:" << unsigned(h.crate_no) << " mm:" << unsigned(h.mm)
-           << " oos:" << unsigned(h.oos) << " wib_errors:" << unsigned(h.wib_errors)
-           << " timestamp: " << h.get_timestamp() << '\n';
-}
-
-/**
- * @brief PACMAN frame
- */
-class PACMANFrame
-{
-  public:
+  const uint32_t msg_bytes;
+  uint8_t msg_type;
+  uint16_t msg_words;
+  uint32_t msg_unix_ts;
+  void msg_word;
 
   enum msg_type { // message type declarations
     DATA_MSG = 0x44,
     REQ_MSG  = 0x3F,
     REP_MSG  = 0x21
   };
-  enum word_type { // word type declarations
-    DATA_WORD  = 0x44,
-    TRIG_WORD  = 0x54,
-    SYNC_WORD  = 0x53,
-    PING_WORD  = 0x50,
-    WRITE_WORD = 0x57,
-    READ_WORD  = 0x52,
-    TX_WORD    = 0x44,
-    ERR_WORD   = 0x45
-  };
-  enum packet_type { // packet type declarations
-    DATA_PACKET         = 0x0,
-    CONFIG_WRITE_PACKET = 0x2,
-    CONFIG_READ_PACKET  = 0x3
-  };
-
   #define WORD_LEN   8  // bytes
   #define HEADER_LEN 16 // bytes
-  #define MSG_TYPE_OFFSET  0 // bytes
-  #define MSG_WORDS_OFFSET 6 // bytes
-  #define UNIX_TS_OFFSET   1 // bytes
-  #define WORD_TYPE_OFFSET         0 // bytes
-  #define IO_CHANNEL_OFFSET        1 // bytes
-  #define RECEIPT_TIMESTAMP_OFFSET 4 // bytes
-  #define PACKET_OFFSET            8 // bytes
 
   /* ~~~ Access into message header and message contents ~~~ */
 
@@ -108,7 +62,40 @@ class PACMANFrame
     // get pointer to word within message
     return (void*)(((uint8_t*)msg) + HEADER_LEN + WORD_LEN * i);
   }
+};
 
+/**
+ * @brief PACMAN frame
+ */
+class PACMANFrame
+{
+  public:
+
+
+  enum word_type { // word type declarations
+    DATA_WORD  = 0x44,
+    TRIG_WORD  = 0x54,
+    SYNC_WORD  = 0x53,
+    PING_WORD  = 0x50,
+    WRITE_WORD = 0x57,
+    READ_WORD  = 0x52,
+    TX_WORD    = 0x44,
+    ERR_WORD   = 0x45
+  };
+  enum packet_type { // packet type declarations
+    DATA_PACKET         = 0x0,
+    CONFIG_WRITE_PACKET = 0x2,
+    CONFIG_READ_PACKET  = 0x3
+  };
+
+
+  #define MSG_TYPE_OFFSET  0 // bytes
+  #define MSG_WORDS_OFFSET 6 // bytes
+  #define UNIX_TS_OFFSET   1 // bytes
+  #define WORD_TYPE_OFFSET         0 // bytes
+  #define IO_CHANNEL_OFFSET        1 // bytes
+  #define RECEIPT_TIMESTAMP_OFFSET 4 // bytes
+  #define PACKET_OFFSET            8 // bytes
 
   /* ~~~ Access into message words ~~~ */
 
