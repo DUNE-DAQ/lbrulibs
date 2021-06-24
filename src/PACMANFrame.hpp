@@ -5,10 +5,8 @@
  * Licensing/copyright details are in the COPYING file that you should have
  * received with this code.
  */
-#ifndef LBRULIBS_SRC__PACMAN_PACMANFRAME_HPP_
+#ifndef LBRULIBS_SRC_PACMAN_PACMANFRAME_HPP_
 #define LBRULIBS_SRC_PACMAN_PACMANFRAME_HPP_
-
-#include "ers/Issue.hpp"
 
 #include <bitset>
 #include <iostream>
@@ -33,6 +31,7 @@ struct PACMANHeader
     REQ_MSG  = 0x3F,
     REP_MSG  = 0x21
   };
+
   #define WORD_LEN   8  // bytes
   #define HEADER_LEN 16 // bytes
 
@@ -71,6 +70,8 @@ class PACMANFrame
 {
   public:
 
+  const PACMANHeader* get_pacman_header() const { return &m_head; }
+  PACMANHeader* get_pacman_header() { return &m_head; }
 
   enum word_type { // word type declarations
     DATA_WORD  = 0x44,
