@@ -82,7 +82,7 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         print('Press any key to start sending data...')
         input()
         print('Initialising...')
-        time.wait(1)
+        time.sleep(1)
         print('Sending PACMAN messages.')
 
         # Send messages in intervals based on timestamps
