@@ -7,7 +7,7 @@
                         "qinfos": [
                             {
                                 "dir": "output",
-                                "inst": "varsize_0",
+                                "inst": "pacman_0",
                                 "name": "PACMAN0"
                             }
                         ]
@@ -19,7 +19,7 @@
             "queues": [
                 {
                     "capacity": 1000000,
-                    "inst": "varsize_0",
+                    "inst": "pacman_0",
                     "kind": "FollySPSCQueue"
                 }
             ]
