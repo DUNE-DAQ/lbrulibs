@@ -18,6 +18,7 @@
 #include <folly/ProducerConsumerQueue.h>
 
 #include "ipm/Subscriber.hpp"
+#include "NDReadoutTypes.hpp"
 
 #include <string>
 #include <mutex>
@@ -130,8 +131,8 @@ private:
     std::ostringstream oss;
     while (m_run_marker.load()) {
         if (m_input->can_receive()) {
-            TLOG_DEBUG(1) << ": Creating output vector";
-            std::vector<std::byte> output();
+            TLOG_DEBUG(1) << ": Ready to receive data";
+            readout::types::PACMAN_MESSAGE_STRUCT output;
         try {
             auto recvd = m_input->receive(ZMQLinkConcept::m_queue_timeout);
             if (recvd.data.size() == 0) {
@@ -139,9 +140,9 @@ private:
                 continue;
             }
 
-            memcpy(&output[0], &recvd.data[0]);
+            memcpy(&output, &recvd);
 
-            oss << ": Received vector " << counter;
+            oss << ": Received data " << counter;
             ers::info(SubscriberProgressUpdate(ERS_HERE, get_name(), oss.str()));
             oss.str("");
         } catch (ReceiveTimeoutExpired const& rte) {
@@ -149,9 +150,9 @@ private:
         continue;
         }
 
-        TLOG_DEBUG(1) << ": Pushing vector into output_queue";
+        TLOG_DEBUG(1) << ": Pushing data into output_queue";
         try {
-            m_sink_queue->push(std::move(output), ZMQLinkConcept::m_queue_timeout);
+            m_sink_queue->push(std::move(output), ZMQLinkConcept::m_queue_timeout); // change recvd with output if using a storage vector
         } catch (const appfwk::QueueTimeoutExpired& ex) {
             ers::warning(ex);
         }
