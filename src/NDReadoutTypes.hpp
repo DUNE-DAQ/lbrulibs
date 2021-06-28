@@ -42,12 +42,12 @@ struct PACMAN_MESSAGE_STRUCT
   // message UNIX timestamp - NOT individual packet timestamps
   uint64_t get_timestamp() const // NOLINT(build/unsigned)
   {
-    return reinterpret_cast<const PACMANFrame*>(&data)->get_msg_unix_ts(); // NOLINT
+    return* reinterpret_cast<const PACMANFrame*>(&data)->get_msg_unix_ts(); // NOLINT
   }
 
   uint64_t get_message_type() const // NOLINT(build/unsigned)
   {
-    return reinterpret_cast<const PACMANFrame*>(&data)->get_msg_type(); // NOLINT
+    return* reinterpret_cast<const PACMANFrame*>(&data)->get_msg_type(); // NOLINT
   }
 
   // FIX ME - figure out what this is and what to do for ND
