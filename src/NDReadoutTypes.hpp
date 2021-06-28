@@ -39,15 +39,15 @@ struct PACMAN_MESSAGE_STRUCT
     return thisptr->get_timestamp() < otherptr->get_timestamp() ? true : false;
   }
 
+  // message UNIX timestamp - NOT individual packet timestamps
   uint64_t get_timestamp() const // NOLINT(build/unsigned)
   {
     return reinterpret_cast<const PACMANFrame*>(&data)->get_msg_unix_ts(); // NOLINT
   }
 
-  void set_timestamp(uint64_t ts) // NOLINT(build/unsigned)
+  uint64_t get_message_type() const // NOLINT(build/unsigned)
   {
-    auto frame = reinterpret_cast<PACMANFrame*>(&data); // NOLINT
-    frame->header.msg_unix_timestamp = ts;
+    return reinterpret_cast<const PACMANFrame*>(&data)->get_msg_type(); // NOLINT
   }
 
   // FIX ME - figure out what this is and what to do for ND
