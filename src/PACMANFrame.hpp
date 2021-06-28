@@ -26,8 +26,7 @@ class PACMANFrame
   
   struct PACMANHeader
   {
-    //FIX ME - To be implemented
-    uint32_t msg_unix_ts;
+    //FIX ME - Discuss if we need this implemented
   };
   
   enum msg_type { // message type declarations

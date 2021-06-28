@@ -8,7 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATEZMQLINK_HPP_
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
-#include "readout/ReadoutTypes.hpp"
+//#include "readout/ReadoutTypes.hpp"
+#include "NDReadoutTypes.hpp"
 #include "ZMQLinkModel.hpp"
 
 #include <memory>
@@ -19,9 +20,9 @@ namespace lbrulibs {
 
 createZMQLinkModel(const std::string& target)
 {   
-  if (target.find("varsize") != std::string::npos) {
+  if (target.find("pacman") != std::string::npos) {
     // Create Model
-    auto zmqlink_model = std::make_unique<ZMQLinkModel<readout::types::VariableSizePayloadWrapper>>();
+    auto zmqlink_model = std::make_unique<ZMQLinkModel<readout::types::PACMAN_MESSAGE_STRUCT>>();
 
     // Setup sink (acquire pointer from QueueRegistry)
     zmqlink_model->set_sink(target);
