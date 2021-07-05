@@ -9,7 +9,7 @@
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
 //#include "readout/ReadoutTypes.hpp"
-#include "NDReadoutTypes.hpp"
+#include "readout/NDReadoutTypes.hpp"
 #include "ZMQLinkModel.hpp"
 
 #include <memory>
