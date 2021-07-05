@@ -13,7 +13,7 @@
 
 #include "dataformats/FragmentHeader.hpp"
 #include "dataformats/GeoID.hpp"
-#include "PACMANFrame.hpp"
+#include "dataformats/PACMANFrame.hpp"
 
 #include <cstdint> // uint_t types
 #include <memory>  // unique_ptr
@@ -51,8 +51,19 @@ struct PACMAN_MESSAGE_STRUCT
   }
 
   // FIX ME - figure out what this is and what to do for ND
-  //static const constexpr dataformats::GeoID::SystemType system_type = dataformats::GeoID::SystemType::kTPC;
-  //static const constexpr dataformats::FragmentType fragment_type = dataformats::FragmentType::kTPCData;
+  static const constexpr dataformats::GeoID::SystemType system_type = dataformats::GeoID::SystemType::kNDLArTPC;
+  static const constexpr dataformats::FragmentType fragment_type = dataformats::FragmentType::kNDLArTPC;
+};
+
+/**
+ * Key finder for LBs.
+ * */
+struct PACMANTimestampGetter
+{
+  uint64_t operator()(PACMAN_MESSAGE_STRUCT& data) // NOLINT(build/unsigned)
+  {
+    return data.get_timestamp();
+  }
 };
 
 typedef dunedaq::appfwk::DAQSink<PACMAN_MESSAGE_STRUCT> PACMANFrameSink;
