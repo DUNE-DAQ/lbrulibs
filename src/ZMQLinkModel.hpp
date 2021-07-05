@@ -18,7 +18,7 @@
 #include <folly/ProducerConsumerQueue.h>
 
 #include "ipm/Subscriber.hpp"
-#include "NDReadoutTypes.hpp"
+#include "readout/NDReadoutTypes.hpp"
 
 #include <string>
 #include <mutex>
