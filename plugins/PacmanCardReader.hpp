@@ -52,7 +52,7 @@ public:
 
 private:
   // Types
-  using module_conf_t = dunedaq::lbrulibs::pacmancardleader::Conf;
+  using module_conf_t = dunedaq::lbrulibs::pacmancardreader::Conf;
   
   // Constants
   static constexpr size_t m_queue_capacity = 1000000;
