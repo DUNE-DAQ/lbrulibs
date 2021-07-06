@@ -41,7 +41,6 @@ PacmanCardReader::PacmanCardReader(const std::string& name)
   , m_configured(false)
   , m_card_id(0)
   , m_logical_unit(0)
-  , m_router(nullptr)
 
 {
   register_command("conf", &PacmanCardReader::do_configure);
