@@ -18,7 +18,7 @@
 #include "appfwk/ThreadHelper.hpp"
 
 // From readout
-#include "readout/ReusableThread.hpp"
+#include "readout/utils/ReusableThread.hpp"
 
 #include "ZMQLinkConcept.hpp"
 

@@ -10,7 +10,7 @@
 
 #include "ZMQLinkConcept.hpp"
 
-#include "readout/ReusableThread.hpp"
+#include "readout/utils/ReusableThread.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "logging/Logging.hpp"
 
