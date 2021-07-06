@@ -86,7 +86,7 @@ PacmanCardReader::init(const data_t& args)
 void
 PacmanCardReader::do_configure(const data_t& args)
 {
-  m_cfg = args.get<dunedaq::lbrulibs::pacmancardreader::Conf>();
+  m_cfg = args.get<pacmancardreader::Conf>();
   m_card_id = m_cfg.card_id;
   m_logical_unit = m_cfg.logical_unit;
   
