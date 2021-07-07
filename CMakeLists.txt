@@ -21,7 +21,7 @@ set(DUNEDAQ_DEPENDENCIES readout::readout dataformats::dataformats ipm::ipm)
 
 ##############################################################################
 # Main library
-#daq_add_library(PacmanCardWrapper.cpp LINK_LIBRARIES appfwk::appfwk ${DUNEDAQ_DEPENDENCIES})
+daq_add_library(LINK_LIBRARIES appfwk::appfwk ${DUNEDAQ_DEPENDENCIES})
 
 ##############################################################################
 # Plugins

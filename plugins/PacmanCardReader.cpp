@@ -10,6 +10,7 @@
 #include "CreateZMQLink.hpp"
 
 #include "logging/Logging.hpp"
+#include "ZMQIssues.hpp"
 
 #include <chrono>
 #include <string>
@@ -74,10 +75,12 @@ PacmanCardReader::init(const data_t& args)
       std::string target = qi.inst;
       std::vector<std::string> words;
       tokenize(target, delim, words);
-#warning RS FIXME -> Unhandled potential exception.
       TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
-      m_zmqlink = createZMQLinkModel(qi.inst);
-      m_zmqlink->init(args, m_queue_capacity);
+      m_zmqlink[0] = createZMQLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
+      if (m_zmqlink[0] == nullptr) {
+        ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
+      }
+      m_zmqlink[0]->init(args, m_queue_capacity);
     }
   }
 }
@@ -98,20 +101,20 @@ PacmanCardReader::do_configure(const data_t& args)
 
   // Configure components
   TLOG(TLVL_WORK_STEPS) << "Configuring ZMQLinkHandler";
-  m_zmqlink->set_id(m_card_id, m_logical_unit);
-  m_zmqlink->conf(args);
+  m_zmqlink[0]->set_ids(m_card_id, m_logical_unit);
+  m_zmqlink[0]->conf(args);
 }
 
 void
 PacmanCardReader::do_start(const data_t& args)
 {
-  m_zmqlink->start(args);
+  m_zmqlink[0]->start(args);
 }
 
 void
 PacmanCardReader::do_stop(const data_t& args)
 {
-  m_zmqlink->stop(args);
+  m_zmqlink[0]->stop(args);
 }
 
 } // namespace lbrulibs

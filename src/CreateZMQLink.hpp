@@ -18,6 +18,7 @@
 namespace dunedaq {
 namespace lbrulibs {
 
+std::unique_ptr<ZMQLinkConcept>
 createZMQLinkModel(const std::string& target)
 {   
   if (target.find("pacman") != std::string::npos) {
@@ -28,7 +29,7 @@ createZMQLinkModel(const std::string& target)
     zmqlink_model->set_sink(target);
 
     // Get sink
-    auto& sink = zmqlink_model->get_sink();
+    //auto& sink = zmqlink_model->get_sink();
 
     // Return with setup model
     return zmqlink_model;

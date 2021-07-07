@@ -25,6 +25,7 @@ public:
   ZMQLinkConcept()
     : m_card_id(0)
     , m_logical_unit(0)
+    , m_link_tag(0)
   {}
   ~ZMQLinkConcept() {}
 
@@ -65,6 +66,7 @@ protected:
     std::chrono::milliseconds m_queue_timeout;
     int m_card_id;
     int m_logical_unit;
+    int m_link_tag;
     std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
     std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
 private:

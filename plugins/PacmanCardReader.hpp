@@ -12,6 +12,8 @@
 #include "appfwk/cmd/Nljs.hpp"
 #include "appfwk/app/Nljs.hpp"
 
+#include "lbrulibs/pacmancardreader/Nljs.hpp"
+
 // From appfwk
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
@@ -69,8 +71,8 @@ private:
   int m_card_id;
   int m_logical_unit;
 
-  // ZMQLinkModel
-  std::map<int, std::unique_ptr<ZMQLinkModel>> m_zmqlink;
+  // ZMQLinkConcept
+  std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
 
 };
 
