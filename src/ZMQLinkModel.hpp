@@ -28,7 +28,7 @@
 namespace dunedaq::lbrulibs {
 
 template<class TargetPayloadType>
-class ZMQLinkModel : public dunedaq::lbrulibs::ZMQLinkConcept {
+class ZMQLinkModel : public ZMQLinkConcept {
 public:
   using sink_t = appfwk::DAQSink<TargetPayloadType>;
   using data_t = nlohmann::json;
