@@ -12,13 +12,15 @@
 #include "appfwk/cmd/Nljs.hpp"
 #include "appfwk/app/Nljs.hpp"
 
+#include "lbrulibs/pacmancardreader/Nljs.hpp"
+
 // From appfwk
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
 
 // From readout
-#include "readout/ReusableThread.hpp"
+#include "readout/utils/ReusableThread.hpp"
 
 #include "ZMQLinkConcept.hpp"
 
@@ -52,7 +54,7 @@ public:
 
 private:
   // Types
-  using module_conf_t = dunedaq::lbrulibs::pacmancardleader::Conf;
+  using module_conf_t = dunedaq::lbrulibs::pacmancardreader::Conf;
   
   // Constants
   static constexpr size_t m_queue_capacity = 1000000;
@@ -69,8 +71,8 @@ private:
   int m_card_id;
   int m_logical_unit;
 
-  // ZMQLinkModel
-  std::map<int, std::unique_ptr<ZMQLinkModel>> m_zmqlink;
+  // ZMQLinkConcept
+  std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
 
 };
 

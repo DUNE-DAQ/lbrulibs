@@ -10,7 +10,7 @@
 
 #include "ZMQLinkConcept.hpp"
 
-#include "readout/ReusableThread.hpp"
+#include "readout/utils/ReusableThread.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "logging/Logging.hpp"
 
@@ -25,7 +25,7 @@
 #include <atomic>
 #include <memory>
 
-namespace dunedaq::ipm {
+namespace dunedaq::lbrulibs {
 
 template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
@@ -58,7 +58,7 @@ public:
   }
 
   void init(const data_t& /*args*/) {
-    std::shared_ptr<Subscriber> subscriber=ipm::make_ipm_receiver("ZmqSubscriber");
+    std::shared_ptr<dunedaq::ipm::Subscriber> subscriber=dunedaq::ipm::make_ipm_receiver("ZmqSubscriber");
     subscriber->connect_for_receives({ {"connection_string", ZMQLinkConcept::m_ZMQLink_sourceLink} });
     subscriber->subscribe("");
   }
@@ -67,7 +67,7 @@ public:
     if (m_configured) {
       TLOG_DEBUG(5) << "ZMQLinkModel is already configured!";
     } else {
-      m_parser_thread.set_name(ZMQLinkConcept::m_ZMQLink_sourceLink);
+      m_parser_thread.set_name(ZMQLinkConcept::m_ZMQLink_sourceLink, ZMQLinkConcept::m_link_tag);
       m_configured=true;
     } 
   }
@@ -108,6 +108,12 @@ public:
     }
   } 
 
+   void init(const data_t& /*args*/, const size_t /*block_queue_capacity*/)
+  {
+    //Required by parent class
+  }
+
+
 private:
   // Types
   using UniqueMessageAddrQueue = std::unique_ptr<folly::ProducerConsumerQueue<uint64_t>>; // NOLINT
@@ -132,31 +138,27 @@ private:
     while (m_run_marker.load()) {
         if (m_input->can_receive()) {
             TLOG_DEBUG(1) << ": Ready to receive data";
-            readout::types::PACMAN_MESSAGE_STRUCT output;
         try {
             auto recvd = m_input->receive(ZMQLinkConcept::m_queue_timeout);
             if (recvd.data.size() == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
             }
+            TLOG_DEBUG(1) << ": Pushing data into output_queue";
+            try {
+              TargetPayloadType* Payload = new TargetPayloadType();
+              std::memcpy((void *)&Payload->data, &recvd.data[0], recvd.data.size());
 
-            memcpy(&output, &recvd);
+              m_sink_queue->push(*Payload, ZMQLinkConcept::m_queue_timeout);
 
-            oss << ": Received data " << counter;
-            ers::info(SubscriberProgressUpdate(ERS_HERE, get_name(), oss.str()));
-            oss.str("");
-        } catch (ReceiveTimeoutExpired const& rte) {
+            } catch (const appfwk::QueueTimeoutExpired& ex) {
+              ers::warning(ex);
+            }
+
+        } catch (dunedaq::ipm::ReceiveTimeoutExpired const& rte) {
         TLOG_DEBUG(1) << "ReceiveTimeoutExpired: " << rte.what();
         continue;
         }
-
-        TLOG_DEBUG(1) << ": Pushing data into output_queue";
-        try {
-            m_sink_queue->push(std::move(output), ZMQLinkConcept::m_queue_timeout); // change recvd with output if using a storage vector
-        } catch (const appfwk::QueueTimeoutExpired& ex) {
-            ers::warning(ex);
-        }
-
         TLOG_DEBUG(1) << ": End of do_work loop";
         counter++;
         } else {
@@ -166,6 +168,6 @@ private:
   }
 };
   
-} // namespace dunedaq::ipm
+} // namespace dunedaq::lbrulibs
 
 #endif // LBRULIBS_SRC_ZMQLINKMODEL_HPP_
