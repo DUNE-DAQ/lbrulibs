@@ -88,11 +88,11 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         # Send messages in intervals based on timestamps
         messageCount = 0
         for message,timestamp,upcoming in zip(messages,timestamps,timestamps[1:]+[None]):
+            print(timestamp)
             data_socket.send(message)
             messageCount += 1
             print("Total messages sent:",messageCount)
             if upcoming != None:
-                print(upcoming-timestamp)
                 print("Next message in: %ds" %(upcoming-timestamp))
                 time.sleep(upcoming-timestamp)
             

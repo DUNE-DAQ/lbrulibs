@@ -16,6 +16,8 @@ namespace dunedaq {
 
 ERS_DECLARE_ISSUE(lbrulibs, InitializationError, " ZMQ Initialization Error: " << initerror, ((std::string)initerror))
 
+ERS_DECLARE_ISSUE(lbrulibs, GenericNDMessage, " ND Readout: " << initmsg, ((std::string)initmsg))
+
 } // namespace dunedaq
 
 #endif // LBRULIBS_SRC_ZMQISSUES_HPP_

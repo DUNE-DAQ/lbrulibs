@@ -53,16 +53,16 @@ public:
         lidstrs << "ZMQLink["
                 << "cid:" << std::to_string(m_card_id) << "|"
                 << "slr:" << std::to_string(m_logical_unit) << "|";
-        m_ZMQLink_commandLink = lidstrs.str();
+        //m_ZMQLink_commandLink = lidstrs.str();
 
         std::ostringstream tidstrs;
         tidstrs << "ept-" << std::to_string(m_card_id) 
                 << "-" << std::to_string(m_logical_unit);
-        m_ZMQLink_sourceLink = tidstrs.str();
+        //m_ZMQLink_sourceLink = tidstrs.str();
     }
 
 protected:
-    std::shared_ptr<ipm::Subscriber> m_input;
+    std::shared_ptr<ipm::Subscriber> m_subscriber;
     std::chrono::milliseconds m_queue_timeout;
     int m_card_id;
     int m_logical_unit;
