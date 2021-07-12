@@ -111,7 +111,7 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,nRepeats=1):
                 message_count += 1
                 print("Total messages sent:",message_count)
                 next_sleep = random.randrange(1,3)
-                if message_count != len(word_lists):
+                if message_count != len(word_lists)*nRepeats:
                     print("Next message in: %ds" %(next_sleep))
                     time.sleep(next_sleep)
             
