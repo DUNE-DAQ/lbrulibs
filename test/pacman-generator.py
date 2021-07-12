@@ -33,7 +33,7 @@ def hdf5ToPackets(datafile):
     word_lists = [pacman_msg_format.parse_msg(p)[1] for p in msgs] #retrieve lists of words from each message
     
     '''
-    # Deprecated method of making messages
+    # Old method of making messages
     messages = []
     print("Creating a message every second...")
     for i in msg_packets:
@@ -54,10 +54,10 @@ def hdf5ToPackets(datafile):
     '''
 
     print("Read complete. PACMAN style messages prepared.")
-    return word_lists
+    return msg_packets
 
 # Instance of a PACMAN card
-def pacman(_echo_server,_cmd_server,_data_server,word_lists,nRepeats=1):
+def pacman(_echo_server,_cmd_server,_data_server,msg_packets,nRepeats=1):
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -105,6 +105,8 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,nRepeats=1):
         message_count = 0
         
         for n in range(nRepeats):
+            '''
+            # Modern method
             for i in word_lists:
                 data_socket.send(pacman_msg_format.format_msg('DATA',i))
                 print(pacman_msg_format.parse_msg(pacman_msg_format.format_msg('DATA',i)))
@@ -112,6 +114,16 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,nRepeats=1):
                 print("Total messages sent:",message_count)
                 next_sleep = random.randrange(1,3)
                 if message_count != len(word_lists)*nRepeats:
+                    print("Next message in: %ds" %(next_sleep))
+                    time.sleep(next_sleep)
+            '''
+            for i in msg_packets:
+                data_socket.send(pacman_msg_format.format(i, msg_type='DATA'))
+                print(pacman_msg_format.parse(pacman_msg_format.format(i, msg_type='DATA')))
+                message_count += 1
+                print("Total messages sent:",message_count)
+                next_sleep = random.randrange(1,3)
+                if message_count != len(msg_packets)*nRepeats:
                     print("Next message in: %ds" %(next_sleep))
                     time.sleep(next_sleep)
             
@@ -126,7 +138,7 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,nRepeats=1):
 
 def main(*args):
     # Fetch messages and timestamps
-    word_lists = hdf5ToPackets(args[0])
+    messages = hdf5ToPackets(args[0])
     print("Starting PACMAN card(s)")
     start_time = time.time()
     # Start PACMAN cards
@@ -135,7 +147,7 @@ def main(*args):
         process.daemon = True
         process.start()
     for i in range(N_PACMAN):
-        start(pacman(echo,cmd,data,word_lists,N_REPEATS), i)
+        start(pacman(echo,cmd,data,messages,N_REPEATS), i)
     print("Total elapsed time:",time.time()-start_time)
 
 
