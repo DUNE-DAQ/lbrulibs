@@ -6,7 +6,7 @@ Appfwk DAQModules, utilities, and scripts for DUNE-ND Upstream DAQ Low Bandwidth
 For the readout dependencies, only the DUNEdaq packages are required.
 
 To use the ND-LAr data generator you will need python packages:
-- larpix-control - tested on version 3.4.0
+- larpix-control - tested on version 3.5.1
 - pyzmq - tested on version 18.1.1
 
 For full functionality, the following additional branches must be locally compiled:
@@ -22,7 +22,7 @@ https://github.com/DUNE-DAQ/ipm/blob/develop/plugins/ZmqReceiverImpl.hpp
 ...should be updated to a timeout of a few seconds (e.g. a value of 10000). A longer term fix is under
 discussion with the IPM developers.
 
-## Examples with PACMAN data snapshots
+## ND-LAr: Examples with PACMAN data snapshots
 In one terminal, launch a fake pacman emulation by navigating to the test folder and running:
 
     pacman-generator.py example-pacman-data.h5
@@ -40,10 +40,6 @@ To test readout through the DUNE-DAQ readout framework, start a separate termina
 Then cycle through the states by typing 'init', 'conf' and 'start'. To stop the run issue the 'stop' command. To record data to a file
 issue the 'record' command. Note that this will store a data dump from the luminosity buffer should its occupancy rise above 80%. The stored
 data are 'raw' and not subject to any trigger selection.
-
-## ND-LAr: Configure the PACMAN card
-Configuration steps:
-   1. TBD
 
 ## ND-GAr: TBD
 Configuration steps:
