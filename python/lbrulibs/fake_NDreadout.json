@@ -140,7 +140,7 @@
                         "num_request_handling_threads": 1,
                         "pop_limit_pct": 0.8,
                         "pop_size_pct": 0.1,
-                        "source_queue_timeout_ms": 100
+                        "source_queue_timeout_ms": 10000
                     },
                     "match": "datahandler_0"
                 },
