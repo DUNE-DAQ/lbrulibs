@@ -1,8 +1,6 @@
 # lbrulibs - Near Detecor Low Bandwidth Readout Unit software and utilities 
 Appfwk DAQModules, utilities, and scripts for DUNE-ND Upstream DAQ Low Bandwidth Readout Unit.
 
-*Under development - not currently working*
-
 ## Building
 
 For the readout dependencies, only the DUNEdaq packages are required.
@@ -11,20 +9,21 @@ To use the ND-LAr data generator you will need python packages:
 - larpix-control - tested on version 3.4.0
 - pyzmq - tested on version 18.1.1
 
-## ND-LAr: Configure the PACMAN card
-Confugiration steps:
-   1. TBD
+For full functionality, the following additional branches must be locally compiled:
 
-## ND-GAr: TBD
-Confugiration steps:
-   1. TBD
+https://github.com/peter-madigan/dataformats/tree/develop
+https://github.com/krisfur/readout/tree/kf_newframe
 
-## SAND: TBD
-Confugiration steps:
-   1. TBD
+The ZMQ receive socket timeout value in IPM must also be locally hardcoded to a larger value to deal with
+low packet rates. Specifically, line 60 of:
 
-## Examples
-In one terminal, launch a fake pacman emaulation by navigating to the test folder and running:
+https://github.com/DUNE-DAQ/ipm/blob/develop/plugins/ZmqReceiverImpl.hpp
+
+...should be updated to a timeout of a few seconds (e.g. a value of 10000). A longer term fix is under
+discussion with the IPM developers.
+
+## Examples with PACMAN data snapshots
+In one terminal, launch a fake pacman emulation by navigating to the test folder and running:
 
     pacman-generator.py example-pacman-data.h5
 
@@ -32,17 +31,31 @@ To test if the generator is working properly a simple python based ZMQ readout s
 
     python-readout.py
 
-*Not implemented yet*
-To test readout through the framework in a separate terminal launch a readout emaulation via:
+This will receive the packets sent out by the generator over ZMQ and print out some useful debug information.
 
-    daq_application -c stdin://sourcecode/readout/test/pacmanreadout-commands.json
+To test readout through the DUNE-DAQ readout framework, start a separate terminal on the same machine and launch the test application via:
+
+    daq_application -n appNameofYourChoice -c <path_to_source>/lbrulibs/python/lbrulibs/fake_NDreadout.json
     
-Then start typing commands as follows.
+Then cycle through the states by typing 'init', 'conf' and 'start'. To stop the run issue the 'stop' command. To record data to a file
+issue the 'record' command. Note that this will store a data dump from the luminosity buffer should its occupancy rise above 80%. The stored
+data are 'raw' and not subject to any trigger selection.
+
+## ND-LAr: Configure the PACMAN card
+Configuration steps:
+   1. TBD
+
+## ND-GAr: TBD
+Configuration steps:
+   1. TBD
+
+## SAND: TBD
+Configuration steps:
+   1. TBD
+
 
 ## Next development steps:
-   1. Create PACMANFrame.hpp based on unpacking functions from LArPix
-   2. Make a payload type based on the frame
-   3. Create tests to pass the payload through the plugin
-   4. Create a request handler for interfacing with Data Selection
-   5. Build mechanism for writing data to HDF5
-   6. Scale to many ZMQ links and other subdetectors
+   1. Verify ability to write triggered data to HDF5 via minidaqapp
+   2. Update fake trigger configuration in readout package to enable merge to develop (under discussion with readout developers)
+   3. Conclude on ZMQ IPM timeout issue
+   4. Scale to many ZMQ links and other subdetectors
