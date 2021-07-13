@@ -2,7 +2,8 @@
 import time
 import sys
 import multiprocessing
-import h5py
+#import h5py
+import random
 
 #larpix imports
 import larpix
@@ -17,32 +18,46 @@ cmd = 'tcp://127.0.0.1:5555'
 data = 'tcp://127.0.0.1:5556'
 
 N_PACMAN = 1 #number of PACMAN cards
-N_REPEATS = 10 #number of repetitions of the data
+N_REPEATS = 2 #number of repetitions of the data
 
 # Converts HDF5 files into a list of PACMAN messegaes (bytes)
-def hdf5ToPackets(datafile,nRepeats=1): 
+def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)
     packets = larpix.format.hdf5format.from_file(datafile)['packets'] #read from HDF5 file
     print("Separating into messages based on timestamp packets...")
     msg_breaks = [i for i in range(len(packets)) if packets[i].packet_type == 4 or i == len(packets)-1] #find the timestamp packets which signify message breaks
     msg_packets = [packets[i:j] for i,j in zip(msg_breaks[:-1], msg_breaks[1:])] #separate into messages
-    print("Converting to PACMAN format...")
-    print("Data will repeat",nRepeats,"times.")
-    timestampDifference = 0
-    allMessages, allTimestamps = [],[]
-    for i in range(nRepeats):
-        messages = [pacman_msg_format.format(p, msg_type='DATA', ts_pacman=(p[0].timestamp+timestampDifference)) for p in msg_packets] #convert to PACMAN format
-        timestamps = [p[0].timestamp+timestampDifference for p in msg_packets] #extract timestamps
-        timestampDifference += timestamps[-1]-timestamps[0]
-        for j in messages:
-            allMessages.append(j)
-        for k in timestamps:
-            allTimestamps.append(k)
+    msgs = [pacman_msg_format.format(p, msg_type='DATA') for p in msg_packets]
+    print("Extracting headers and words from messages...")
+    #header_list = [pacman_msg_format.parse_msg(p)[0] for p in msgs] #retrieve headers
+    word_lists = [pacman_msg_format.parse_msg(p)[1] for p in msgs] #retrieve lists of words from each message
+    
+    '''
+    # Deprecated method of making messages
+    messages = []
+    print("Creating a message every second...")
+    for i in msg_packets:
+        messages.append(pacman_msg_format.format(i, msg_type='DATA'))
+        print(pacman_msg_format.parse(pacman_msg_format.format(i, msg_type='DATA')))
+        time.sleep(1)
+    '''
+
+    '''
+    # Modern method of making messages
+    messages = []
+    print("Creating a message every second...")
+    for i in word_lists:
+        messages.append(pacman_msg_format.format_msg('DATA',i))
+        print(pacman_msg_format.parse_msg(pacman_msg_format.format_msg('DATA',i)))
+        time.sleep(1)
+    print("Messages created.")
+    '''
+
     print("Read complete. PACMAN style messages prepared.")
-    return allMessages, allTimestamps
+    return word_lists
 
 # Instance of a PACMAN card
-def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
+def pacman(_echo_server,_cmd_server,_data_server,word_lists,nRepeats=1):
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -83,18 +98,22 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
         input()
         print('Initialising...')
         time.sleep(1)
+        print("Data will repeat %i times." %nRepeats)
         print('Sending PACMAN messages.')
 
         # Send messages in intervals based on timestamps
-        messageCount = 0
-        for message,timestamp,upcoming in zip(messages,timestamps,timestamps[1:]+[None]):
-            data_socket.send(message)
-            messageCount += 1
-            print("Total messages sent:",messageCount)
-            if upcoming != None:
-                print(upcoming-timestamp)
-                print("Next message in: %ds" %(upcoming-timestamp))
-                time.sleep(upcoming-timestamp)
+        message_count = 0
+        
+        for n in range(nRepeats):
+            for i in word_lists:
+                data_socket.send(pacman_msg_format.format_msg('DATA',i))
+                print(pacman_msg_format.parse_msg(pacman_msg_format.format_msg('DATA',i)))
+                message_count += 1
+                print("Total messages sent:",message_count)
+                next_sleep = random.randrange(1,3)
+                if message_count != len(word_lists)*nRepeats:
+                    print("Next message in: %ds" %(next_sleep))
+                    time.sleep(next_sleep)
             
     except:
         raise
@@ -107,7 +126,7 @@ def pacman(_echo_server,_cmd_server,_data_server,messages,timestamps):
 
 def main(*args):
     # Fetch messages and timestamps
-    messages, timestamps = hdf5ToPackets(args[0],N_REPEATS)
+    word_lists = hdf5ToPackets(args[0])
     print("Starting PACMAN card(s)")
     start_time = time.time()
     # Start PACMAN cards
@@ -116,7 +135,7 @@ def main(*args):
         process.daemon = True
         process.start()
     for i in range(N_PACMAN):
-        start(pacman(echo,cmd,data,messages,timestamps), i)
+        start(pacman(echo,cmd,data,word_lists,N_REPEATS), i)
     print("Total elapsed time:",time.time()-start_time)
 
 

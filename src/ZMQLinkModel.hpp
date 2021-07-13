@@ -58,15 +58,23 @@ public:
   }
 
   void init(const data_t& /*args*/) {
-    std::shared_ptr<dunedaq::ipm::Subscriber> subscriber=dunedaq::ipm::make_ipm_receiver("ZmqSubscriber");
-    subscriber->connect_for_receives({ {"connection_string", ZMQLinkConcept::m_ZMQLink_sourceLink} });
-    subscriber->subscribe("");
+    TLOG_DEBUG(5) << "ZMQLinkModel init: nothing to do!";
+
   }
 
   void conf(const data_t& /*args*/) {
     if (m_configured) {
       TLOG_DEBUG(5) << "ZMQLinkModel is already configured!";
     } else {
+
+      TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
+      m_subscriber = dunedaq::ipm::make_ipm_subscriber("ZmqSubscriber");
+      TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
+      m_subscriber->connect_for_receives({ {"connection_string", ZMQLinkConcept::m_ZMQLink_sourceLink} });
+      TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
+      m_subscriber->subscribe("");
+      TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
+
       m_parser_thread.set_name(ZMQLinkConcept::m_ZMQLink_sourceLink, ZMQLinkConcept::m_link_tag);
       m_configured=true;
     } 
@@ -133,13 +141,18 @@ private:
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
   readout::ReusableThread m_parser_thread;
   void process_ZMQLink() {
+
+    TLOG_DEBUG(1) << "Starting ZMQ link process";
+
     size_t counter = 0;
     std::ostringstream oss;
     while (m_run_marker.load()) {
-        if (m_input->can_receive()) {
+        TLOG_DEBUG(1) << "Looping";
+        
+        if (m_subscriber->can_receive()) {
             TLOG_DEBUG(1) << ": Ready to receive data";
         try {
-            auto recvd = m_input->receive(ZMQLinkConcept::m_queue_timeout);
+            auto recvd = m_subscriber->receive(ZMQLinkConcept::m_queue_timeout);
             if (recvd.data.size() == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
@@ -150,7 +163,6 @@ private:
               std::memcpy((void *)&Payload->data, &recvd.data[0], recvd.data.size());
 
               m_sink_queue->push(*Payload, ZMQLinkConcept::m_queue_timeout);
-
             } catch (const appfwk::QueueTimeoutExpired& ex) {
               ers::warning(ex);
             }
@@ -162,6 +174,7 @@ private:
         TLOG_DEBUG(1) << ": End of do_work loop";
         counter++;
         } else {
+            TLOG_DEBUG(1) << "Sleeping";
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }

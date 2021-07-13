@@ -8,9 +8,10 @@
 #ifndef LBRULIBS_SRC_CREATEZMQLINK_HPP_
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
-//#include "readout/ReadoutTypes.hpp"
 #include "readout/NDReadoutTypes.hpp"
 #include "ZMQLinkModel.hpp"
+
+#include "ZMQIssues.hpp"
 
 #include <memory>
 #include <string>
@@ -22,6 +23,9 @@ std::unique_ptr<ZMQLinkConcept>
 createZMQLinkModel(const std::string& target)
 {   
   if (target.find("pacman") != std::string::npos) {
+
+    ers::info(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Creating Link for Pacman!"));
+
     // Create Model
     auto zmqlink_model = std::make_unique<ZMQLinkModel<readout::types::PACMAN_MESSAGE_STRUCT>>();
 
@@ -34,6 +38,8 @@ createZMQLinkModel(const std::string& target)
     // Return with setup model
     return zmqlink_model;
   }
+
+  ers::warning(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Could not find target!"));
 
   return nullptr;
 }

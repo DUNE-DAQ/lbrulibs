@@ -21,6 +21,7 @@ def readout():
         
         print("Press ENTER to start listening...")
         input()
+        print("Listening...")
         '''
         commander.send(b'')
         print("Signal sent to PACMAN card.")
