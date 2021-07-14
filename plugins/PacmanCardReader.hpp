@@ -69,8 +69,7 @@ private:
   module_conf_t m_cfg;
 
   int m_card_id;
-  int m_logical_unit;
-
+  
   // ZMQLinkConcept
   std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
 

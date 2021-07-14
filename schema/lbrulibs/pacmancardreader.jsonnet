@@ -30,10 +30,10 @@ local pacmancardreader = {
 
     conf: s.record("Conf", [
         s.field("card_id", self.id, 0,
-                doc="Physical card identifier (in the same host)"),
+                doc="FE card identifier"),
 
-        s.field("logical_unit", self.count, 0,
-                doc="Superlogic region of selected card"),
+        s.field("zmq_receiver_timeout", self.id, 0,
+                doc="ZMQ Receive Timeout value"),
 
     ], doc="Upstream Pacman CardReader DAQ Module Configuration"),
 

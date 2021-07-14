@@ -24,7 +24,6 @@ class ZMQLinkConcept {
 public:
   ZMQLinkConcept()
     : m_card_id(0)
-    , m_logical_unit(0)
     , m_link_tag(0)
   {}
   ~ZMQLinkConcept() {}
@@ -44,28 +43,16 @@ public:
   virtual void start(const nlohmann::json& args) = 0;
   virtual void stop(const nlohmann::json& args) = 0;
 
-
-    void set_ids(int card, int slr) {
+    void set_ids(int card, int tag) {
         m_card_id = card;
-        m_logical_unit = slr;
-
-        std::ostringstream lidstrs;
-        lidstrs << "ZMQLink["
-                << "cid:" << std::to_string(m_card_id) << "|"
-                << "slr:" << std::to_string(m_logical_unit) << "|";
-        //m_ZMQLink_commandLink = lidstrs.str();
-
-        std::ostringstream tidstrs;
-        tidstrs << "ept-" << std::to_string(m_card_id) 
-                << "-" << std::to_string(m_logical_unit);
-        //m_ZMQLink_sourceLink = tidstrs.str();
+        m_link_tag = tag;
     }
 
 protected:
+    dunedaq::lbrulibs::pacmancardreader::Conf m_cfg;
     std::shared_ptr<ipm::Subscriber> m_subscriber;
-    std::chrono::milliseconds m_queue_timeout{1000};
+    std::chrono::milliseconds m_queue_timeout;
     int m_card_id;
-    int m_logical_unit;
     int m_link_tag;
     std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
     std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";

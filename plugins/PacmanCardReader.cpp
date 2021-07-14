@@ -41,7 +41,6 @@ PacmanCardReader::PacmanCardReader(const std::string& name)
   : DAQModule(name)
   , m_configured(false)
   , m_card_id(0)
-  , m_logical_unit(0)
 
 {
   register_command("conf", &PacmanCardReader::do_configure);
@@ -90,7 +89,6 @@ PacmanCardReader::do_configure(const data_t& args)
 {
   m_cfg = args.get<pacmancardreader::Conf>();
   m_card_id = m_cfg.card_id;
-  m_logical_unit = m_cfg.logical_unit;
   
   // Config checks - make some if config values needed, felix example below
   /*
@@ -101,7 +99,7 @@ PacmanCardReader::do_configure(const data_t& args)
 
   // Configure components
   TLOG(TLVL_WORK_STEPS) << "Configuring ZMQLinkHandler";
-  m_zmqlink[0]->set_ids(m_card_id, m_logical_unit);
+  m_zmqlink[0]->set_ids(m_card_id, 0);
   m_zmqlink[0]->conf(args);
 }
 
