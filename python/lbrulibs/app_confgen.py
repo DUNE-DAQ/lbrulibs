@@ -106,13 +106,14 @@ def generate(
 
     confcmd = mrccmd("conf", "INITIAL", "CONFIGURED", [
                 ("fake_source",pcr.Conf(
-                            pcr.GeoID(system="kNDLarTPC")
+                            pcr.GeoID(system="kNDLarTPC"),
+                            zmq_receiver_timeout = 10000
                         )),
             ] + [
                 (f"datahandler_{idx}", dlh.Conf(
                         source_queue_timeout_ms= QUEUE_POP_WAIT_MS,
                         fake_trigger_flag=1,
-                        latency_buffer_size = 3*CLOCK_SPEED_HZ/(25*12*DATA_RATE_SLOWDOWN_FACTOR),
+                        latency_buffer_size = 10,#3*CLOCK_SPEED_HZ/(25*12*DATA_RATE_SLOWDOWN_FACTOR),
                         pop_limit_pct = 0.8,
                         pop_size_pct = 0.1,
                         apa_number = 0,
@@ -121,7 +122,7 @@ def generate(
             ] + [
                 (f"data_recorder_{idx}", bfs.Conf(
                         output_file = f"output_{idx}.out",
-                        stream_buffer_size = 8388608
+                        stream_buffer_size = 100#8388608
                         )) for idx in range(NUMBER_OF_DATA_PRODUCERS)
             ])
     

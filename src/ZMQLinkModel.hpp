@@ -62,20 +62,24 @@ public:
 
   }
 
-  void conf(const data_t& /*args*/) {
+  void conf(const data_t& args) {
     if (m_configured) {
       TLOG_DEBUG(5) << "ZMQLinkModel is already configured!";
     } else {
 
+      m_cfg = args.get<pacmancardreader::Conf>();
+
+      m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
+
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber = dunedaq::ipm::make_ipm_subscriber("ZmqSubscriber");
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
-      m_subscriber->connect_for_receives({ {"connection_string", ZMQLinkConcept::m_ZMQLink_sourceLink} });
+      m_subscriber->connect_for_receives({ {"connection_string", m_ZMQLink_sourceLink} });
       TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
       m_subscriber->subscribe("");
       TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
 
-      m_parser_thread.set_name(ZMQLinkConcept::m_ZMQLink_sourceLink, ZMQLinkConcept::m_link_tag);
+      m_parser_thread.set_name(m_ZMQLink_sourceLink, m_link_tag);
       m_configured=true;
     } 
   }
