@@ -12,15 +12,8 @@ To use the ND-LAr data generator you will need python packages:
 For full functionality, the following additional branches must be locally compiled:
 
 https://github.com/peter-madigan/dataformats/tree/develop
+
 https://github.com/krisfur/readout/tree/kf_newframe
-
-The ZMQ receive socket timeout value in IPM must also be locally hardcoded to a larger value to deal with
-low packet rates. Specifically, line 60 of:
-
-https://github.com/DUNE-DAQ/ipm/blob/develop/plugins/ZmqReceiverImpl.hpp
-
-...should be updated to a timeout of a few seconds (e.g. a value of 10000). A longer term fix is under
-discussion with the IPM developers.
 
 ## ND-LAr: Examples with PACMAN data snapshots
 In one terminal, launch a fake pacman emulation by navigating to the test folder and running:

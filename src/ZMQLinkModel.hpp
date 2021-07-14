@@ -152,7 +152,7 @@ private:
         if (m_subscriber->can_receive()) {
             TLOG_DEBUG(1) << ": Ready to receive data";
         try {
-            auto recvd = m_subscriber->receive(ZMQLinkConcept::m_queue_timeout);
+            auto recvd = m_subscriber->receive(m_queue_timeout);
             if (recvd.data.size() == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
@@ -175,7 +175,7 @@ private:
         counter++;
         } else {
             TLOG_DEBUG(1) << "Sleeping";
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            //std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
   }
