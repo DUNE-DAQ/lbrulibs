@@ -63,7 +63,7 @@ public:
 
 protected:
     std::shared_ptr<ipm::Subscriber> m_subscriber;
-    std::chrono::milliseconds m_queue_timeout;
+    std::chrono::milliseconds m_queue_timeout{1000};
     int m_card_id;
     int m_logical_unit;
     int m_link_tag;
