@@ -27,12 +27,11 @@
 #include <memory>
 
 namespace dunedaq::lbrulibs {
-
-ERS_DECLARE_ISSUE(lbrulibs,
-                  ReceiveTimeoutExpired,
+/*
+ERS_DECLARE_ISSUE(lbrulibs,ReceiveTimeoutExpired,
                   "Unable to receive within timeout period (timeout period was " << timeout << " milliseconds)",
                   ((int)timeout)) // NOLINT
-
+*/
 template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
 public:
@@ -77,14 +76,14 @@ public:
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
-      zmq::context_t m_context;
-      zmq::socket_t m_subscriber(m_context, zmq::socket_type::sub);
-      m_subscriber.setsockopt(ZMQ_RCVTIMEO, m_queue_timeout);
+      //zmq::context_t m_context;
+      //zmq::socket_t m_subscriber(m_context, zmq::socket_type::sub);
+      m_subscriber.setsockopt(ZMQ_RCVTIMEO, m_queue_timeout.count());
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
       m_subscriber.connect(m_ZMQLink_sourceLink);
       m_subscriber_connected = true;
       TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
-      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", topic.size());
+      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
       TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
 
       m_parser_thread.set_name(m_ZMQLink_sourceLink, m_link_tag);
@@ -164,23 +163,25 @@ private:
         if (m_subscriber_connected) {
             TLOG_DEBUG(1) << ": Ready to receive data";
         try {
-            auto recvd = m_subscriber.receive();
-            if (recvd.data.size() == 0) {
+            zmq::message_t msg;
+            auto recvd = m_subscriber.recv(&msg);
+            if (recvd == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
-                throw ReceiveTimeoutExpired(ERS_HERE, m_queue_timeout);
-                //continue;
+                throw ReceiveTimeoutExpired(ERS_HERE, m_queue_timeout.count());
+                continue;
             }
             TLOG_DEBUG(1) << ": Pushing data into output_queue";
             try {
               TargetPayloadType* Payload = new TargetPayloadType();
-              std::memcpy((void *)&Payload->data, &recvd.data[0], recvd.data.size());
+              std::memcpy((void *)&Payload->data, msg.data(), msg.size());
 
-              m_sink_queue->push(*Payload, ZMQLinkConcept::m_queue_timeout);
+              m_sink_queue->push(*Payload, m_queue_timeout);
             } catch (const appfwk::QueueTimeoutExpired& ex) {
               ers::warning(ex);
             }
 
-        } catch (ReceiveTimeoutExpired const& rte) {
+        } catch (const ReceiveTimeoutExpired& rte) {
+        //} catch (...) {
         TLOG_DEBUG(1) << "ReceiveTimeoutExpired: " << rte.what();
         continue;
         }

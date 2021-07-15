@@ -12,6 +12,7 @@
 
 #include <nlohmann/json.hpp>
 //#include "ipm/Subscriber.hpp"
+#include "zmq.hpp"
 
 #include <memory>
 #include <sstream>
@@ -53,6 +54,8 @@ protected:
     //std::shared_ptr<ipm::Subscriber> m_subscriber;
     std::chrono::milliseconds m_queue_timeout;
     bool m_subscriber_connected{false};
+    zmq::context_t  m_context;
+    zmq::socket_t m_subscriber{m_context, zmq::socket_type::sub};
     int m_card_id;
     int m_link_tag;
     //std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
