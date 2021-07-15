@@ -76,7 +76,7 @@ public:
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
-      m_subscriber.setsockopt(ZMQ_RCVTIMEO, (int)m_queue_timeout.count());
+      //m_subscriber.setsockopt(ZMQ_RCVTIMEO, (int)m_queue_timeout.count());
       m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
       m_subscriber.connect(m_ZMQLink_sourceLink);
@@ -156,12 +156,16 @@ private:
 
     size_t counter = 0;
     std::ostringstream oss;
+
+    zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
     while (m_run_marker.load()) {
         TLOG_DEBUG(1) << "Looping";
         
         if (m_subscriber_connected) {
             TLOG_DEBUG(1) << ": Ready to receive data";
             zmq::message_t msg;
+            zmq::poll (&items [0],1,m_queue_timeout);
+	if (items[0].revents & ZMQ_POLLIN){
             auto recvd = m_subscriber.recv(&msg);
             if (recvd == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
@@ -179,6 +183,8 @@ private:
 
             TLOG_DEBUG(1) << ": End of do_work loop";
             counter++;
+        }
+
         } else {
             TLOG_DEBUG(1) << "Subscriber not yet connected";
         }
