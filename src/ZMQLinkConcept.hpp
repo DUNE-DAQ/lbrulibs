@@ -11,7 +11,7 @@
 #define LBRULIBS_SRC_ZMQLINKCONCEPT_HPP_
 
 #include <nlohmann/json.hpp>
-#include "ipm/Subscriber.hpp"
+//#include "ipm/Subscriber.hpp"
 
 #include <memory>
 #include <sstream>
@@ -50,11 +50,12 @@ public:
 
 protected:
     dunedaq::lbrulibs::pacmancardreader::Conf m_cfg;
-    std::shared_ptr<ipm::Subscriber> m_subscriber;
+    //std::shared_ptr<ipm::Subscriber> m_subscriber;
     std::chrono::milliseconds m_queue_timeout;
+    bool m_subscriber_connected{false};
     int m_card_id;
     int m_link_tag;
-    std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
+    //std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
     std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
 private:
 
