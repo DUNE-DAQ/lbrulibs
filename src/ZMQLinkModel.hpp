@@ -76,9 +76,8 @@ public:
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
-      //zmq::context_t m_context;
-      //zmq::socket_t m_subscriber(m_context, zmq::socket_type::sub);
-      m_subscriber.setsockopt(ZMQ_RCVTIMEO, m_queue_timeout.count());
+      m_subscriber.setsockopt(ZMQ_RCVTIMEO, (int)m_queue_timeout.count());
+      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
       m_subscriber.connect(m_ZMQLink_sourceLink);
       m_subscriber_connected = true;
@@ -162,12 +161,10 @@ private:
         
         if (m_subscriber_connected) {
             TLOG_DEBUG(1) << ": Ready to receive data";
-        try {
             zmq::message_t msg;
             auto recvd = m_subscriber.recv(&msg);
             if (recvd == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
-                throw ReceiveTimeoutExpired(ERS_HERE, m_queue_timeout.count());
                 continue;
             }
             TLOG_DEBUG(1) << ": Pushing data into output_queue";
@@ -180,16 +177,10 @@ private:
               ers::warning(ex);
             }
 
-        } catch (const ReceiveTimeoutExpired& rte) {
-        //} catch (...) {
-        TLOG_DEBUG(1) << "ReceiveTimeoutExpired: " << rte.what();
-        continue;
-        }
-        TLOG_DEBUG(1) << ": End of do_work loop";
-        counter++;
+            TLOG_DEBUG(1) << ": End of do_work loop";
+            counter++;
         } else {
-            TLOG_DEBUG(1) << "Sleeping";
-            //std::this_thread::sleep_for(std::chrono::seconds(1));
+            TLOG_DEBUG(1) << "Subscriber not yet connected";
         }
     }
   }
