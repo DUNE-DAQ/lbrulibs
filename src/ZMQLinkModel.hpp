@@ -17,7 +17,8 @@
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
 
-#include "ipm/Subscriber.hpp"
+//#include "ipm/Subscriber.hpp"
+#include "zmq.hpp"
 #include "readout/NDReadoutTypes.hpp"
 
 #include <string>
@@ -26,7 +27,11 @@
 #include <memory>
 
 namespace dunedaq::lbrulibs {
-
+/*
+ERS_DECLARE_ISSUE(lbrulibs,ReceiveTimeoutExpired,
+                  "Unable to receive within timeout period (timeout period was " << timeout << " milliseconds)",
+                  ((int)timeout)) // NOLINT
+*/
 template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
 public:
@@ -59,7 +64,6 @@ public:
 
   void init(const data_t& /*args*/) {
     TLOG_DEBUG(5) << "ZMQLinkModel init: nothing to do!";
-
   }
 
   void conf(const data_t& args) {
@@ -70,13 +74,14 @@ public:
       m_cfg = args.get<pacmancardreader::Conf>();
 
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
-
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
-      m_subscriber = dunedaq::ipm::make_ipm_subscriber("ZmqSubscriber");
+      m_subscriber_connected = false;
+      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
-      m_subscriber->connect_for_receives({ {"connection_string", m_ZMQLink_sourceLink} });
+      m_subscriber.connect(m_ZMQLink_sourceLink);
+      m_subscriber_connected = true;
       TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
-      m_subscriber->subscribe("");
+      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
       TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
 
       m_parser_thread.set_name(m_ZMQLink_sourceLink, m_link_tag);
@@ -150,36 +155,37 @@ private:
 
     size_t counter = 0;
     std::ostringstream oss;
+
+    zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
     while (m_run_marker.load()) {
         TLOG_DEBUG(1) << "Looping";
         
-        if (m_subscriber->can_receive()) {
+        if (m_subscriber_connected) {
             TLOG_DEBUG(1) << ": Ready to receive data";
-        try {
-            auto recvd = m_subscriber->receive(m_queue_timeout);
-            if (recvd.data.size() == 0) {
+            zmq::message_t msg;
+            zmq::poll (&items [0],1,m_queue_timeout);
+	          if (items[0].revents & ZMQ_POLLIN){
+              auto recvd = m_subscriber.recv(&msg);
+              if (recvd == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
-            }
-            TLOG_DEBUG(1) << ": Pushing data into output_queue";
-            try {
-              TargetPayloadType* Payload = new TargetPayloadType();
-              std::memcpy((void *)&Payload->data, &recvd.data[0], recvd.data.size());
+              }
+              TLOG_DEBUG(1) << ": Pushing data into output_queue";
+              try {
+                TargetPayloadType* Payload = new TargetPayloadType();
+                std::memcpy((void *)&Payload->data, msg.data(), msg.size());
 
-              m_sink_queue->push(*Payload, ZMQLinkConcept::m_queue_timeout);
-            } catch (const appfwk::QueueTimeoutExpired& ex) {
-              ers::warning(ex);
+                m_sink_queue->push(*Payload, m_sink_timeout);
+              } catch (const appfwk::QueueTimeoutExpired& ex) {
+                ers::warning(ex);
+              }
+
+              TLOG_DEBUG(1) << ": End of do_work loop";
+              counter++;
             }
 
-        } catch (dunedaq::ipm::ReceiveTimeoutExpired const& rte) {
-        TLOG_DEBUG(1) << "ReceiveTimeoutExpired: " << rte.what();
-        continue;
-        }
-        TLOG_DEBUG(1) << ": End of do_work loop";
-        counter++;
         } else {
-            TLOG_DEBUG(1) << "Sleeping";
-            //std::this_thread::sleep_for(std::chrono::seconds(1));
+            TLOG_DEBUG(1) << "Subscriber not yet connected";
         }
     }
   }

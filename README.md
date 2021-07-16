@@ -34,6 +34,9 @@ Then cycle through the states by typing 'init', 'conf' and 'start'. To stop the 
 issue the 'record' command. Note that this will store a data dump from the luminosity buffer should its occupancy rise above 80%. The stored
 data are 'raw' and not subject to any trigger selection.
 
+Note - due to the need for a more configurable fake trigger implementation in readout this test will produce numerous warnings for failed trigger
+requests. These can be safely ignored.
+
 ## ND-GAr: TBD
 Configuration steps:
    1. TBD
