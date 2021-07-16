@@ -53,6 +53,7 @@ protected:
     dunedaq::lbrulibs::pacmancardreader::Conf m_cfg;
     //std::shared_ptr<ipm::Subscriber> m_subscriber;
     std::chrono::milliseconds m_queue_timeout;
+    std::chrono::milliseconds m_sink_timeout{10};
     bool m_subscriber_connected{false};
     zmq::context_t  m_context;
     zmq::socket_t m_subscriber{m_context, zmq::socket_type::sub};

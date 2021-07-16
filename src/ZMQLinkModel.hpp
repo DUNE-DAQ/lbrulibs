@@ -76,7 +76,6 @@ public:
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
-      //m_subscriber.setsockopt(ZMQ_RCVTIMEO, (int)m_queue_timeout.count());
       m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
       m_subscriber.connect(m_ZMQLink_sourceLink);
@@ -165,25 +164,25 @@ private:
             TLOG_DEBUG(1) << ": Ready to receive data";
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
-	if (items[0].revents & ZMQ_POLLIN){
-            auto recvd = m_subscriber.recv(&msg);
-            if (recvd == 0) {
+	          if (items[0].revents & ZMQ_POLLIN){
+              auto recvd = m_subscriber.recv(&msg);
+              if (recvd == 0) {
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
-            }
-            TLOG_DEBUG(1) << ": Pushing data into output_queue";
-            try {
-              TargetPayloadType* Payload = new TargetPayloadType();
-              std::memcpy((void *)&Payload->data, msg.data(), msg.size());
+              }
+              TLOG_DEBUG(1) << ": Pushing data into output_queue";
+              try {
+                TargetPayloadType* Payload = new TargetPayloadType();
+                std::memcpy((void *)&Payload->data, msg.data(), msg.size());
 
-              m_sink_queue->push(*Payload, m_queue_timeout);
-            } catch (const appfwk::QueueTimeoutExpired& ex) {
-              ers::warning(ex);
-            }
+                m_sink_queue->push(*Payload, m_sink_timeout);
+              } catch (const appfwk::QueueTimeoutExpired& ex) {
+                ers::warning(ex);
+              }
 
-            TLOG_DEBUG(1) << ": End of do_work loop";
-            counter++;
-        }
+              TLOG_DEBUG(1) << ": End of do_work loop";
+              counter++;
+            }
 
         } else {
             TLOG_DEBUG(1) << "Subscriber not yet connected";
