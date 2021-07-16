@@ -135,7 +135,7 @@
                         "apa_number": 0,
                         "emulator_mode": false,
                         "fake_trigger_flag": 1,
-                        "latency_buffer_size": 10,
+                        "latency_buffer_size": 10000,
                         "link_number": 0,
                         "num_request_handling_threads": 1,
                         "pop_limit_pct": 0.8,
