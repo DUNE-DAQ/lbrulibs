@@ -9,12 +9,6 @@ To use the ND-LAr data generator you will need python packages:
 - larpix-control - tested on version 3.5.1
 - pyzmq - tested on version 18.1.1
 
-For full functionality, the following additional branches must be locally compiled:
-
-https://github.com/peter-madigan/dataformats/tree/develop
-
-https://github.com/krisfur/readout/tree/kf_newframe
-
 ## ND-LAr: Examples with PACMAN data snapshots
 In one terminal, launch a fake pacman emulation by navigating to the test folder and running:
 

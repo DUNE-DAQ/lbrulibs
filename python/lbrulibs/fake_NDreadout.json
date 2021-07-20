@@ -126,6 +126,15 @@
                 {
                     "data": {
                         "card_id": 0,
+                        "link_confs": [
+                            {
+                                "geoid": {
+                                    "element": 1,
+                                    "region": 0,
+                                    "system": "NDLarTPC"
+                                }
+                            }
+                        ],
                         "zmq_receiver_timeout": 10000
                     },
                     "match": "fake_source"
@@ -135,11 +144,12 @@
                         "apa_number": 0,
                         "emulator_mode": false,
                         "fake_trigger_flag": 1,
-                        "latency_buffer_size": 10000,
+                        "latency_buffer_size": 10,
                         "link_number": 0,
                         "num_request_handling_threads": 1,
                         "pop_limit_pct": 0.8,
                         "pop_size_pct": 0.1,
+                        "postprocess_queue_sizes": 10000,
                         "source_queue_timeout_ms": 100
                     },
                     "match": "datahandler_0"

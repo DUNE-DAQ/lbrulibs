@@ -28,7 +28,18 @@ local pacmancardreader = {
         s.field("system", self.system_type, doc="" )],
         doc="GeoID"),
 
+    link_conf : s.record("LinkConfiguration", [
+        s.field("geoid", self.geoid, doc="GeoID of the link")
+        ], doc="Configuration for one link"),
+
+    link_conf_list : s.sequence("link_conf_list", self.link_conf, doc="Link configuration list"),
+
+
     conf: s.record("Conf", [
+
+        s.field("link_confs", self.link_conf_list,
+                doc="Link configurations"),
+
         s.field("card_id", self.id, 0,
                 doc="FE card identifier"),
 

@@ -106,7 +106,12 @@ def generate(
 
     confcmd = mrccmd("conf", "INITIAL", "CONFIGURED", [
                 ("fake_source",pcr.Conf(
-                            pcr.GeoID(system="kNDLarTPC"),
+                     link_confs=[pcr.LinkConfiguration(
+                                geoid=pcr.GeoID(system="kNDLarTPC", region=0, element=idx),
+                            ) for idx in range(NUMBER_OF_DATA_PRODUCERS)]
+                            + [pcr.LinkConfiguration(
+                                geoid=pcr.GeoID(system="TPC", region=0, element=idx),
+                            ) for idx in range(NUMBER_OF_DATA_PRODUCERS, NUMBER_OF_DATA_PRODUCERS+NUMBER_OF_TP_PRODUCERS)],
                             zmq_receiver_timeout = 10000
                         )),
             ] + [
@@ -122,7 +127,8 @@ def generate(
             ] + [
                 (f"data_recorder_{idx}", bfs.Conf(
                         output_file = f"output_{idx}.out",
-                        stream_buffer_size = 100#8388608
+                        stream_buffer_size = 100,#8388608
+                        use_o_direct = 0
                         )) for idx in range(NUMBER_OF_DATA_PRODUCERS)
             ])
     
