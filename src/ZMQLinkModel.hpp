@@ -9,17 +9,16 @@
 #define LBRULIBS_SRC_ZMQLINKMODEL_HPP_
 
 #include "ZMQLinkConcept.hpp"
+#include "zmq.hpp"
 
-#include "readout/utils/ReusableThread.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "logging/Logging.hpp"
 
+#include "readout/utils/ReusableThread.hpp"
+#include "readout/NDReadoutTypes.hpp"
+
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
-
-//#include "ipm/Subscriber.hpp"
-#include "zmq.hpp"
-#include "readout/NDReadoutTypes.hpp"
 
 #include <string>
 #include <mutex>
@@ -27,11 +26,7 @@
 #include <memory>
 
 namespace dunedaq::lbrulibs {
-/*
-ERS_DECLARE_ISSUE(lbrulibs,ReceiveTimeoutExpired,
-                  "Unable to receive within timeout period (timeout period was " << timeout << " milliseconds)",
-                  ((int)timeout)) // NOLINT
-*/
+
 template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
 public:
@@ -173,7 +168,7 @@ private:
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
-                std::memcpy((void *)&Payload->data, msg.data(), msg.size());
+                std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
 
                 m_sink_queue->push(*Payload, m_sink_timeout);
               } catch (const appfwk::QueueTimeoutExpired& ex) {

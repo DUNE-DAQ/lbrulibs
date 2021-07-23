@@ -10,9 +10,9 @@
 #ifndef LBRULIBS_SRC_ZMQLINKCONCEPT_HPP_
 #define LBRULIBS_SRC_ZMQLINKCONCEPT_HPP_
 
-#include <nlohmann/json.hpp>
-//#include "ipm/Subscriber.hpp"
 #include "zmq.hpp"
+
+#include <nlohmann/json.hpp>
 
 #include <memory>
 #include <sstream>

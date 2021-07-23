@@ -47,4 +47,4 @@ createZMQLinkModel(const std::string& target)
 } // namespace lbrulibs
 } // namespace dunedaq
 
-#endif // LBRULIBS_SRC_CREATEELINK_HPP_
+#endif // LBRULIBS_SRC_CREATEZMQLINK_HPP_

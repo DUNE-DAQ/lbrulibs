@@ -91,11 +91,11 @@ PacmanCardReader::do_configure(const data_t& args)
   m_card_id = m_cfg.card_id;
   
   // Config checks - make some if config values needed, felix example below
-  /*
-  if (m_num_links != m_elinks.size()) {
-    ers::fatal(ElinkConfigurationInconsistency(ERS_HERE, m_num_links));
-  } 
-  */
+  //
+  //if (m_num_links != m_elinks.size()) {
+  //  ers::fatal(ElinkConfigurationInconsistency(ERS_HERE, m_num_links));
+  //} 
+  //
 
   // Configure components
   TLOG(TLVL_WORK_STEPS) << "Configuring ZMQLinkHandler";
