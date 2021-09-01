@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-using namespace dunedaq::lbrulibs;
+//using namespace dunedaq::lbrulibs;
 
 BOOST_AUTO_TEST_SUITE(ZMQPubSub_test)
 
@@ -39,22 +39,24 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   BOOST_REQUIRE(m_publisher_connected);
   BOOST_REQUIRE(m_subscriber_connected);
 
-  std::vector<char> test_data{ 'T', 'E', 'S', 'T' };
+  std::string test_data{"TEST"};
   
   zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
   zmq::message_t msg;
-  zmq::poll (&items [0],1,m_poller_timeout);
-
-  m_publisher.send(test_data.data(), test_data.size(), "");
-  if (items[0].revents & ZMQ_POLLIN){
+  zmq::poll (&items [0],0,m_poller_timeout);
+  
+  zmq::message_t packet(test_data.size());
+  memcpy(packet.data(),test_data.data(),test_data.size());
+  m_publisher.send(packet);
+  sleep(10);
+  //if (items[0].revents & ZMQ_POLLIN){
+  if (ZMQ_POLLIN) {
     auto recvd = m_subscriber.recv(&msg);
+    BOOST_REQUIRE(recvd != 0);
+    BOOST_REQUIRE_EQUAL(msg.size(), 4);
+    std::string received = std::string(static_cast<char*>(msg.data()), msg.size());
+    BOOST_REQUIRE_EQUAL(received, "TEST");
   }
-
-  BOOST_REQUIRE_EQUAL(msg.data.size(), 4);
-  BOOST_REQUIRE_EQUAL(msg.data[0], 'T');
-  BOOST_REQUIRE_EQUAL(msg.data[1], 'E');
-  BOOST_REQUIRE_EQUAL(msg.data[2], 'S');
-  BOOST_REQUIRE_EQUAL(msg.data[3], 'T');
 
   // FIX ME - test the poller timeout
   /*
