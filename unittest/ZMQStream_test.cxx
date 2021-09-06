@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-using namespace dunedaq::lbrulibs;
-
 BOOST_AUTO_TEST_SUITE(ZMQStream_test)
 
 BOOST_AUTO_TEST_CASE(SendReceiveTest)
@@ -24,7 +22,7 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   bool m_sender_connected{false};
   bool m_receiver_connected{false};
   zmq::context_t  m_context;
-  zmq::socket_t m_publisher{m_context, zmq::socket_type::stream};
+  zmq::socket_t m_sender{m_context, zmq::socket_type::stream};
   zmq::socket_t m_receiver{m_context, zmq::socket_type::stream};
   std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
   std::chrono::milliseconds m_poller_timeout{10000};
@@ -37,35 +35,37 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   BOOST_REQUIRE(m_sender_connected);
   BOOST_REQUIRE(m_receiver_connected);
 
-  std::vector<char> test_data{ 'T', 'E', 'S', 'T' };
-  std::array<zmq::const_buffer, 2> multipart = {
-        m_sender.identity,
-        test_data
-    };
+  std::string test_data{"TEST"};
 
   zmq::pollitem_t items[] = {{static_cast<void*>(m_receiver),0,ZMQ_POLLIN,0}};
-  std::vector<zmq::message_t> recv_msgs;
+  //std::vector<zmq::message_t> recv_msgs;
+  zmq::message_t msg;
   zmq::poll (&items [0],1,m_poller_timeout);
 
-  /*
-  // less simple but more coherent way as in: https://github.com/zeromq/cppzmq/blob/master/examples/pubsub_multithread_inproc.cpp
-  m_sender.send(m_sender.identity, m_sender.identity.size(), zmq::send_flags::sndmore);
-  m_sender.send(test_data.data(), test_data.size());
-  */
-
-  // simple but less convenient way as in: https://github.com/zeromq/cppzmq/blob/master/examples/multipart_messages.cpp 
-  zmq::send_multipart(m_sender, multipart)
-  // FIX ME - receive the first empty message from socket connection being established and discard it
-  if (items[0].revents & ZMQ_POLLIN){
-    auto recvd = zmq::recv_multipart(m_receiver, std::back_inserter(recv_msgs));
+  zmq::message_t packet(test_data.size());
+  memcpy(packet.data(),test_data.data(),test_data.size());
+  //m_sender.send(packet); 
+  //m_sender.send(packet); 
+  
+  if (ZMQ_POLLIN){
+    auto identity_recvd = m_receiver.recv(&msg);
+    BOOST_REQUIRE(identity_recvd != 0);
+    BOOST_REQUIRE(msg.size() > 0);
+    auto empty_recvd = m_receiver.recv(&msg);
+    BOOST_REQUIRE(empty_recvd != 0);
+    std::string empty = std::string(static_cast<char*>(msg.data()), msg.size()); 
+    BOOST_REQUIRE_EQUAL(empty, "");
+    
+    m_sender.send(packet); 
+    m_sender.send(packet); 
+  
+    auto recvd = m_receiver.recv(&msg);
+    //auto recvd2 = m_receiver.recv(&msg);
+    BOOST_REQUIRE(recvd != 0);
+    //BOOST_REQUIRE_EQUAL(msg.size(), 4);
+    std::string received = std::string(static_cast<char*>(msg.data()), msg.size());
+    BOOST_REQUIRE_EQUAL(received, "TEST");
   }
-
-  BOOST_REQUIRE_EQUAL(recv_msgs[1].size(), 4);
-  BOOST_REQUIRE_EQUAL(recv_msgs[1][0], 'T');
-  BOOST_REQUIRE_EQUAL(recv_msgs[1][1], 'E');
-  BOOST_REQUIRE_EQUAL(recv_msgs[1][2], 'S');
-  BOOST_REQUIRE_EQUAL(recv_msgs[1][3], 'T');
-
   // FIX ME - test the poller timeout
 }
 
