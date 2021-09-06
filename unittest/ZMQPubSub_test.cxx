@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-//using namespace dunedaq::lbrulibs;
-
 BOOST_AUTO_TEST_SUITE(ZMQPubSub_test)
 
 BOOST_AUTO_TEST_CASE(SendReceiveTest)
@@ -34,7 +32,6 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
   m_subscriber.connect(m_ZMQLink_sourceLink);
   m_subscriber_connected = true;
-  //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
 
   BOOST_REQUIRE(m_publisher_connected);
   BOOST_REQUIRE(m_subscriber_connected);
@@ -48,8 +45,7 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   zmq::message_t packet(test_data.size());
   memcpy(packet.data(),test_data.data(),test_data.size());
   m_publisher.send(packet);
-  sleep(10);
-  //if (items[0].revents & ZMQ_POLLIN){
+
   if (ZMQ_POLLIN) {
     auto recvd = m_subscriber.recv(&msg);
     BOOST_REQUIRE(recvd != 0);
@@ -59,14 +55,6 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   }
 
   // FIX ME - test the poller timeout
-  /*
-  m_subscriber.setsockopt(ZMQ_UNSUBSCRIBE, "", 0);
-  zmq::poll (&items [0],1,std::chrono::milliseconds(100));
-  m_publisher.send(test_data.data(), test_data.size(), "");
-  BOOST_REQUIRE_EXCEPTION(
-    if (items[0].revents & ZMQ_POLLIN){auto recvd = m_subscriber.recv(&msg);},
-    zmq::ZMQError);
-  */
 }
 
 BOOST_AUTO_TEST_SUITE_END()
