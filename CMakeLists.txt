@@ -40,7 +40,7 @@ file(COPY test/pacmanreadout-commands.json DESTINATION test)
 ##############################################################################
 # Unit Tests
 daq_add_unit_test(ZMQPubSub_test                LINK_LIBRARIES lbrulibs)
-
+daq_add_unit_test(ZMQStream_test                LINK_LIBRARIES lbrulibs)
 ##############################################################################
 # Installation
 daq_install()
