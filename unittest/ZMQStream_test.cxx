@@ -6,7 +6,7 @@
  * received with this code.
  */
 
-#include <zmq_addon.hpp> // DISCLAIMER - different library required for multipart messages
+#include <zmq.hpp> // DISCLAIMER - different library required for multipart messages
 
 #define BOOST_TEST_MODULE ZMQStream_test // NOLINT
 
@@ -44,24 +44,35 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
 
   zmq::message_t packet(test_data.size());
   memcpy(packet.data(),test_data.data(),test_data.size());
-  //m_sender.send(packet); 
-  //m_sender.send(packet); 
   
   if (ZMQ_POLLIN){
     auto identity_recvd = m_receiver.recv(&msg);
+    zmq::message_t packetID(sizeof(msg));
+    packetID.copy(&msg);
     BOOST_REQUIRE(identity_recvd != 0);
     BOOST_REQUIRE(msg.size() > 0);
+    
+    char sockID [256];
+    size_t sockID_size = sizeof(sockID);
+    zmq_getsockopt(m_sender,ZMQ_IDENTITY,sockID,&sockID_size); 
+    BOOST_REQUIRE(sockID);
+    BOOST_REQUIRE(sockID_size > 0); 
+
     auto empty_recvd = m_receiver.recv(&msg);
     BOOST_REQUIRE(empty_recvd != 0);
     std::string empty = std::string(static_cast<char*>(msg.data()), msg.size()); 
     BOOST_REQUIRE_EQUAL(empty, "");
-    
-    m_sender.send(packet); 
-    m_sender.send(packet); 
-  
+   
+    //zmq::message_t packetID(sizeof(sockID));
+    //memcpy(packetID.data(),sockID,sockID_size); 
+
+    m_sender.send(packetID,ZMQ_SNDMORE);
+    m_sender.send(packet);
+
     auto recvd = m_receiver.recv(&msg);
-    //auto recvd2 = m_receiver.recv(&msg);
     BOOST_REQUIRE(recvd != 0);
+    auto recvd2 = m_receiver.recv(&msg);
+    BOOST_REQUIRE(recvd2 != 0);
     //BOOST_REQUIRE_EQUAL(msg.size(), 4);
     std::string received = std::string(static_cast<char*>(msg.data()), msg.size());
     BOOST_REQUIRE_EQUAL(received, "TEST");
