@@ -38,42 +38,46 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   std::string test_data{"TEST"};
 
   zmq::pollitem_t items[] = {{static_cast<void*>(m_receiver),0,ZMQ_POLLIN,0}};
-  //std::vector<zmq::message_t> recv_msgs;
-  zmq::message_t msg;
   zmq::poll (&items [0],1,m_poller_timeout);
 
-  zmq::message_t packet(test_data.size());
-  memcpy(packet.data(),test_data.data(),test_data.size());
-  
   if (ZMQ_POLLIN){
-    auto identity_recvd = m_receiver.recv(&msg);
-    zmq::message_t packetID(sizeof(msg));
-    packetID.copy(&msg);
+    zmq::message_t msg;
+    auto identity_recvd = m_receiver.recv(&msg); //receive sender ID
     BOOST_REQUIRE(identity_recvd != 0);
-    BOOST_REQUIRE(msg.size() > 0);
-    
-    char sockID [256];
-    size_t sockID_size = sizeof(sockID);
-    zmq_getsockopt(m_sender,ZMQ_IDENTITY,sockID,&sockID_size); 
-    BOOST_REQUIRE(sockID);
-    BOOST_REQUIRE(sockID_size > 0); 
-
-    auto empty_recvd = m_receiver.recv(&msg);
-    BOOST_REQUIRE(empty_recvd != 0);
+    m_receiver.recv(&msg); //receive empty frame from sender
     std::string empty = std::string(static_cast<char*>(msg.data()), msg.size()); 
     BOOST_REQUIRE_EQUAL(empty, "");
-   
-    //zmq::message_t packetID(sizeof(sockID));
-    //memcpy(packetID.data(),sockID,sockID_size); 
 
+
+    zmq::message_t replyID;
+    auto repID = m_sender.recv(&replyID); //receive receiver ID
+    BOOST_REQUIRE(repID != 0);
+    m_sender.recv(&msg); //receive empty frame from recceiver
+
+    // Prepare routing message
+    zmq::message_t packetID(sizeof(replyID));
+    packetID.copy(&replyID); //make a massage using receiver's ID to route to it
+
+    // How to retrieve socket ID after this handshake if needed:
+    /*
+    char sockID [256];
+    size_t sockID_size = sizeof(sockID);
+    zmq_getsockopt(m_sender,ZMQ_IDENTITY,sockID,&sockID_size);
+    zmq::message_t packetID(sizeof(sockID));
+    memcpy(packetID.data(),sockID,sockID_size); 
+    */
+   
+    // Prepare data message 
+    zmq::message_t packet(test_data.size());
+    memcpy(packet.data(),test_data.data(),test_data.size());
     m_sender.send(packetID,ZMQ_SNDMORE);
     m_sender.send(packet);
 
-    auto recvd = m_receiver.recv(&msg);
+    auto recvd = m_receiver.recv(&msg); //Receive routing frame
     BOOST_REQUIRE(recvd != 0);
-    auto recvd2 = m_receiver.recv(&msg);
+    auto recvd2 = m_receiver.recv(&msg); //Receive data
     BOOST_REQUIRE(recvd2 != 0);
-    //BOOST_REQUIRE_EQUAL(msg.size(), 4);
+    BOOST_REQUIRE_EQUAL(msg.size(), 4);
     std::string received = std::string(static_cast<char*>(msg.data()), msg.size());
     BOOST_REQUIRE_EQUAL(received, "TEST");
   }
