@@ -29,9 +29,7 @@ daq_add_plugin(PacmanCardReader duneDAQModule LINK_LIBRARIES appfwk::appfwk ${DU
 
 ##############################################################################
 # Integration tests
-#daq_add_application(lbrulibs_test_cardwrapper test_pacmancardwrapper_app.cxx TEST LINK_LIBRARIES lbrulibs)
-#daq_add_application(lbrulibs_test_zmqlinkhandler test_zmqlinkhandler_app.cxx TEST LINK_LIBRARIES lbrulibs)
-#daq_add_application(lbrulibs_test_zmqlink_to_file test_zmqlink_to_file_app.cxx TEST LINK_LIBRARIES lbrulibs)
+#daq_add_application(lbrulibs_test_something test_pacmansomething_app.cxx TEST LINK_LIBRARIES lbrulibs)
 
 ##############################################################################
 # Test configurations
@@ -41,6 +39,8 @@ file(COPY test/pacmanreadout-commands.json DESTINATION test)
 # Unit Tests
 daq_add_unit_test(ZMQPubSub_test                LINK_LIBRARIES lbrulibs)
 daq_add_unit_test(ZMQStream_test                LINK_LIBRARIES lbrulibs)
+daq_add_unit_test(PacmanFrame_test              LINK_LIBRARIES lbrulibs)
+
 ##############################################################################
 # Installation
 daq_install()
