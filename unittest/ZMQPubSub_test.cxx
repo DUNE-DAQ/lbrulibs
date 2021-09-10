@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   zmq::socket_t m_publisher{m_context, zmq::socket_type::pub};
   zmq::socket_t m_subscriber{m_context, zmq::socket_type::sub};
   std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
-  std::chrono::milliseconds m_poller_timeout{10000};
+  std::chrono::milliseconds m_poller_timeout{10}; //set lower than in actual plugin so the test runs quicker
 
   m_publisher.bind(m_ZMQLink_sourceLink);
   m_publisher_connected = true;
