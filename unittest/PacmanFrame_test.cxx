@@ -36,13 +36,18 @@ BOOST_AUTO_TEST_CASE(PacmanHeader_Methods)
   //Decoded as (('DATA', 1631536304, 1), [('DATA', 1, 35987408, b'/\x00@\x00\x00\x00\x00@')])
 
   //std::string message = "0x44\xb0\x44\x3f\x61\x0\x1\x0\x44\x1\xd0\x1f\x25\x2\x0\x0\x2f\x0\x40\x0\x0\x0\x0\x40";
-  std::string message = "0x44\x61\x3f\x44\xb0\x0\x1\x0\x44\x1\x2\x25\x1f\xd0\x0\x0\x2f\x40\x40\x0\x0\x0\x0\x40";
+  uint32_t message[6] = {0x3f44b044,0x00010061,0x1fd00144,0x00000225,0x0040002f,0x40000000};
   auto frame = reinterpret_cast<const dunedaq::dataformats::PACMANFrame*>(&message);
-  auto timestamp = frame->get_msg_header((void*)&message)->unix_ts;
-  auto fHeader = *frame->get_msg_header(&message);
-  BOOST_REQUIRE_EQUAL(frame->get_msg_header((void*)&message)->unix_ts,1631536304);
-  BOOST_REQUIRE_EQUAL(timestamp,1631536304);
-  BOOST_REQUIRE_EQUAL(fHeader.unix_ts,1631536304);
+  
+  BOOST_REQUIRE_EQUAL(frame->get_msg_header((void *)&message)->unix_ts,1631536304);
+  BOOST_REQUIRE_EQUAL(frame->get_msg_header((void *)&message)->words,1);
+  
+  dunedaq::dataformats::PACMANFrame::PACMANMessageWord* theWord = frame->get_msg_word((void *)&message,  0);
+
+  BOOST_REQUIRE_EQUAL(theWord->data_word.type,0x44);
+  BOOST_REQUIRE_EQUAL(theWord->data_word.channel_id,0x1);
+  BOOST_REQUIRE_EQUAL(theWord->data_word.receipt_timestamp,35987408);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
