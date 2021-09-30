@@ -241,11 +241,11 @@ def main(s_in_file, mode, n_file_evals, n_pacman, n_messages_total, n_messages_g
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser();
-    parser.add_argument('--explain_modes', dest='explain_modes', action='store_true', help="Print an explanation of the running modes.")
-    parser.add_argument('--input_file',    dest='input_file',   type=str, default="ns",  help='Input h5 file.')
-    parser.add_argument('--mode',          dest='mode',         type=int, default=0,     help='Running mode, can take values [0-4]. Pass --explain_modes to this script for a full explanation of different modes.')
-    parser.add_argument('--n_file_evals',  dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
-    parser.add_argument('--n_pacman',      dest='n_pacman',     type=int, default=1,     help='Number of PACMAN cards.')
+    parser.add_argument('--explain_modes',    dest='explain_modes', action='store_true', help="Print an explanation of the running modes.")
+    parser.add_argument('--input_file', '-i', dest='input_file',   type=str, default="ns",  help='Input h5 file.')
+    parser.add_argument('--mode',             dest='mode',         type=int, default=0,     help='Running mode, can take values [0-4]. Pass --explain_modes to this script for a full explanation of different modes.')
+    parser.add_argument('--n_file_evals',     dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
+    parser.add_argument('--n_pacman',         dest='n_pacman',     type=int, default=1,     help='Number of PACMAN cards.')
     parser.add_argument('--n_messages_total', dest='n_messages_total', type=int,   default=10,  help='To be used with --mode 1. Total number of messages sent during one loop of input file.')
     parser.add_argument('--n_messages_group', dest='n_messages_group', type=int,   default=1,   help='To be used with --mode 1. Total number of messages sent at once at intervals of --group_interval.')
     parser.add_argument('--group_interval',   dest='group_interval',   type=float, default=1.0, help='To be used with --mode 1. Time interval between groups of messages being sent.')
