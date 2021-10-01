@@ -12,7 +12,9 @@
 #define BOOST_TEST_MODULE ZMQPubSub_test // NOLINT
 
 #include "boost/test/unit_test.hpp"
-//#include "CreateZMQLink.hpp" // FIX ME - commented out since it wouldn't build without json args
+//#include "ZMQLinkConcept.hpp"
+//#include "CreateZMQLink.hpp"
+#include "nlohmann/json.hpp"
 
 #include <string>
 #include <vector>
@@ -35,7 +37,11 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   //Decoded as (('DATA', 1631536304, 1), [('DATA', 1, 35987408, b'/\x00@\x00\x00\x00\x00@')])
 
   // FIX ME - get args from json somehow...
-  /* commented out so it builds - this is just a skeleton
+  nlohmann::json args;
+  // FIX ME - populate the args 
+  // example: args["connection_string"] = "some string";
+ 
+  /*
   
   static constexpr size_t m_queue_capacity = 1000000;
   std::string target = "pacman_0"; 
@@ -47,7 +53,7 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   m_zmqlink[0]->conf(args); //FIX ME - need args!
   m_zmqlink[0]->start(args); //FIX ME - need args!
   
-  */
+  */ 
 
   // Send message  
   zmq::message_t packet(sizeof(message));
