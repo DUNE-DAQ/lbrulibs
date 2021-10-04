@@ -12,10 +12,10 @@
 #define BOOST_TEST_MODULE ZMQPubSub_test // NOLINT
 
 #include "boost/test/unit_test.hpp"
-//#include "ZMQLinkConcept.hpp"
-//#include "CreateZMQLink.hpp"
+#include "ZMQLinkConcept.hpp"
+#include "CreateZMQLink.hpp"
 #include "nlohmann/json.hpp"
-
+#include "PacmanCardReader.hpp"
 #include <string>
 #include <vector>
 
@@ -41,19 +41,20 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   // FIX ME - populate the args 
   // example: args["connection_string"] = "some string";
  
-  /*
   
+   
   static constexpr size_t m_queue_capacity = 1000000;
-  std::string target = "pacman_0"; 
-  m_zmqlink[0] = createZMQLinkModel(target);
-  if (m_zmqlink[0] == nullptr) {
+  std::string target = "pacman_0";
+  std::map<int, std::unique_ptr<dunedaq::lbrulibs::ZMQLinkConcept>> m_zmqlink;
+  m_zmqlink[0] = dunedaq::lbrulibs::createZMQLinkModel(target); // this fails, missing m_cfg in the actual model, no clue how to provide it
+  /*if (m_zmqlink[0] == nullptr) {
     ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
-  }
+  }*/ // this doesn't import properly - InitializationError not defined
   m_zmqlink[0]->init(args, m_queue_capacity); //FIX ME - need args!
   m_zmqlink[0]->conf(args); //FIX ME - need args!
   m_zmqlink[0]->start(args); //FIX ME - need args!
   
-  */ 
+   
 
   // Send message  
   zmq::message_t packet(sizeof(message));
