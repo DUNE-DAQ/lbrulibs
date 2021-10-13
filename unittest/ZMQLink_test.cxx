@@ -9,15 +9,19 @@
 
 #include "zmq.hpp"
 
-#define BOOST_TEST_MODULE ZMQPubSub_test // NOLINT
+#define BOOST_TEST_MODULE ZMQLink_test // NOLINT
 
 #include "boost/test/unit_test.hpp"
-#include "ZMQLinkConcept.hpp"
-#include "CreateZMQLink.hpp"
+#include "appfwk/DAQModule.hpp"
+#include "lbrulibs/pacmancardreader/Nljs.hpp"
+#include "appfwk/app/Nljs.hpp"
 #include "nlohmann/json.hpp"
-#include "PacmanCardReader.hpp"
+#include "readout/NDReadoutTypes.hpp"
 #include <string>
 #include <vector>
+
+using namespace dunedaq::appfwk;
+using namespace dunedaq::lbrulibs;
 
 BOOST_AUTO_TEST_SUITE(ZMQLink_test)
 
@@ -36,24 +40,27 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   uint32_t message[6] = {0x3f44b044,0x00010061,0x1fd00144,0x00000225,0x0040002f,0x40000000};
   //Decoded as (('DATA', 1631536304, 1), [('DATA', 1, 35987408, b'/\x00@\x00\x00\x00\x00@')])
 
-  // FIX ME - get args from json somehow...
-  nlohmann::json args;
-  // FIX ME - populate the args 
-  // example: args["connection_string"] = "some string";
+  // Create plugin module
+  std::shared_ptr<DAQModule> pacman_card_reader = make_module("PacmanCardReader", "reader");
+  
+  // Init
+  app::ModInit reader_init_data;
+  app::QueueInfo reader_output_queue_info{"reader_output", "output", "out"};
+  reader_init_data.qinfos.push_back(reader_output_queue_info);
+  nlohmann::json reader_init_json;
+  to_json(reader_init_json, reader_init_data);
+  pacman_card_reader->init(reader_init_json);
  
+  // Conf
+  pacmancardreader::Conf reader_config;
+  //To change anyhing in the conf do like
+  //reader_config.some_property = "option";
+  nlohmann::json reader_conf_json;
+  to_json(reader_conf_json, reader_config);
+  pacman_card_reader->execute_command("conf", reader_conf_json);
   
-   
-  static constexpr size_t m_queue_capacity = 1000000;
-  std::string target = "pacman_0";
-  std::map<int, std::unique_ptr<dunedaq::lbrulibs::ZMQLinkConcept>> m_zmqlink;
-  m_zmqlink[0] = dunedaq::lbrulibs::createZMQLinkModel(target); // this fails, missing m_cfg in the actual model, no clue how to provide it
-  /*if (m_zmqlink[0] == nullptr) {
-    ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
-  }*/ // this doesn't import properly - InitializationError not defined
-  m_zmqlink[0]->init(args, m_queue_capacity); //FIX ME - need args!
-  m_zmqlink[0]->conf(args); //FIX ME - need args!
-  m_zmqlink[0]->start(args); //FIX ME - need args!
-  
+  // Start
+  pacman_card_reader->execute_command("start");  
    
 
   // Send message  
@@ -62,8 +69,14 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   m_publisher.send(packet);
 
   // check if data is in the sink somehow...
-  // sink_t is inside the m_zmqlink, alongside m_sink_queue, maybe can retrieve some things about them somehow
-  // if we can access the sinkand other variables inside m_zmqlink, could do things such as BOOST_REQUIRE(m_sink_is_set) for starters
+
+
+  // Stop
+  pacman_card_reader->execute_command("stop");
+
+  // Scrap
+  pacman_card_reader->execute_command("scrap");
+  
 }
 
 BOOST_AUTO_TEST_SUITE_END()
