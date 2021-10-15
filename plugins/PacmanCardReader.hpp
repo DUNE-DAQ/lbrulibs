@@ -13,6 +13,7 @@
 #include "appfwk/app/Nljs.hpp"
 
 #include "lbrulibs/pacmancardreader/Nljs.hpp"
+#include "lbrulibs/pacmancardreaderinfo/Nljs.hpp"
 
 // From appfwk
 #include "appfwk/DAQModule.hpp"
@@ -51,6 +52,7 @@ public:
     delete; ///< PacmanCardReader is not move-assignable
 
   void init(const data_t& args) override;
+  void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Types
