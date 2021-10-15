@@ -125,7 +125,6 @@ public:
     //Required by parent class
   }
 
-
 private:
   // Types
   using UniqueMessageAddrQueue = std::unique_ptr<folly::ProducerConsumerQueue<uint64_t>>; // NOLINT
@@ -140,15 +139,26 @@ private:
 
   // mesages to process
   UniqueMessageAddrQueue m_message_addr_queue;
+  size_t m_packetCounter = 0;
 
   // Processor
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
   readout::ReusableThread m_parser_thread;
+
+  virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
+    dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
+
+    linkInfo.num_packets_received = m_packetCounter;
+    linkInfo.info_type = "ZMQ Link Info";
+
+    ci.add(linkInfo);
+  }
+  
   void process_ZMQLink() {
 
     TLOG_DEBUG(1) << "Starting ZMQ link process";
 
-    size_t counter = 0;
+    
     std::ostringstream oss;
 
     zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
@@ -169,14 +179,13 @@ private:
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
                 std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
-
                 m_sink_queue->push(*Payload, m_sink_timeout);
               } catch (const appfwk::QueueTimeoutExpired& ex) {
                 ers::warning(ex);
               }
 
               TLOG_DEBUG(1) << ": End of do_work loop";
-              counter++;
+              m_packetCounter++;
             }
 
         } else {

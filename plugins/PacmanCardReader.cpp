@@ -8,7 +8,6 @@
 
 #include "PacmanCardReader.hpp"
 #include "CreateZMQLink.hpp"
-
 #include "logging/Logging.hpp"
 #include "ZMQIssues.hpp"
 
@@ -114,6 +113,13 @@ PacmanCardReader::do_stop(const data_t& args)
 {
   m_zmqlink[0]->stop(args);
 }
+
+void PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level){
+
+  m_zmqlink[0]->get_info(ci, level);
+
+}
+
 
 } // namespace lbrulibs
 } // namespace dunedaq

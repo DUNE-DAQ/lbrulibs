@@ -28,10 +28,8 @@ createZMQLinkModel(const std::string& target)
 
     // Create Model
     auto zmqlink_model = std::make_unique<ZMQLinkModel<readout::types::PACMAN_MESSAGE_STRUCT>>();
-
     // Setup sink (acquire pointer from QueueRegistry)
     zmqlink_model->set_sink(target);
-
     // Get sink
     //auto& sink = zmqlink_model->get_sink();
 
