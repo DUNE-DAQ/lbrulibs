@@ -2,7 +2,7 @@
 
 ## Unit tests
 
-To perform unit tests simpl use the --unittest build option:
+To perform unit tests simply use the --unittest build option:
 
     dbt-build.sh --unittest
 
@@ -12,17 +12,20 @@ In the integtest folder there is a pytest integration test, which runs nanorc wi
 
     pytest -s test_pacman.py --frame-file $PWD/frames.bin
 
-The frames file is empty thus fur, but providing it is required for operation of the framework at present.
+The frames file is empty thus far, but providing it is required for operation of the framework at present. 
+
+Note - this test requires the larpix-control python library.
 
 ## Lbrulibs ND-LAr live readout
 
-To use lbrulibs with a live source of pacman data you can use either minidaqapp for fake triggering, or nanorc to also check data in the latency buffer being properly selected.
+To use lbrulibs with a live source of pacman data you can use either minidaqapp for fake triggering, or nanorc to also check if the data in the latency buffer is being properly selected.
 
 For minidaqapp use:
 
     daq_application -n appNameofYourChoice -c <path_to_source>/lbrulibs/python/lbrulibs/fake_NDreadout.json
 
 With run commands: init, conf, start, (here receive data), stop
+
 To record data to a file issue the 'record' command. Note that this will store a data dump from the luminosity buffer should its occupancy rise above 80%. The stored
 data are 'raw' and not subject to any trigger selection.
 
