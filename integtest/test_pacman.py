@@ -45,6 +45,7 @@ def test_data_file(run_nanorc):
         # start the Pacman generator by hand and there is no guarantee for when we do that...
         #assert data_file_checks.check_event_count(data_file, expected_event_count, expected_event_count_tolerance)
 
+
 # Set up the message sender here:
 import time
 import larpix
@@ -66,40 +67,42 @@ def hdf5ToPackets(datafile):
     print("Read complete. PACMAN style messages prepared.")
     return word_lists
 
-def sender_setup(_data_server):
-    # Set up sockets
-    print("Setting up ZMQ sockets...")
-    ctx = zmq.Context()
-    data_socket = ctx.socket(zmq.PUB)
-    socket_opts = [
-        (zmq.LINGER,100),
-        (zmq.RCVTIMEO,100),
-        (zmq.SNDTIMEO,100)
-    ]
-    print("Parsing socket options...")
-    for opt in socket_opts:
-        data_socket.setsockopt(*opt)
-    print("Binding sockets...")
-    data_socket.bind(_data_server)
-    print('Initialising...')
-    time.sleep(1)
-    return data_socket
-
-def sender(data_socket,word_lists):
-    print('Sending PACMAN data.')
-    for i in word_lists:
-        data_socket.send(pacman_msg_format.format_msg('DATA',i))
-        #print(i)
+def sender(_data_server,word_lists):
+    try:
+        # Set up sockets
+        print("Setting up ZMQ sockets...")
+        ctx = zmq.Context()
+        data_socket = ctx.socket(zmq.PUB)
+        socket_opts = [
+            (zmq.LINGER,100),
+            (zmq.RCVTIMEO,100),
+            (zmq.SNDTIMEO,100)
+        ]
+        print("Parsing socket options...")
+        for opt in socket_opts:
+            data_socket.setsockopt(*opt)
+        print("Binding sockets...")
+        data_socket.bind(_data_server)
+        print('Initialising...')
         time.sleep(1)
-    data_socket.close()
-    ctx.destroy()
+
+        print('Sending PACMAN data.')
+        for i in word_lists:
+            data_socket.send(pacman_msg_format.format_msg('DATA',i))
+            #print(i)
+            time.sleep(1)
+    except:
+        raise
+    finally:   
+        data_socket.close()
+        ctx.destroy()
 
 
 word_lists = hdf5ToPackets(data_file)
 print("Starting PACMAN card(s)")
-socket = sender_setup(data_socket)
 import multiprocessing
-process = multiprocessing.Process(target=sender,args=[socket,word_lists])
+process = multiprocessing.Process(target=sender,args=[data_socket,word_lists])
 #process = multiprocessing.Process(target=sender,args=[1000])
 process.daemon = True
 process.start()
+
