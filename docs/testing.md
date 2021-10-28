@@ -46,7 +46,7 @@ to run it. With run commands: boot, init, conf, start 1, resume, (here receive d
 ### Software data source:
 
 In the test folder there is a python ND-LAr data generator, dependent on python packages:
-- larpix-control - tested on version 3.5.1
+- larpix-control - tested on version 3.6.0
 - pyzmq - tested on version 18.1.1
 
 Example use (start in a separate terminal):

@@ -6,7 +6,7 @@ Appfwk DAQModules, utilities, and scripts for DUNE-ND Upstream DAQ Low Bandwidth
 For the readout dependencies, only the DUNEdaq packages are required.
 
 To use the ND-LAr data generator you will need python packages:
-- larpix-control - tested on version 3.5.1
+- larpix-control - tested on version 3.6.0
 - pyzmq - tested on version 18.1.1
 
 ## ND-LAr: Examples with PACMAN data snapshots
@@ -46,7 +46,4 @@ Configuration steps:
 
 
 ## Next development steps:
-   1. Verify ability to write triggered data to HDF5 via minidaqapp
-   2. Update fake trigger configuration in readout package to enable merge to develop (under discussion with readout developers)
-   3. Conclude on ZMQ IPM timeout issue
-   4. Scale to many ZMQ links and other subdetectors
+   1. Scale to many ZMQ links and other subdetectors
