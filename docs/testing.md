@@ -33,7 +33,7 @@ Note - due to the need for a more configurable fake trigger implementation in re
 requests. These can be safely ignored.
 
 
-For nanorc use:
+For nanorc (requires changes from nightly - tested on version from 24th Oct 2021) use:
 
     python -m minidaqapp.nanorc.mdapp_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
 
