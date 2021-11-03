@@ -5,7 +5,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(appfwk)
 find_dependency(logging)
-find_dependency(dataformats)
+find_dependency(detdataformats)
 find_dependency(readout)
 find_dependency(ipm)
 

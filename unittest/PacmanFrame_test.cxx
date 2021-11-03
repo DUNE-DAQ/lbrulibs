@@ -6,7 +6,7 @@
  * received with this code.
  */
 
-#include "dataformats/pacman/PACMANFrame.hpp"
+#include "detdataformats/pacman/PACMANFrame.hpp"
 #include <string>
 
 #define BOOST_TEST_MODULE PacmanFrame_test // NOLINT
@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(PacmanFrame_test)
 
 BOOST_AUTO_TEST_CASE(PacmanHeader_Methods)
 {
-  dunedaq::dataformats::PACMANFrame::PACMANMessageHeader header;
+  dunedaq::detdataformats::PACMANFrame::PACMANMessageHeader header;
   
   header.unix_ts = 0x0;
   header.words = 0x1;
@@ -37,12 +37,12 @@ BOOST_AUTO_TEST_CASE(PacmanHeader_Methods)
 
   //std::string message = "0x44\xb0\x44\x3f\x61\x0\x1\x0\x44\x1\xd0\x1f\x25\x2\x0\x0\x2f\x0\x40\x0\x0\x0\x0\x40";
   uint32_t message[6] = {0x3f44b044,0x00010061,0x1fd00144,0x00000225,0x0040002f,0x40000000};
-  auto frame = reinterpret_cast<const dunedaq::dataformats::PACMANFrame*>(&message);
+  auto frame = reinterpret_cast<const dunedaq::detdataformats::PACMANFrame*>(&message);
   
   BOOST_REQUIRE_EQUAL(frame->get_msg_header((void *)&message)->unix_ts,1631536304);
   BOOST_REQUIRE_EQUAL(frame->get_msg_header((void *)&message)->words,1);
   
-  dunedaq::dataformats::PACMANFrame::PACMANMessageWord* theWord = frame->get_msg_word((void *)&message,  0);
+  dunedaq::detdataformats::PACMANFrame::PACMANMessageWord* theWord = frame->get_msg_word((void *)&message,  0);
 
   BOOST_REQUIRE_EQUAL(theWord->data_word.type,0x44);
   BOOST_REQUIRE_EQUAL(theWord->data_word.channel_id,0x1);
