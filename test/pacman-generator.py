@@ -24,7 +24,7 @@ def hdf5ToPackets(datafile):
     print("Reading from:",datafile)
     packets = larpix.format.hdf5format.from_file(datafile)['packets'] #read from HDF5 file
     print("Separating into messages based on timestamp packets...")
-    msg_breaks = [i for i in range(len(packets)) if packets[i].packet_type == 4 or i == len(packets)-1] #find the timestamp packets which signify message breaks
+    msg_breaks = [i for i in range(len(packets)) if packets[i].packet_type == 0 or i == len(packets)-1] #find the timestamp packets which signify message breaks
     msg_packets = [packets[i:j] for i,j in zip(msg_breaks[:-1], msg_breaks[1:])] #separate into messages
     msgs = [pacman_msg_format.format(p, msg_type='DATA') for p in msg_packets]
     print("Extracting headers and words from messages...")
