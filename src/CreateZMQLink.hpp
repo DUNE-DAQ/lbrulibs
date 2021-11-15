@@ -8,7 +8,7 @@
 #ifndef LBRULIBS_SRC_CREATEZMQLINK_HPP_
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
-#include "readout/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutTypes.hpp"
 #include "ZMQLinkModel.hpp"
 
 #include "ZMQIssues.hpp"
@@ -27,7 +27,7 @@ createZMQLinkModel(const std::string& target)
     ers::info(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Creating Link for Pacman!"));
 
     // Create Model
-    auto zmqlink_model = std::make_unique<ZMQLinkModel<readout::types::PACMAN_MESSAGE_STRUCT>>();
+    auto zmqlink_model = std::make_unique<ZMQLinkModel<ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT>>();
     // Setup sink (acquire pointer from QueueRegistry)
     zmqlink_model->set_sink(target);
     // Get sink

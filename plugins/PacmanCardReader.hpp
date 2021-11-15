@@ -20,9 +20,6 @@
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
 
-// From readout
-#include "readout/utils/ReusableThread.hpp"
-
 #include "ZMQLinkConcept.hpp"
 
 #include <future>
