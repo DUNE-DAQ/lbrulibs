@@ -48,8 +48,9 @@ def test_data_file(run_nanorc):
 
 # Set up the message sender here:
 import time
-import larpix
-from larpix.format import pacman_msg_format
+import sys
+sys.path.insert(1, '../scripts')
+import larpixtools
 import zmq
 
 data_socket = 'tcp://127.0.0.1:5556'
@@ -58,13 +59,13 @@ data_file = '/dune/data/users/srsoleti/full_spill_larndsim/neutrino.0_1634786172
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)
-    packets = larpix.format.hdf5format.from_file(datafile)['packets'] #read from HDF5 file
+    packets = larpixtools.from_file(datafile)['packets'] #read from HDF5 file
     print("Separating into messages based on timestamp packets...")
     msg_breaks = [i for i in range(len(packets)) if packets[i].packet_type == 0 or i == len(packets)-1] #find the timestamp packets which signify message breaks
     msg_packets = [packets[i:j] for i,j in zip(msg_breaks[:-1], msg_breaks[1:])] #separate into messages
-    msgs = [pacman_msg_format.format(p, msg_type='DATA') for p in msg_packets]
+    msgs = [larpixtools.format(p, msg_type='DATA') for p in msg_packets]
     print("Extracting headers and words from messages...")
-    word_lists = [pacman_msg_format.parse_msg(p)[1] for p in msgs] #retrieve lists of words from each message
+    word_lists = [larpixtools.parse_msg(p)[1] for p in msgs] #retrieve lists of words from each message
     print("Read complete. PACMAN style messages prepared.")
     return word_lists
 
@@ -89,8 +90,7 @@ def sender(_data_server,word_lists):
 
         print('Sending PACMAN data.')
         for i in word_lists:
-            data_socket.send(pacman_msg_format.format_msg('DATA',i))
-            #print(i)
+            data_socket.send(larpixtools.format_msg('DATA',i))
             time.sleep(1)
     except:
         raise
@@ -103,7 +103,6 @@ word_lists = hdf5ToPackets(data_file)
 print("Starting PACMAN card(s)")
 import multiprocessing
 process = multiprocessing.Process(target=sender,args=[data_socket,word_lists])
-#process = multiprocessing.Process(target=sender,args=[1000])
 process.daemon = True
 process.start()
 
