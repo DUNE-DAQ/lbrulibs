@@ -10,8 +10,8 @@ moo.otypes.load_types('rcif/cmd.jsonnet')
 moo.otypes.load_types('appfwk/cmd.jsonnet')
 moo.otypes.load_types('appfwk/app.jsonnet')
 moo.otypes.load_types('lbrulibs/pacmancardreader.jsonnet')
-moo.otypes.load_types('readout/datalinkhandler.jsonnet')
-moo.otypes.load_types('readout/datarecorder.jsonnet')
+moo.otypes.load_types('readoutlibs/readoutconfig.jsonnet')
+moo.otypes.load_types('readoutlibs/recorderconfig.jsonnet')
 
 # Import new types
 import dunedaq.cmdlib.cmd as basecmd # AddressedCmd, 
@@ -19,8 +19,7 @@ import dunedaq.rcif.cmd as rccmd # AddressedCmd,
 import dunedaq.appfwk.app as app # AddressedCmd, 
 import dunedaq.appfwk.cmd as cmd # AddressedCmd, 
 import dunedaq.lbrulibs.pacmancardreader as pcr
-import dunedaq.readout.datalinkhandler as dlh
-import dunedaq.readout.datarecorder as bfs
+import dunedaq.readoutlibs.readoutconfig as rconf
 
 from appfwk.utils import mcmd, mrccmd, mspec
 
@@ -53,9 +52,6 @@ def generate(
         ] + [
             app.QueueSpec(inst=f"tp_fake_link_{idx}", kind='FollySPSCQueue', capacity=100000)
                 for idx in range(NUMBER_OF_DATA_PRODUCERS, NUMBER_OF_DATA_PRODUCERS+NUMBER_OF_TP_PRODUCERS) 
-        ] + [
-            app.QueueSpec(inst=f"{FRONTEND_TYPE}_recording_link_{idx}", kind='FollySPSCQueue', capacity=100000)
-                for idx in range(NUMBER_OF_DATA_PRODUCERS)
         ]
     
 
@@ -73,13 +69,8 @@ def generate(
                 mspec(f"datahandler_{idx}", "DataLinkHandler", [
                             app.QueueInfo(name="raw_input", inst=f"{FRONTEND_TYPE}_link_{idx}", dir="input"),
                             app.QueueInfo(name="timesync", inst="time_sync_q", dir="output"),
-                            app.QueueInfo(name="requests", inst=f"data_requests_{idx}", dir="input"),
-                            app.QueueInfo(name="fragments", inst="data_fragments_q", dir="output"),
-                            app.QueueInfo(name="raw_recording", inst=f"{FRONTEND_TYPE}_recording_link_{idx}", dir="output")
-                            ]) for idx in range(NUMBER_OF_DATA_PRODUCERS)
-        ] + [
-                mspec(f"data_recorder_{idx}", "DataRecorder", [
-                            app.QueueInfo(name="raw_recording", inst=f"{FRONTEND_TYPE}_recording_link_{idx}", dir="input")
+                            app.QueueInfo(name="data_requests_0", inst=f"data_requests_{idx}", dir="input"),
+                            app.QueueInfo(name="data_response_0", inst="data_fragments_q", dir="output"),
                             ]) for idx in range(NUMBER_OF_DATA_PRODUCERS)
         ] + [
                 mspec(f"timesync_consumer", "TimeSyncConsumer", [
@@ -115,21 +106,41 @@ def generate(
                             zmq_receiver_timeout = 10000
                         )),
             ] + [
-                (f"datahandler_{idx}", dlh.Conf(
-                        source_queue_timeout_ms= QUEUE_POP_WAIT_MS,
+                (f"datahandler_{idx}", 
+                rconf.Conf(
+                    readoutmodelconf=rconf.ReadoutModelConf(
+                        source_queue_timeout_ms=QUEUE_POP_WAIT_MS,
                         fake_trigger_flag=1,
-                        latency_buffer_size = 10,#3*CLOCK_SPEED_HZ/(25*12*DATA_RATE_SLOWDOWN_FACTOR),
-                        pop_limit_pct = 0.8,
-                        pop_size_pct = 0.1,
-                        apa_number = 0,
-                        link_number = idx
-                        )) for idx in range(NUMBER_OF_DATA_PRODUCERS)
-            ] + [
-                (f"data_recorder_{idx}", bfs.Conf(
-                        output_file = f"output_{idx}.out",
-                        stream_buffer_size = 100,#8388608
-                        use_o_direct = 0
-                        )) for idx in range(NUMBER_OF_DATA_PRODUCERS)
+                        region_id=0,
+                        element_id=idx,
+                    ),
+                    latencybufferconf=rconf.LatencyBufferConf(
+                        latency_buffer_size=10
+                        * CLOCK_SPEED_HZ
+                        / (25 * 12 * DATA_RATE_SLOWDOWN_FACTOR),
+                        region_id=0,
+                        element_id=idx,
+                    ),
+                    rawdataprocessorconf=rconf.RawDataProcessorConf(
+                        region_id=0,
+                        element_id=idx,
+                        enable_software_tpg=False,
+                        error_counter_threshold=100,
+                        error_reset_freq=10000,
+                    ),
+                    requesthandlerconf=rconf.RequestHandlerConf(
+                        latency_buffer_size=10
+                        * CLOCK_SPEED_HZ
+                        / (25 * 12 * DATA_RATE_SLOWDOWN_FACTOR),
+                        pop_limit_pct=0.8,
+                        pop_size_pct=0.1,
+                        region_id=0,
+                        element_id=idx,
+                        output_file=f"output_{idx}.out",
+                        stream_buffer_size=8388608,
+                        enable_raw_recording=False,
+                    ),
+                )) for idx in range(NUMBER_OF_DATA_PRODUCERS)
             ])
     
     jstr = json.dumps(confcmd.pod(), indent=4, sort_keys=True)
@@ -139,7 +150,6 @@ def generate(
     startcmd = mrccmd("start", "CONFIGURED", "RUNNING", [
             ("datahandler_.*", startpars),
             ("fake_source", startpars),
-            ("data_recorder_.*", startpars),
             ("timesync_consumer", startpars),
             ("fragment_consumer", startpars)
         ])
@@ -151,7 +161,6 @@ def generate(
     stopcmd = mrccmd("stop", "RUNNING", "CONFIGURED", [
             ("fake_source", None),
             ("datahandler_.*", None),
-            ("data_recorder_.*", None),
             ("timesync_consumer", None),
             ("fragment_consumer", None)
         ])
@@ -170,7 +179,7 @@ def generate(
     cmd_seq = [initcmd, confcmd, startcmd, stopcmd, scrapcmd]
 
     record_cmd = mrccmd("record", "RUNNING", "RUNNING", [
-        ("datahandler_.*", dlh.RecordingParams(
+        ("datahandler_.*", rconf.RecordingParams(
             duration=10
         ))
     ])
