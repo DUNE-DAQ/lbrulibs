@@ -5,8 +5,9 @@ Current version tested with nightly: 23rd Nov 2021.
 
 ## Building
 
-For dependencies, only what is included in the DUNEdaq working environment is required to run the readout.
-For fake pacman card emulation (data generator and automated integration test) python libraries needed are: bitarray, bidict, zmq. These can be installed via pip or taken from the pypi-repo.
+- For readout dependencies, only what is included in the DUNEdaq working environment is required.
+
+- For fake pacman card emulation (data generator and automated integration test) python libraries needed are: bitarray, bidict, zmq. These can be installed via pip or taken from the pypi-repo.
 
 ## ND-LAr: Examples with PACMAN data snapshots
 In one terminal, launch a fake pacman emulation by navigating to the test folder and running:
