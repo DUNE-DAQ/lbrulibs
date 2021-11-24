@@ -1,9 +1,12 @@
 # lbrulibs - Near Detecor Low Bandwidth Readout Unit software and utilities 
 Appfwk DAQModules, utilities, and scripts for DUNE-ND Upstream DAQ Low Bandwidth Readout Unit.
 
+Current version tested with nightly: 23rd Nov 2021.
+
 ## Building
 
-For dependencies, only what is included in the DUNEdaq working environment is required.
+For dependencies, only what is included in the DUNEdaq working environment is required to run the readout.
+For fake pacman card emulation (data generator and automated integration test) python libraries needed are: bitarray, bidict, zmq. These can be installed via pip or taken from the pypi-repo.
 
 ## ND-LAr: Examples with PACMAN data snapshots
 In one terminal, launch a fake pacman emulation by navigating to the test folder and running:
@@ -32,7 +35,7 @@ data are 'raw' and not subject to any trigger selection.
 Note - due to the need for a more configurable fake trigger implementation in readout this test will produce numerous warnings for failed trigger
 requests. These can be safely ignored.
 
-To use nanorc instead (requires changes from nightly - tested on version from 24th Oct 2021) use:
+To use nanorc instead use:
 
     python -m minidaqapp.nanorc.mdapp_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
 
@@ -53,4 +56,4 @@ Configuration steps:
 
 
 ## Next development steps:
-   1. Scale to many ZMQ links and other subdetectors
+   1. Scale to many ZMQ links and other subdetectors.

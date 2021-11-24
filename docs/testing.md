@@ -1,5 +1,7 @@
 # Testing lbrulibs
 
+Currently tested with nightly: 23rd Nov 2021.
+
 ## Unit tests
 
 To perform unit tests simply use the --unittest build option:
@@ -33,7 +35,7 @@ Note - due to the need for a more configurable fake trigger implementation in re
 requests. These can be safely ignored.
 
 
-For nanorc (requires changes from nightly - tested on version from 24th Oct 2021) use:
+For nanorc use:
 
     python -m minidaqapp.nanorc.mdapp_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
 
@@ -46,8 +48,9 @@ to run it. With run commands: boot, init, conf, start 1, resume, (here receive d
 ### Software data source:
 
 In the test folder there is a python ND-LAr data generator, dependent on python packages:
-- larpix-control - tested on version 3.6.0
-- pyzmq - tested on version 18.1.1
+- bitarray
+- bidict
+- zmq
 
 Example use (start in a separate terminal):
 
