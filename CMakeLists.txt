@@ -7,10 +7,12 @@ daq_setup_environment()
 
 find_package(appfwk REQUIRED)
 find_package(logging REQUIRED)
+find_package(ers REQUIRED)
 find_package(detdataformats REQUIRED)
 find_package(readoutlibs REQUIRED)
 find_package(ndreadoutlibs REQUIRED)
 find_package(ipm REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 daq_codegen(*.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
 
