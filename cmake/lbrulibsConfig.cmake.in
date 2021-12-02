@@ -5,8 +5,10 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(appfwk)
 find_dependency(logging)
+find_dependency(ers)
 find_dependency(detdataformats)
-find_dependency(readout)
+find_dependency(readoutlibs)
+find_dependency(ndreadoutlibs)
 find_dependency(ipm)
 
 if (EXISTS ${CMAKE_SOURCE_DIR}/@PROJECT_NAME@)
