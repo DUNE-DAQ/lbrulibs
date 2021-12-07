@@ -149,7 +149,7 @@ private:
     dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
 
     linkInfo.num_packets_received = m_packetCounter;
-    linkInfo.info_type = "ZMQ Link Info";
+    //linkInfo.info_type = "ZMQ Link Info";
 
     ci.add(linkInfo);
   }

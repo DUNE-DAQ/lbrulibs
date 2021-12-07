@@ -16,7 +16,6 @@ local info = {
 
    info: s.record("ZMQLinkInfo", [
         s.field("num_packets_received",                  self.uint8,     0, doc="Number of packets received"),
-        s.field("info_type",                  self.string,     "", doc="Information Type"),
 
    ], doc="ZMQ Link Information"),
 };
