@@ -13,7 +13,7 @@
 #include "appfwk/app/Nljs.hpp"
 
 #include "lbrulibs/pacmancardreader/Nljs.hpp"
-#include "lbrulibs/pacmancardreaderinfo/Nljs.hpp"
+#include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
 
 // From appfwk
 #include "appfwk/DAQModule.hpp"

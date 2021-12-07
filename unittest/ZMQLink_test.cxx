@@ -14,7 +14,7 @@
 #include "boost/test/unit_test.hpp"
 #include "appfwk/DAQModule.hpp"
 #include "lbrulibs/pacmancardreader/Nljs.hpp"
-#include "lbrulibs/pacmancardreaderinfo/Nljs.hpp"
+#include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
 #include "appfwk/app/Nljs.hpp"
 #include "nlohmann/json.hpp"
 #include "ndreadoutlibs/NDReadoutTypes.hpp"
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   const nlohmann::json theInfo = ci.get_collected_infos();
 
   try{
-    int numPackets = theInfo.at("__properties").at("ZMQ Link Info").at("__data").at("num_packets_received");
+    int numPackets = theInfo.at("__properties").at("dunedaq.lbrulibs.pacmancardreaderinfo.ZMQLinkInfo").at("__data").at("num_packets_received");
     BOOST_REQUIRE(numPackets==1);
   }
   catch(std::exception& e){
