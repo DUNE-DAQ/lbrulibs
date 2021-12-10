@@ -36,7 +36,7 @@
                             {
                                 "dir": "output",
                                 "inst": "data_fragments_q",
-                                "name": "data_response_0"
+                                "name": "fragment_queue"
                             },
                             {
                                 "dir": "output",
@@ -105,7 +105,7 @@
                             {
                                 "dir": "output",
                                 "inst": "data_fragments_q",
-                                "name": "fragments"
+                                "name": "fragment_queue"
                             }
                         ]
                     },
@@ -137,6 +137,22 @@
                     },
                     "inst": "errored_frame_consumer",
                     "plugin": "ErroredFrameConsumer"
+                }
+            ],
+            "nwconnections": [
+                {
+                    "address": "tcp://127.0.0.1:5000",
+                    "name": "tpsets_0",
+                    "topics": [
+                        "foo"
+                    ]
+                },
+                {
+                    "address": "tcp://127.0.0.1:6000",
+                    "name": "timesync",
+                    "topics": [
+                        "Timesync"
+                    ]
                 }
             ],
             "queues": [
@@ -234,7 +250,9 @@
                             "element_id": 0,
                             "fake_trigger_flag": 1,
                             "region_id": 0,
-                            "source_queue_timeout_ms": 100
+                            "source_queue_timeout_ms": 100,
+                            "timesync_connection_name": "timesync",
+                            "timesync_topic_name": "Timesync"
                         },
                         "requesthandlerconf": {
                             "compression_algorithm": "None",
@@ -283,7 +301,9 @@
                             "element_id": 0,
                             "fake_trigger_flag": 1,
                             "region_id": 0,
-                            "source_queue_timeout_ms": 100
+                            "source_queue_timeout_ms": 100,
+                            "timesync_connection_name": "",
+                            "timesync_topic_name": "Timesync"
                         },
                         "requesthandlerconf": {
                             "compression_algorithm": "None",
@@ -308,8 +328,7 @@
                         "msg_module_name": "TPSetNQ",
                         "msg_type": "dunedaq::trigger::TPSet",
                         "sender_config": {
-                            "address": "tcp://127.0.0.1:5000",
-                            "ipm_plugin_type": "ZmqPublisher",
+                            "name": "tpsets_0",
                             "stype": "msgpack",
                             "topic": "foo"
                         }
