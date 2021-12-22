@@ -13,15 +13,12 @@
 #include "appfwk/app/Nljs.hpp"
 
 #include "lbrulibs/pacmancardreader/Nljs.hpp"
-#include "lbrulibs/pacmancardreaderinfo/Nljs.hpp"
+#include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
 
 // From appfwk
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
-
-// From readout
-#include "readout/utils/ReusableThread.hpp"
 
 #include "ZMQLinkConcept.hpp"
 

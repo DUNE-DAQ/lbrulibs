@@ -31,35 +31,32 @@
                             {
                                 "dir": "input",
                                 "inst": "data_requests_0",
-                                "name": "requests"
+                                "name": "data_requests_0"
                             },
                             {
                                 "dir": "output",
                                 "inst": "data_fragments_q",
-                                "name": "fragments"
+                                "name": "fragment_queue"
                             },
                             {
                                 "dir": "output",
-                                "inst": "pacman_recording_link_0",
-                                "name": "raw_recording"
+                                "inst": "sw_tp_queue_0",
+                                "name": "tp_out"
+                            },
+                            {
+                                "dir": "output",
+                                "inst": "tpset_link_0",
+                                "name": "tpset_out"
+                            },
+                            {
+                                "dir": "output",
+                                "inst": "errored_frames_q",
+                                "name": "errored_frames"
                             }
                         ]
                     },
                     "inst": "datahandler_0",
                     "plugin": "DataLinkHandler"
-                },
-                {
-                    "data": {
-                        "qinfos": [
-                            {
-                                "dir": "input",
-                                "inst": "pacman_recording_link_0",
-                                "name": "raw_recording"
-                            }
-                        ]
-                    },
-                    "inst": "data_recorder_0",
-                    "plugin": "DataRecorder"
                 },
                 {
                     "data": {
@@ -86,6 +83,76 @@
                     },
                     "inst": "fragment_consumer",
                     "plugin": "FragmentConsumer"
+                },
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "input",
+                                "inst": "sw_tp_queue_0",
+                                "name": "raw_input"
+                            },
+                            {
+                                "dir": "output",
+                                "inst": "time_sync_q",
+                                "name": "timesync"
+                            },
+                            {
+                                "dir": "input",
+                                "inst": "tp_data_requests",
+                                "name": "requests"
+                            },
+                            {
+                                "dir": "output",
+                                "inst": "data_fragments_q",
+                                "name": "fragment_queue"
+                            }
+                        ]
+                    },
+                    "inst": "sw_tp_handler_0",
+                    "plugin": "DataLinkHandler"
+                },
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "input",
+                                "inst": "tpset_link_0",
+                                "name": "input"
+                            }
+                        ]
+                    },
+                    "inst": "tpset_publisher_0",
+                    "plugin": "QueueToNetwork"
+                },
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "input",
+                                "inst": "errored_frames_q",
+                                "name": "input_queue"
+                            }
+                        ]
+                    },
+                    "inst": "errored_frame_consumer",
+                    "plugin": "ErroredFrameConsumer"
+                }
+            ],
+            "nwconnections": [
+                {
+                    "address": "tcp://127.0.0.1:5000",
+                    "name": "tpsets_0",
+                    "topics": [
+                        "foo"
+                    ]
+                },
+                {
+                    "address": "tcp://127.0.0.1:6000",
+                    "name": "timesync",
+                    "topics": [
+                        "Timesync"
+                    ]
                 }
             ],
             "queues": [
@@ -100,19 +167,34 @@
                     "kind": "FollySPSCQueue"
                 },
                 {
+                    "capacity": 10000,
+                    "inst": "errored_frames_q",
+                    "kind": "FollyMPMCQueue"
+                },
+                {
                     "capacity": 100000,
                     "inst": "pacman_link_0",
                     "kind": "FollySPSCQueue"
                 },
                 {
                     "capacity": 100000,
-                    "inst": "pacman_recording_link_0",
+                    "inst": "sw_tp_queue_0",
                     "kind": "FollySPSCQueue"
                 },
                 {
                     "capacity": 100,
                     "inst": "time_sync_q",
                     "kind": "FollyMPMCQueue"
+                },
+                {
+                    "capacity": 1000,
+                    "inst": "tp_data_requests",
+                    "kind": "FollySPSCQueue"
+                },
+                {
+                    "capacity": 10000,
+                    "inst": "tpset_link_0",
+                    "kind": "FollySPSCQueue"
                 }
             ]
         },
@@ -129,39 +211,129 @@
                         "link_confs": [
                             {
                                 "geoid": {
-                                    "element": 1,
+                                    "element": 0,
                                     "region": 0,
-                                    "system": "NDLarTPC"
+                                    "system": "kNDLarTPC"
                                 }
                             }
                         ],
-                        "zmq_receiver_timeout": 10000
+                        "zmq_receiver_timeout": 0
                     },
                     "match": "fake_source"
                 },
                 {
                     "data": {
-                        "apa_number": 0,
-                        "emulator_mode": false,
-                        "fake_trigger_flag": 1,
-                        "latency_buffer_size": 10,
-                        "link_number": 0,
-                        "num_request_handling_threads": 1,
-                        "pop_limit_pct": 0.8,
-                        "pop_size_pct": 0.1,
-                        "postprocess_queue_sizes": 10000,
-                        "source_queue_timeout_ms": 100
+                        "latencybufferconf": {
+                            "element_id": 0,
+                            "latency_buffer_alignment_size": 0,
+                            "latency_buffer_intrinsic_allocator": false,
+                            "latency_buffer_numa_aware": false,
+                            "latency_buffer_numa_node": 0,
+                            "latency_buffer_preallocation": false,
+                            "latency_buffer_size": 50000,
+                            "region_id": 0
+                        },
+                        "rawdataprocessorconf": {
+                            "channel_map_felix": "",
+                            "channel_map_rce": "",
+                            "element_id": 0,
+                            "emulator_mode": false,
+                            "enable_software_tpg": false,
+                            "error_counter_threshold": 100,
+                            "error_reset_freq": 10000,
+                            "postprocess_queue_sizes": 10000,
+                            "region_id": 0,
+                            "tp_timeout": 100000,
+                            "tpset_window_size": 10000
+                        },
+                        "readoutmodelconf": {
+                            "element_id": 0,
+                            "fake_trigger_flag": 1,
+                            "region_id": 0,
+                            "source_queue_timeout_ms": 100,
+                            "timesync_connection_name": "timesync",
+                            "timesync_topic_name": "Timesync"
+                        },
+                        "requesthandlerconf": {
+                            "compression_algorithm": "None",
+                            "element_id": 0,
+                            "enable_raw_recording": true,
+                            "fragment_queue_timeout_ms": 100,
+                            "latency_buffer_size": 50000,
+                            "num_request_handling_threads": 4,
+                            "output_file": "output_0.out",
+                            "pop_limit_pct": 0.8,
+                            "pop_size_pct": 0.1,
+                            "region_id": 0,
+                            "retry_count": 100,
+                            "stream_buffer_size": 8388608,
+                            "use_o_direct": true
+                        }
                     },
                     "match": "datahandler_0"
                 },
                 {
                     "data": {
-                        "compression_algorithm": "None",
-                        "output_file": "output_0.out",
-                        "stream_buffer_size": 100,
-                        "use_o_direct": false
+                        "latencybufferconf": {
+                            "element_id": 0,
+                            "latency_buffer_alignment_size": 0,
+                            "latency_buffer_intrinsic_allocator": false,
+                            "latency_buffer_numa_aware": false,
+                            "latency_buffer_numa_node": 0,
+                            "latency_buffer_preallocation": false,
+                            "latency_buffer_size": 50000,
+                            "region_id": 0
+                        },
+                        "rawdataprocessorconf": {
+                            "channel_map_felix": "",
+                            "channel_map_rce": "",
+                            "element_id": 0,
+                            "emulator_mode": false,
+                            "enable_software_tpg": false,
+                            "error_counter_threshold": 100,
+                            "error_reset_freq": 10000,
+                            "postprocess_queue_sizes": 10000,
+                            "region_id": 0,
+                            "tp_timeout": 100000,
+                            "tpset_window_size": 10000
+                        },
+                        "readoutmodelconf": {
+                            "element_id": 0,
+                            "fake_trigger_flag": 1,
+                            "region_id": 0,
+                            "source_queue_timeout_ms": 100,
+                            "timesync_connection_name": "",
+                            "timesync_topic_name": "Timesync"
+                        },
+                        "requesthandlerconf": {
+                            "compression_algorithm": "None",
+                            "element_id": 0,
+                            "enable_raw_recording": false,
+                            "fragment_queue_timeout_ms": 100,
+                            "latency_buffer_size": 50000,
+                            "num_request_handling_threads": 4,
+                            "output_file": "output_0.out",
+                            "pop_limit_pct": 0.8,
+                            "pop_size_pct": 0.1,
+                            "region_id": 0,
+                            "retry_count": 100,
+                            "stream_buffer_size": 8388608,
+                            "use_o_direct": true
+                        }
                     },
-                    "match": "data_recorder_0"
+                    "match": "sw_tp_handler_0"
+                },
+                {
+                    "data": {
+                        "msg_module_name": "TPSetNQ",
+                        "msg_type": "dunedaq::trigger::TPSet",
+                        "sender_config": {
+                            "name": "tpsets_0",
+                            "stype": "msgpack",
+                            "topic": "foo"
+                        }
+                    },
+                    "match": "tpset_publisher_0"
                 }
             ]
         },
@@ -211,6 +383,38 @@
                         "trigger_interval_ticks": 64000000
                     },
                     "match": "fragment_consumer"
+                },
+                {
+                    "data": {
+                        "disable_data_storage": false,
+                        "run": 333,
+                        "trigger_interval_ticks": 64000000
+                    },
+                    "match": "sw_tp_handler_.*"
+                },
+                {
+                    "data": {
+                        "disable_data_storage": false,
+                        "run": 333,
+                        "trigger_interval_ticks": 64000000
+                    },
+                    "match": "raw_tp_handler_.*"
+                },
+                {
+                    "data": {
+                        "disable_data_storage": false,
+                        "run": 333,
+                        "trigger_interval_ticks": 64000000
+                    },
+                    "match": "tpset_publisher_.*"
+                },
+                {
+                    "data": {
+                        "disable_data_storage": false,
+                        "run": 333,
+                        "trigger_interval_ticks": 64000000
+                    },
+                    "match": "errored_frame_consumer"
                 }
             ]
         },
@@ -235,6 +439,18 @@
                 },
                 {
                     "match": "fragment_consumer"
+                },
+                {
+                    "match": "sw_tp_handler_.*"
+                },
+                {
+                    "match": "raw_tp_handler_.*"
+                },
+                {
+                    "match": "tpset_publisher_.*"
+                },
+                {
+                    "match": "errored_frame_consumer"
                 }
             ]
         },

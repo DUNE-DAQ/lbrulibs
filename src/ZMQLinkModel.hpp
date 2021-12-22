@@ -14,8 +14,8 @@
 #include "appfwk/DAQSink.hpp"
 #include "logging/Logging.hpp"
 
-#include "readout/utils/ReusableThread.hpp"
-#include "readout/NDReadoutTypes.hpp"
+#include "readoutlibs/utils/ReusableThread.hpp"
+#include "ndreadoutlibs/NDReadoutTypes.hpp"
 
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
@@ -143,13 +143,13 @@ private:
 
   // Processor
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
-  readout::ReusableThread m_parser_thread;
+  readoutlibs::ReusableThread m_parser_thread;
 
   virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
     dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
 
     linkInfo.num_packets_received = m_packetCounter;
-    linkInfo.info_type = "ZMQ Link Info";
+    //linkInfo.info_type = "ZMQ Link Info";
 
     ci.add(linkInfo);
   }

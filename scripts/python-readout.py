@@ -1,8 +1,10 @@
 import zmq
 import time
 import multiprocessing
-import larpix
-from larpix.format import pacman_msg_format
+#import larpix
+#from larpix.format import pacman_msg_format
+#sys.path.insert(1, '../scripts')
+import larpixtools
 
 cmd = 'tcp://127.0.0.1:5555'
 data = 'tcp://127.0.0.1:5556'
@@ -37,10 +39,11 @@ def readout():
             print("Total messages received:", messages)
    
             print("Converting to a packet...")
-            packet = pacman_msg_format.parse(message)
-            print("Writing to HDF5 file:", datafile)
-            larpix.format.hdf5format.to_file(datafile,packet)
-            print("Message written to file.")
+            packet = larpixtools.parse(message)
+            print(packet)
+            #print("Writing to HDF5 file:", datafile)
+            #larpix.format.hdf5format.to_file(datafile,packet)
+            #print("Message written to file.")
             
             
     except:
