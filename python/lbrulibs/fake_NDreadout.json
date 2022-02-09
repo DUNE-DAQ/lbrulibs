@@ -235,6 +235,7 @@
                         },
                         "rawdataprocessorconf": {
                             "channel_map_felix": "",
+                            "channel_map_name": "None",
                             "channel_map_rce": "",
                             "element_id": 0,
                             "emulator_mode": false,
@@ -267,7 +268,7 @@
                             "region_id": 0,
                             "retry_count": 100,
                             "stream_buffer_size": 8388608,
-                            "use_o_direct": true
+                            "use_o_direct": false
                         }
                     },
                     "match": "datahandler_0"
@@ -286,6 +287,7 @@
                         },
                         "rawdataprocessorconf": {
                             "channel_map_felix": "",
+                            "channel_map_name": "None",
                             "channel_map_rce": "",
                             "element_id": 0,
                             "emulator_mode": false,
@@ -318,7 +320,7 @@
                             "region_id": 0,
                             "retry_count": 100,
                             "stream_buffer_size": 8388608,
-                            "use_o_direct": true
+                            "use_o_direct": false
                         }
                     },
                     "match": "sw_tp_handler_0"
