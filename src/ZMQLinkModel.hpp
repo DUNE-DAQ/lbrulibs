@@ -140,6 +140,8 @@ private:
   // mesages to process
   UniqueMessageAddrQueue m_message_addr_queue;
   size_t m_packetCounter = 0;
+  int m_packetsizesum = 0;
+  std::chrono::time_point<std::chrono::system_clock> t_start = std::chrono::high_resolution_clock::now();
 
   // Processor
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
@@ -148,6 +150,11 @@ private:
   virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
     dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
 
+    std::chrono::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_time = std::chrono::duration<double>(t_end-t_start).count();
+    t_start=t_end;
+    linkInfo.bandwidth =  m_packetsizesum/(elapsed_time*1000000);
+    m_packetsizesum = 0;
     linkInfo.num_packets_received = m_packetCounter;
     //linkInfo.info_type = "ZMQ Link Info";
 
@@ -179,6 +186,7 @@ private:
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
                 std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
+		m_packetsizesum += msg.size();
                 m_sink_queue->push(*Payload, m_sink_timeout);
               } catch (const appfwk::QueueTimeoutExpired& ex) {
                 ers::warning(ex);
