@@ -163,7 +163,7 @@ private:
     linkInfo.bandwidth = m_packetsizesum/(elapsed_time*1000000);
     linkInfo.num_packets_received = m_packetCounter;
     linkInfo.last_packet_size = m_packetsize;
-    linkInfo.time_stamp = m_timestamp; //Convert into some integer time
+    linkInfo.last_message_timestamp = m_timestamp; 
     linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
     linkInfo.link_tag = m_link_tag; //ZMQLinkConcept Variable
     linkInfo.card_id = m_card_id; //ZMQLinkConcept Variable
@@ -194,7 +194,7 @@ private:
             TLOG_DEBUG(1) << ": Ready to receive data";
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
-	          if (items[0].revents & ZMQ_POLLIN){
+	    if (items[0].revents & ZMQ_POLLIN){
               auto recvd = m_subscriber.recv(&msg);
               if (recvd == 0) {
 		m_rcvd_zero++;
@@ -205,10 +205,10 @@ private:
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
                 m_timestamp = Payload->get_timestamp();
-		            std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
+		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
                 m_sink_queue->push(*Payload, m_sink_timeout);
-		            m_packetsizesum += msg.size(); //sum of data from packets
-	            	m_packetsize = msg.size(); //last packet size
+		m_packetsizesum += msg.size(); //sum of data from packets
+	       	m_packetsize = msg.size(); //last packet size
               } catch (const appfwk::QueueTimeoutExpired& ex) {
                 ers::warning(ex);
               }
