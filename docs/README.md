@@ -36,7 +36,7 @@ data are 'raw' and not subject to any trigger selection.
 Note - due to the need for a more configurable fake trigger implementation in readout this test will produce numerous warnings for failed trigger
 requests. These can be safely ignored.
 
-To use nanorc instead use:
+To use nanorc instead (with the old configuration mechanism) use:
 
     python -m minidaqapp.nanorc.mdapp_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
 
@@ -46,6 +46,11 @@ to generate a config and then:
 
 to run it. With run commands: boot, init, conf, start 1, resume, (here receive data), stop, scrap, exit
 
+Note - to use the new configuration mechanism (from March 2022) use:
+
+    python -m daqconf_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
+
+to generate your config, then run as before.
 
 ## ND-GAr: TBD
 Configuration steps:
