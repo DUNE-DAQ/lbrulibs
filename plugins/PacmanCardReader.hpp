@@ -21,6 +21,7 @@
 #include "utilities/WorkerThread.hpp"
 
 #include "ZMQLinkConcept.hpp"
+#include "STREAMLinkConcept.hpp"
 
 #include <future>
 #include <memory>
@@ -71,6 +72,8 @@ private:
   
   // ZMQLinkConcept
   std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
+  // STREAMLinkConcept
+  std::map<int, std::unique_ptr<STREAMLinkConcept>> m_streamlink;
 
 };
 
