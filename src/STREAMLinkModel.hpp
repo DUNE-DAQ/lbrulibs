@@ -74,7 +74,7 @@ public:
       m_subscriber_connected = false;
       //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
       TLOG_DEBUG(5) << "STREAMLinkModel conf: connecting subscriber!";
-      m_subscriber.bind(m_ZMQLink_sourceLink);
+      m_subscriber.bind(m_STREAMLink_sourceLink);
       m_subscriber_connected = true;
       TLOG_DEBUG(5) << "STREAMLinkModel conf: enacting subscription!";
       //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
@@ -171,7 +171,7 @@ private:
     linkInfo.subscriber_connected = m_subscriber_connected;
     linkInfo.run_marker = m_run_marker; //predefined
     linkInfo.sink_is_set = m_sink_is_set; //If sink succeeded - predefined
-    linkInfo.source_link_string = m_ZMQLink_sourceLink; //string variable from ZMQLinkConcept
+    linkInfo.source_link_string = m_STREAMLink_sourceLink; //string variable from ZMQLinkConcept
     //linkInfo.info_type = "ZMQ Link Info";
 
     m_packetsizesum = 0; //resets the variable, so the sum starts from 0 again
@@ -196,7 +196,7 @@ private:
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
 	    if (items[0].revents & ZMQ_POLLIN){
-              auto recvd = m_subscriber.recv(&id}; //routing frame
+              auto recvd_id = m_subscriber.recv(&id); //routing frame
               auto recvd = m_subscriber.recv(&msg);
               if (recvd == 0) {
 		m_rcvd_zero++;
