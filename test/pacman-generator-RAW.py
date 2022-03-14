@@ -118,9 +118,7 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
         # Set up sockets
         print("Setting up ZMQ sockets...")
         ctx = zmq.Context()
-        cmd_socket = ctx.socket(zmq.REP)
-        data_socket = ctx.socket(zmq.PUB)
-        echo_socket = ctx.socket(zmq.PUB)
+        data_socket = ctx.socket(zmq.STREAM)
         socket_opts = [
             (zmq.LINGER,100),
             (zmq.RCVTIMEO,100),
@@ -128,33 +126,26 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
         ]
         print("Parsing socket options...")
         for opt in socket_opts:
-            cmd_socket.setsockopt(*opt)
             data_socket.setsockopt(*opt)
-            echo_socket.setsockopt(*opt)
-        print("Binding sockets...")
-        cmd_socket.bind(_cmd_server)
-        data_socket.bind(_data_server)
-        echo_socket.bind(_echo_server)
-        
-        '''
-        # Synchronisation with readout
-        # Set up a poller, wait for signal from readout to start sending data
-        print("Setting up a poller for registering CCM commands...")
-        print("Waiting for signal from readout to start sending data...")
-        poller = zmq.Poller()
-        poller.register(cmd_socket, zmq.POLLIN)
-        items = dict(poller.poll())
-        if cmd_socket in items:
-            message = cmd_socket.recv()
-            print("Signal received.")
-            cmd_socket.send(b'')
-        '''
-        
+        print("Connecting sockets...")
+        id = 0
+        while id == 0:
+            try: 
+            
+                data_socket.connect(_data_server)
+            
+                # need to receive two messages to get target ID
+                id = data_socket.recv()
+                message = data_socket.recv()
+            except:
+                print("No receiver ready to connect to. Retrying...")
+                time.sleep(1) #wait 1s before retrying
+                continue
+
         print('Press any key to start sending data...')
         input()
         print('Initialising...')
         time.sleep(1)
-        #print("Data will repeat %i times." %(n_file_evals-1))
         print("Data will repeat %i times." %(n_file_evals-1))
         print('Sending PACMAN messages.')
 
@@ -187,7 +178,7 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
         for n in range(n_file_evals):
             for i in word_lists:
                 #data_socket.send(b"", zmq.SNDMORE)
-                data_socket.send(larpixtools.format_msg('DATA',i))
+                data_socket.send_multipart([id,larpixtools.format_msg('DATA',i)])
                 print(larpixtools.parse_msg(larpixtools.format_msg('DATA',i)))
                 message_count += 1
                 print("Total messages sent:",message_count)
@@ -212,8 +203,8 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
         raise
     finally: #cleanup
         data_socket.close()
-        cmd_socket.close()
-        echo_socket.close()
+        #cmd_socket.close()
+        #echo_socket.close()
         ctx.destroy()
 
 
