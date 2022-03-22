@@ -19,6 +19,8 @@
 #include <vector>
 #include <memory>
 
+bool usePUBSUB = 0;
+
 /**
  * @brief Name used by TRACE TLOG calls from this source file
  */
@@ -74,17 +76,21 @@ PacmanCardReader::init(const data_t& args)
       std::string target = qi.inst;
       std::vector<std::string> words;
       tokenize(target, delim, words);
-      TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
-      //m_zmqlink[0] = createZMQLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
-      //if (m_zmqlink[0] == nullptr) {
-      //  ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
-      //}
-      //m_zmqlink[0]->init(args, m_queue_capacity);
-      m_streamlink[0] = createSTREAMLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
-      if (m_streamlink[0] == nullptr) {
-        ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
+      if (usePUBSUB) {
+        TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
+        m_zmqlink[0] = createZMQLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
+        if (m_zmqlink[0] == nullptr) {
+          ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
+        }
+        m_zmqlink[0]->init(args, m_queue_capacity);
+      } else {
+        TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target; 
+        m_streamlink[0] = createSTREAMLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
+        if (m_streamlink[0] == nullptr) {
+          ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
+        }
+        m_streamlink[0]->init(args, m_queue_capacity);
       }
-      m_streamlink[0]->init(args, m_queue_capacity);
     }
   }
 }
@@ -104,30 +110,41 @@ PacmanCardReader::do_configure(const data_t& args)
 
   // Configure components
   TLOG(TLVL_WORK_STEPS) << "Configuring ZMQLinkHandler";
-  //m_zmqlink[0]->set_ids(m_card_id, 0);
-  //m_zmqlink[0]->conf(args);
-  m_streamlink[0]->set_ids(m_card_id,0);
-  m_streamlink[0]->conf(args);
+  if (usePUBSUB) {
+    m_zmqlink[0]->set_ids(m_card_id, 0);
+    m_zmqlink[0]->conf(args);
+  } else {
+    m_streamlink[0]->set_ids(m_card_id,0);
+    m_streamlink[0]->conf(args);
+  }
 }
 
 void
 PacmanCardReader::do_start(const data_t& args)
 {
-  //m_zmqlink[0]->start(args);
-  m_streamlink[0]->start(args);
+  if (usePUBSUB) {
+    m_zmqlink[0]->start(args);
+  } else {
+    m_streamlink[0]->start(args);
+  }
 }
 
 void
 PacmanCardReader::do_stop(const data_t& args)
 {
-  //m_zmqlink[0]->stop(args);
-  m_streamlink[0]->stop(args);
+  if (usePUBSUB) {
+    m_zmqlink[0]->stop(args);
+  } else {
+    m_streamlink[0]->stop(args);
+  }
 }
 
 void PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level){
-
-  //m_zmqlink[0]->get_info(ci, level);
-  m_streamlink[0]->get_info(ci, level);
+  if (usePUBSUB) {
+    m_zmqlink[0]->get_info(ci, level);
+  } else {
+    m_streamlink[0]->get_info(ci, level);
+  }
 }
 
 
