@@ -24,7 +24,7 @@ wib1_frag_hsi_trig_params={"fragment_type_description": "Pacman",
 # file. They're read by the "fixtures" in conftest.py to determine how
 # to run the config generation and nanorc
 # The name of the python module for the config generation
-confgen_name="minidaqapp.nanorc.mdapp_multiru_gen"
+confgen_name="daqconf__multiru_gen"
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_data_producers), "--frontend-type", "pacman", "-b", "2500000", "-a", "2500000", "-t", "1.0" ]
