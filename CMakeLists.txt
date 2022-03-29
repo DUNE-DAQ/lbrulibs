@@ -44,7 +44,8 @@ file(COPY test/pacmanreadout-commands.json DESTINATION test)
 daq_add_unit_test(ZMQPubSub_test                LINK_LIBRARIES lbrulibs)
 daq_add_unit_test(ZMQStream_test                LINK_LIBRARIES lbrulibs)
 daq_add_unit_test(PacmanFrame_test              LINK_LIBRARIES lbrulibs)
-daq_add_unit_test(ZMQLink_test                  LINK_LIBRARIES lbrulibs)
+#daq_add_unit_test(ZMQLink_test                  LINK_LIBRARIES lbrulibs)
+daq_add_unit_test(STREAMLink_test               LINK_LIBRARIES lbrulibs)
 
 ##############################################################################
 # Installation
