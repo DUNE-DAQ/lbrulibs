@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(lbrulibs VERSION 1.0.5)
+project(lbrulibs VERSION 1.0.8)
 
 find_package(daq-cmake REQUIRED)
 

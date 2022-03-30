@@ -305,6 +305,7 @@ def generate(
                         output_file=f"output_{idx}.out",
                         stream_buffer_size=8388608,
                         enable_raw_recording=True,
+                        use_o_direct=False,
                     ),
                 ),
             )
@@ -343,6 +344,7 @@ def generate(
                         output_file=f"output_{idx}.out",
                         stream_buffer_size=8388608,
                         enable_raw_recording=False,
+                        use_o_direct=False,
                     ),
                 ),
             )
@@ -381,6 +383,7 @@ def generate(
                         output_file=f"output_{idx}.out",
                         stream_buffer_size=8388608,
                         enable_raw_recording=False,
+                        use_o_direct=False,
                     ),
                 ),
             )
