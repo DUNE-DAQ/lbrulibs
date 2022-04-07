@@ -24,7 +24,7 @@ wib1_frag_hsi_trig_params={"fragment_type_description": "Pacman",
 # file. They're read by the "fixtures" in conftest.py to determine how
 # to run the config generation and nanorc
 # The name of the python module for the config generation
-confgen_name="daqconf__multiru_gen"
+confgen_name="daqconf_multiru_gen"
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_data_producers), "--frontend-type", "pacman", "-b", "2500000", "-a", "2500000", "-t", "1.0" ]
@@ -76,7 +76,7 @@ def sender(_data_server,word_lists):
         # Set up sockets
         print("Setting up ZMQ sockets...")
         ctx = zmq.Context()
-        data_socket = ctx.socket(zmq.PUB)
+        data_socket = ctx.socket(zmq.STREAM)
         socket_opts = [
             (zmq.LINGER,100),
             (zmq.RCVTIMEO,100),
@@ -86,13 +86,24 @@ def sender(_data_server,word_lists):
         for opt in socket_opts:
             data_socket.setsockopt(*opt)
         print("Binding sockets...")
-        data_socket.bind(_data_server)
+        
+        id = 0
+        while id == 0:
+            try:
+                data_socket.connect(_data_server)
+                id = data_socket.recv()
+                message = data_socket.recv()
+            except:
+                print("No receiver ready to connect to. Retrying...")
+                time.sleep(1)
+                continue
+
         print('Initialising...')
         time.sleep(1)
 
         print('Sending PACMAN data.')
         for i in word_lists:
-            data_socket.send(larpixtools.format_msg('DATA',i))
+            data_socket.send_multipart([id,larpixtools.format_msg('DATA',i)])
             time.sleep(1)
     except:
         raise
