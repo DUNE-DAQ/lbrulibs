@@ -42,7 +42,7 @@ requests. These can be safely ignored.
 
 To use nanorc instead (preffered for testing) use:
 
-    python -m daqconf_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
+    daqconf_multiru_gen --host-ru localhost -o . --number-of-data-producers 1 --frontend-type pacman --trigger-window-before-ticks 2500000 --trigger-window-after-ticks 2500000 --trigger-rate-hz 1.0 --enable-raw-recording mdapp_4proc_pacman_1Hz_pt1second_mode3
 
 to generate a config and then:
 
