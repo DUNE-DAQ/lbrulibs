@@ -62,10 +62,10 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   //reader_config.some_property = "option";
   nlohmann::json reader_conf_json;
   to_json(reader_conf_json, reader_config);
-  pacman_card_reader->execute_command("conf", reader_conf_json);
+  pacman_card_reader->execute_command("conf", "INITIAL", reader_conf_json);
   
   // Start
-  pacman_card_reader->execute_command("start");  
+  pacman_card_reader->execute_command("start", "CONFIGURED");  
    
   usleep(10000); //small sleep required to allow startup to complete
   
@@ -90,10 +90,10 @@ BOOST_AUTO_TEST_CASE(LinkTest)
   }
 
   // Stop
-  pacman_card_reader->execute_command("stop");
+  pacman_card_reader->execute_command("stop", "RUNNING");
 
   // Scrap
-  //pacman_card_reader->execute_command("scrap");
+  //pacman_card_reader->execute_command("scrap", "CONFIGURED");
   
 }
 
