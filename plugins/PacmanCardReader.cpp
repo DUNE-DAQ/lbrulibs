@@ -66,26 +66,26 @@ void
 PacmanCardReader::init(const data_t& args)
 {
   auto ini = args.get<appfwk::app::ModInit>();
-  for (const auto& qi : ini.qinfos) {
-    if (qi.dir != "output") {
+  for (const auto& cr : ini.conn_refs) {
+    if (cr.dir != iomanager::connection::Direction::kOutput) {
       // ers::error("Only output queues are supported in this module!");
       continue;
     } else {
-      TLOG_DEBUG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << qi.inst;
+      TLOG_DEBUG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << cr.uid;
       const char delim = '_';
-      std::string target = qi.inst;
+      std::string target = cr.uid;
       std::vector<std::string> words;
       tokenize(target, delim, words);
       if (usePUBSUB) {
         TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
-        m_zmqlink[0] = createZMQLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
+        m_zmqlink[0] = createZMQLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
         if (m_zmqlink[0] == nullptr) {
           ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
         }
         m_zmqlink[0]->init(args, m_queue_capacity);
       } else {
         TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target; 
-        m_streamlink[0] = createSTREAMLinkModel(qi.inst); // FIX ME - need to resolve proper link ID rather than hard code to zero
+        m_streamlink[0] = createSTREAMLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
         if (m_streamlink[0] == nullptr) {
           ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
         }
