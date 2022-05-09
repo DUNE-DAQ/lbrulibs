@@ -17,7 +17,6 @@
 
 // From appfwk
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSink.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include "ZMQLinkConcept.hpp"

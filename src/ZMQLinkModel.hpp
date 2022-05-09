@@ -11,7 +11,8 @@
 #include "ZMQLinkConcept.hpp"
 #include "zmq.hpp"
 
-#include "appfwk/DAQSink.hpp"
+#include "iomanager/IOManager.hpp"
+#include "iomanager/Sender.hpp"
 #include "logging/Logging.hpp"
 
 #include "readoutlibs/utils/ReusableThread.hpp"
@@ -31,7 +32,7 @@ namespace dunedaq::lbrulibs {
 template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
 public:
-  using sink_t = appfwk::DAQSink<TargetPayloadType>;
+  using sink_t = iomanager::SenderConcept<TargetPayloadType>;
   using data_t = nlohmann::json;
 
   /**
@@ -49,14 +50,14 @@ public:
     if (m_sink_is_set) {
       TLOG_DEBUG(5) << "ZMQLinkModel sink is already set and initialized!";
     } else {
-      m_sink_queue = std::make_unique<sink_t>(sink_name);
+      m_sink_queue = get_iom_sender<TargetPayloadType>(sink_name);
       m_sink_is_set = true;
     }
   }
 
-  std::unique_ptr<sink_t>& get_sink() {
-    return m_sink_queue;
-  }
+  //std::shared_ptr<sink_t> get_sink() {
+  //  return m_sink_queue;
+  //}
 
   void init(const data_t& /*args*/) {
     TLOG_DEBUG(5) << "ZMQLinkModel init: nothing to do!";
@@ -136,7 +137,7 @@ private:
 
   // Sink
   bool m_sink_is_set{false};
-  std::unique_ptr<sink_t> m_sink_queue;
+  std::shared_ptr<sink_t> m_sink_queue;
 
   // mesages to process
   UniqueMessageAddrQueue m_message_addr_queue;
@@ -206,10 +207,10 @@ private:
                 TargetPayloadType* Payload = new TargetPayloadType();
                 m_timestamp = Payload->get_timestamp();
 		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
-                m_sink_queue->push(*Payload, m_sink_timeout);
+                m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		m_packetsizesum += msg.size(); //sum of data from packets
 	       	m_packetsize = msg.size(); //last packet size
-              } catch (const appfwk::QueueTimeoutExpired& ex) {
+              } catch (const iomanager::TimeoutExpired& ex) {
                 ers::warning(ex);
               }
 
