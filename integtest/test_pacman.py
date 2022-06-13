@@ -29,7 +29,7 @@ confgen_name="daqconf__multiru_gen"
 # output directory (the test framework handles that)
 confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_data_producers), "--frontend-type", "pacman", "-b", "2500000", "-a", "2500000", "-t", "1.0" ]
 # The commands to run in nanorc, as a list
-nanorc_command_list="boot init conf start --resume-wait 1 101 wait ".split() + [str(run_duration)] + " stop --stop-wait 1 wait 2 scrap terminate".split()
+nanorc_command_list="boot integration-test init conf start --resume-wait 1 101 wait ".split() + [str(run_duration)] + " stop --stop-wait 1 wait 2 scrap terminate".split()
 
 # The tests themselves
 def test_nanorc_success(run_nanorc):

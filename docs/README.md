@@ -48,7 +48,7 @@ to generate a config and then:
 
     nanorc mdapp_4proc_pacman_1Hz_pt1second_mode3
 
-to run it. With run commands: boot, init, conf, start 1, resume, (here receive data), stop, scrap, exit
+to run it. With run commands: boot (insance-name), init, conf, start (run number), resume, (here receive data), stop, scrap, exit
 
 ## ND-GAr: TBD
 Configuration steps:
