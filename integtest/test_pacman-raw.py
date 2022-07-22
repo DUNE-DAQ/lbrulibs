@@ -27,9 +27,9 @@ wib1_frag_hsi_trig_params={"fragment_type_description": "Pacman",
 confgen_name="daqconf_multiru_gen"
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
-confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_data_producers), "--frontend-type", "pacman", "-b", "2500000", "-a", "2500000", "-t", "1.0" ]
+confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_data_producers), "--frontend-type", "pacman", "-b", "2500000", "-a", "2500000", "-t", "1.0", "--op-env", "integtest" ]
 # The commands to run in nanorc, as a list
-nanorc_command_list="boot integration-test init conf start --resume-wait 1 101 wait ".split() + [str(run_duration)] + " stop --stop-wait 1 wait 2 scrap terminate".split()
+nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
 
 # The tests themselves
 def test_nanorc_success(run_nanorc):
@@ -57,7 +57,7 @@ import zmq
 
 data_socket = 'tcp://127.0.0.1:5556'
 #data_file = '../test/example-pacman-data.h5'
-data_file = '/dune/data/users/srsoleti/full_spill_larndsim/neutrino.0_1634786172.larndsim.h5'
+data_file = '/nfs/home/jpanduro/dunedaq-v3.1.0-1/sourcecode/lbrulibs/test/example-pacman-data.h5'
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)

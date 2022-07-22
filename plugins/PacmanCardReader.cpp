@@ -29,13 +29,13 @@ bool usePUBSUB = 0;
 /**
  * @brief TRACE debug levels used in this source file
  */
-enum
+/*enum
 {
   TLVL_ENTER_EXIT_METHODS = 5,
   TLVL_WORK_STEPS = 10,
   TLVL_BOOKKEEPING = 15
 };
-
+*/
 namespace dunedaq {
 namespace lbrulibs {
 
@@ -66,25 +66,27 @@ void
 PacmanCardReader::init(const data_t& args)
 {
   auto ini = args.get<appfwk::app::ModInit>();
+  TLOG(TLVL_WORK_STEPS) << "ini";
   for (const auto& cr : ini.conn_refs) {
     if (cr.dir != iomanager::connection::Direction::kOutput) {
       // ers::error("Only output queues are supported in this module!");
+      TLOG(TLVL_WORK_STEPS) << "PacmanCardReader??? ";
       continue;
     } else {
-      TLOG_DEBUG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << cr.uid;
+      TLOG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << cr.uid;
       const char delim = '_';
       std::string target = cr.uid;
       std::vector<std::string> words;
       tokenize(target, delim, words);
       if (usePUBSUB) {
-        TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
+        TLOG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
         m_zmqlink[0] = createZMQLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
         if (m_zmqlink[0] == nullptr) {
           ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
         }
         m_zmqlink[0]->init(args, m_queue_capacity);
       } else {
-        TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target; 
+        TLOG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target; 
         m_streamlink[0] = createSTREAMLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
         if (m_streamlink[0] == nullptr) {
           ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
@@ -93,6 +95,10 @@ PacmanCardReader::init(const data_t& args)
       }
     }
   }
+
+  
+  m_cfg = args.get<pacmancardreader::Conf>();
+
 }
 
 void
@@ -109,13 +115,17 @@ PacmanCardReader::do_configure(const data_t& args)
   //
 
   // Configure components
-  TLOG(TLVL_WORK_STEPS) << "Configuring ZMQLinkHandler";
+  TLOG(TLVL_WORK_STEPS) << "Configuring LinkHandler";
   if (usePUBSUB) {
+    TLOG(TLVL_WORK_STEPS) << "Using ZMQ Publish/Subscribe";
     m_zmqlink[0]->set_ids(m_card_id, 0);
     m_zmqlink[0]->conf(args);
   } else {
+    TLOG(TLVL_WORK_STEPS) << "Using Raw TCP Stream";
     m_streamlink[0]->set_ids(m_card_id,0);
+    TLOG(TLVL_WORK_STEPS) << "apply conf";
     m_streamlink[0]->conf(args);
+    TLOG(TLVL_WORK_STEPS) << "finish conf";
   }
 }
 
