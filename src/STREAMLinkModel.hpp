@@ -27,6 +27,18 @@
 #include <memory>
 #include <chrono>
 
+
+/**
+ * @brief TRACE debug levels used in this source file
+ */
+enum
+  {
+    TLVL_ENTER_EXIT_METHODS = 5,
+    TLVL_WORK_STEPS = 10,
+  TLVL_BOOKKEEPING = 15
+  };
+
+
 namespace dunedaq::lbrulibs {
 
 template<class TargetPayloadType>
@@ -48,7 +60,7 @@ public:
 
   void set_sink(const std::string& sink_name) override {
     if (m_sink_is_set) {
-      TLOG_DEBUG(5) << "STREAMLinkModel sink is already set and initialized!";
+      TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel sink is already set and initialized!";
     } else {
       m_sink_queue = get_iom_sender<TargetPayloadType>(sink_name);
       m_sink_is_set = true;
@@ -65,22 +77,21 @@ public:
 
   void conf(const data_t& args) {
     if (m_configured) {
-      TLOG_DEBUG(5) << "STREAMLinkModel is already configured!";
+      TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel is already configured!";
     } else {
 
       m_cfg = args.get<pacmancardreader::Conf>();
-
+      TLOG(TLVL_WORK_STEPS) << "Configuring STREAMLinkModel!";
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
-      TLOG_DEBUG(5) << "STREAMLinkModel conf: initialising subscriber!";
+      TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
       //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
-      TLOG_DEBUG(5) << "STREAMLinkModel conf: connecting subscriber!";
+      TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: connecting subscriber!";
       m_subscriber.bind(m_STREAMLink_sourceLink);
       m_subscriber_connected = true;
-      TLOG_DEBUG(5) << "STREAMLinkModel conf: enacting subscription!";
+      TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: set parser thread name!";
       //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
-      TLOG_DEBUG(5) << "Configuring STREAMLinkModel!";
-
+     
       m_parser_thread.set_name(m_STREAMLink_sourceLink, m_link_tag);
       m_configured=true;
     } 

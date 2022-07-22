@@ -27,7 +27,7 @@ public:
     : m_card_id(0)
     , m_link_tag(0)
   {}
-  ~ZMQLinkConcept() {}
+  virtual ~ZMQLinkConcept() {}
 
   ZMQLinkConcept(const ZMQLinkConcept&)
     = delete; ///< ZMQLinkConcept is not copy-constructible

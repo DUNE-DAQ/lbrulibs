@@ -27,7 +27,7 @@ public:
     : m_card_id(0)
     , m_link_tag(0)
   {}
-  ~STREAMLinkConcept() {}
+  virtual ~STREAMLinkConcept() {}
 
   STREAMLinkConcept(const STREAMLinkConcept&)
     = delete; ///< STREAMLinkConcept is not copy-constructible
