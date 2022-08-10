@@ -35,6 +35,17 @@ createZMQLinkModel(const std::string& target)
 
     // Return with setup model
     return zmqlink_model;
+
+  } else if (target.find("mpd") != std::string::npos) {
+
+    ers::info(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Creating Link for MPD!"));
+
+    // Create Model
+    auto zmqlink_model = std::make_unique<ZMQLinkModel<ndreadoutlibs::types::MPD_MESSAGE_STRUCT>>();
+
+    zmqlink_model->set_sink(target);
+
+    return zmqlink_model;
   }
 
   ers::warning(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Could not find target!"));
