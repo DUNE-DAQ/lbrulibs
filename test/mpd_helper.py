@@ -6,7 +6,7 @@ import struct
 from collections import deque
 
 class mpd :
-    def __init__( self, fileName, num_packets ) : 
+    def __init__( self, fileName, n_file_evals, num_packets ) : 
         self.packets = deque()
         self.HEADER_SIZE = 28 ; # bytes
 
@@ -14,14 +14,15 @@ class mpd :
         with open(fileName, mode='rb') as file: 
             fileContent = file.read()
 
-            fb_i = 0 # first byte in packet
-            fb_f = 0 # last byte in packet
-            while fb_i < file_bytes :
-                fb_f += self.HEADER_SIZE + struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0] 
-                self.packets.append( fileContent[fb_i:fb_f] ) # store packet information in binary
-                fb_i = fb_f 
-                if len(self.packets) > num_packets :
-                    break
+            for i in range(n_file_evals):
+                fb_i = 0 # first byte in packet
+                fb_f = 0 # last byte in packet
+                while fb_i < file_bytes :
+                    fb_f += self.HEADER_SIZE + struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0] 
+                    self.packets.append( fileContent[fb_i:fb_f] ) # store packet information in binary
+                    fb_i = fb_f 
+                    if len(self.packets) > num_packets :
+                        break
                 
     def print_packet_info( self, event ):
         # This is a helper function that translates the bytes into readable information

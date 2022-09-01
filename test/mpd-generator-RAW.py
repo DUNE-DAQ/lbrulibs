@@ -12,6 +12,11 @@ import random
 # Prepare ports
 data = 'tcp://127.0.0.1:5556'
 
+def store_packets(output_file_name, packets, n_packets):
+    with open(output_file_name, "wb") as binary_file:
+        for i in range(n_packets) : 
+            binary_file.write(packets[i])
+
 def send_mpd(packets, n_packets):
     try:
         # Set up sockets
@@ -73,10 +78,11 @@ if __name__ == "__main__":
     # Add arguments here for my script
     parser.add_argument('--input-file', '-i', dest='input_file', type=str, default="example-mpd-data.data", help="Input file which contains data to be sent to stream.")
     parser.add_argument('--num-packets', '-n', dest='num_packets', type=int, default=40050, help="Number of packets to send to socket. Default is the number of packets stored in mps example file")
+    parser.add_argument('--n_file_evals',     dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
     args = parser.parse_args();
 
     print('Using',args.input_file,'. Decoding its members ...')
 
-    mpd_data = mpd.mpd(args.input_file, args.num_packets)
-
+    mpd_data = mpd.mpd(args.input_file, args.n_file_evals, args.num_packets)
+ 
     send_mpd(mpd_data.packets, mpd_data.num_packets())
