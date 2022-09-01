@@ -58,12 +58,7 @@ def send_mpd(packets, n_packets):
             
             message_count += 1
             print("Total messages sent:",message_count)        
-
-            next_sleep = random.randrange(1,3)
-            if message_count != n_packets :
-                print("Next message in: %ds" %(next_sleep))
-                time.sleep(next_sleep);
-                break;
+            time.sleep(1);
 
         print("Sleeping for 10 seconds before exiting...")
         time.sleep(10)
