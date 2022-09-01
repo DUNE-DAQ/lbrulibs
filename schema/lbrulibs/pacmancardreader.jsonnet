@@ -14,23 +14,17 @@ local s = moo.oschema.schema(ns);
 // Object structure used by the test/fake producer module
 local pacmancardreader = {
     count  : s.number("Count", "u4",
-                      doc="Count of things"),
+                      doc="Item count"),
 
     id : s.number("Identifier", "i4",
-                  doc="An ID of a thingy"),
-
-    region_id : s.number("region_id", "u2"),
-    element_id : s.number("element_id", "u4"),
-    system_type : s.string("system_type"),
-
-    geoid : s.record("GeoID", [s.field("region", self.region_id, doc="" ),
-        s.field("element", self.element_id, doc="" ),
-        s.field("system", self.system_type, doc="" )],
-        doc="GeoID"),
-
+                  doc="Generic ID variable"),
+    
+    sourceid: s.number("sourceid", "u4", doc="Source ID for Incoming Data"),
+    
     link_conf : s.record("LinkConfiguration", [
-        s.field("geoid", self.geoid, doc="GeoID of the link")
+        s.field("Source_ID", self.sourceid, 0, doc="Source ID for Link")
         ], doc="Configuration for one link"),
+
 
     link_conf_list : s.sequence("link_conf_list", self.link_conf, doc="Link configuration list"),
 
