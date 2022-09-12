@@ -36,13 +36,12 @@ confgen_name="daqconf_multiru_gen"
 detid_ND_LAr = 32 
 number_of_apps = 1 
 hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_producers, number_of_apps, detid_ND_LAr )
-# generate_hwmap_file, default det_id is HD_TPC. For pacman we use ND_LAr=32
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["daqconf"]["op_env"] = "integtest"
 conf_dict["trigger"]["trigger_rate_hz"]="1.0"
 conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
-conf_dict["trigger"]["trigger_window_after_ticks"] = "2500000"
+conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
 
 confgen_arguments={"PACMANSystem": conf_dict}
 
@@ -75,7 +74,7 @@ import zmq
 
 data_socket = 'tcp://127.0.0.1:5556'
 #data_file = '../test/example-pacman-data.h5'
-data_file = '/dune/app/users/jtenavid/Software/DuneDAQ/v3.1.1/Develop_N22-09-07/sourcecode/lbrulibs/test/example-pacman-data.h5'
+data_file = '../test/example-pacman-data.h5'
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)
@@ -122,7 +121,7 @@ def sender(_data_server,word_lists):
         print('Sending PACMAN data.')
         for i in word_lists:
             data_socket.send_multipart([id,larpixtools.format_msg('DATA',i)])
-            time.sleep(1)
+            time.sleep(0.1)
     except:
         raise
     finally:   
