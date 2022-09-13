@@ -38,7 +38,7 @@ number_of_apps = 1
 hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_producers, number_of_apps, detid_ND_LAr )
 
 conf_dict = config_file_gen.get_default_config_dict()
-conf_dict["daqconf"]["op_env"] = "integtest"
+conf_dict["boot"]["op_env"] = "integtest"
 conf_dict["trigger"]["trigger_rate_hz"]="1.0"
 conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
 conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
