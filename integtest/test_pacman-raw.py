@@ -73,7 +73,6 @@ import larpixtools
 import zmq
 
 data_socket = 'tcp://127.0.0.1:5556'
-#data_file = '../test/example-pacman-data.h5'
 data_file = '../test/example-pacman-data.h5'
 
 def hdf5ToPackets(datafile): 
