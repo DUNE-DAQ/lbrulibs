@@ -21,7 +21,8 @@ class mpd :
                     fb_f += self.HEADER_SIZE + struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0] 
                     self.packets.append( fileContent[fb_i:fb_f] ) # store packet information in binary
                     fb_i = fb_f 
-                    if len(self.packets) > num_packets :
+
+                    if len(self.packets) == num_packets :
                         break
                 
     def print_packet_info( self, event ):
