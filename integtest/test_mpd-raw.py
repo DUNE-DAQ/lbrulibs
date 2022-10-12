@@ -12,18 +12,18 @@ run_duration=60  # seconds
 expected_number_of_data_files=1
 check_for_logfile_errors=True
 expected_event_count=run_duration
-expected_event_count_tolerance=2
+expected_event_count_tolerance=1
 
 wib1_frag_hsi_trig_params={"fragment_type_description": "MPD",
                            "fragment_type": "MPD",
                            "hdf5_source_subsystem": "Detector_Readout",
-                           "hdf5_detector_group": "NDLArTPC", 
+                           "hdf5_detector_group": "NDLAr_PDS", 
                            "hdf5_region_prefix": "Region",
                            "element_name_prefix": "Element", 
                            "element_number_offset": 0, 
                            "expected_fragment_count": number_of_data_producers,
                            "min_size_bytes": 28, 
-                           "max_size_bytes": 3696}
+                           "max_size_bytes": 3724}
 
 # The next three variable declarations *must* be present as globals in the test
 # file. They're read by the "fixtures" in conftest.py to determine how
@@ -128,7 +128,9 @@ def send_mpd(packets, n_packets):
 
 print("Starting MPD card(s)")
 import multiprocessing
+
 mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, 60) 
-process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets()])
+
+process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets(),])
 process.daemon = True
 process.start()
