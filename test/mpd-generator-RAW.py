@@ -83,6 +83,8 @@ if __name__ == "__main__":
 
     if args.print : 
         for i in range(mpd_data.num_packets()) :
+            print("Header of packet #"+str(i))
+            print("---------------------------")
             mpd_data.print_packet_info(i)
-
+            print("\n")
     send_mpd(mpd_data.packets, mpd_data.num_packets())
