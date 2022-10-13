@@ -64,7 +64,7 @@ def main(filename):
             print(f'{prefix} Data type: {header.data_type}')
             print(f'{prefix} Data length: {header.data_length}')
             print(f'{prefix} Channel number: {header.channel_number}')
-
+            print(f'{prefix} \033[1mTime Stamp: {mpd_f.get_timestamp()}\033[0m')
             print("\n")
         #end gid loop
  
