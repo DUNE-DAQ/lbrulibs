@@ -40,13 +40,17 @@ def main(filename):
             #print header info
             print('\n\t==== MPD HEADER (First Frame) ====')
             header = mpd_f.get_header()
+            
+            #Check if Timestamp Sync number is correct
+            if str(hex(header.timestamp_sync)) != '0x3f60b8a8' : 
+                print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
             prefix = '\t\t'
             print(f'{prefix} Timestamp Sync: {hex(header.timestamp_sync)}')
             print(f'{prefix} Timestamp size: {header.timestamp_length}')
             print(f'{prefix} TimeStamp OS: {header.timestamp_OS}')
             print(f'{prefix} SyncMagic: {hex(header.SyncMagic)}')
             print(f'{prefix} Length: {header.length}')
-            print(f'{prefix} Event number: {header.event_num}')
+            print(f'{prefix} \033[1mEvent number: {header.event_num} \033[0m ')
             print(f'{prefix} Device serial number: {header.device_serial_num}')
             print(f'{prefix} Device length: {header.device_length}')
             print(f'{prefix} Device model ID: {header.device_model_id}')
