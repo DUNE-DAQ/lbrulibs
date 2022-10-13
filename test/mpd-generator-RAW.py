@@ -17,7 +17,7 @@ def store_packets(output_file_name, packets, n_packets):
         for i in range(n_packets) : 
             binary_file.write(packets[i])
 
-def send_mpd(packets, n_packets):
+def send_mpd(packets, n_packets, rate):
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -58,7 +58,7 @@ def send_mpd(packets, n_packets):
             
             message_count += 1
             print("Total messages sent:",message_count)        
-            time.sleep(1);
+            time.sleep(rate);
 
         print("Sleeping for 10 seconds before exiting...")
         time.sleep(10)
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument('--input-file', '-i', dest='input_file', type=str, default="example-mpd-data-100events.data", help="Input file which contains data to be sent to stream.")
     parser.add_argument('--num-packets', '-n', dest='num_packets', type=int, default=100, help="Number of packets to send to socket. Default is the number of packets stored in mps example file")
     parser.add_argument('--n_file_evals',     dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
+    parser.add_argument('--rate', dest='rate', type=double, default=1.0, help="Rate at which to send data fragments") 
     parser.add_argument('--print', dest='print', default=False, action='store_true',help='Print events headers' )  
     args = parser.parse_args();
 
@@ -87,4 +88,4 @@ if __name__ == "__main__":
             print("---------------------------")
             mpd_data.print_packet_info(i)
             print("\n")
-    send_mpd(mpd_data.packets, mpd_data.num_packets())
+    send_mpd(mpd_data.packets, mpd_data.num_packets(), args.rate )
