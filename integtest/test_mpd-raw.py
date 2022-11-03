@@ -6,7 +6,7 @@ import integrationtest.config_file_gen as config_file_gen
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-rate = 0.9
+rate = 0.2
 sleep_time = 10 
 sent_data = 100
 
@@ -42,8 +42,8 @@ hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_p
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
-conf_dict["trigger"]["trigger_window_before_ticks"] = 300000
-conf_dict["trigger"]["trigger_window_after_ticks"] = 300000
+conf_dict["trigger"]["trigger_window_before_ticks"] = 150000
+conf_dict["trigger"]["trigger_window_after_ticks"] = 150000
 
 confgen_arguments={"MPDSystem": conf_dict}
 
