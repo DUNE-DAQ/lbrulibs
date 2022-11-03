@@ -14,18 +14,24 @@ class mpd :
         with open(fileName, mode='rb') as file: 
             fileContent = file.read()
 
+            prev_timestamp = 0 ; 
             for i in range(n_file_evals):
                 fb_i = 0 # first byte in packet
                 fb_f = 0 # last byte in packet
                 while fb_i < file_bytes :
                     fb_f += self.HEADER_SIZE + struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0] 
-                    self.packets.append( fileContent[fb_i:fb_f] ) # store packet information in binary
+
+                    timestamp = struct.unpack('q', fileContent[fb_i+8:fb_i+16])[0]                    
+                    #HACK : store only timestamps with correct time
+                    if timestamp > prev_timestamp :
+                        self.packets.append( fileContent[fb_i:fb_f] ) # store packet information in binary
                     fb_i = fb_f 
+                    prev_timestamp = timestamp
 
                     if len(self.packets) == num_packets :
                         break
                 
-    def print_packet_info( self, event ):
+    def print_packet_info( self, event, print_diff ):
         # This is a helper function that translates the bytes into readable information
         # Only for testing purposes 
 
@@ -44,6 +50,10 @@ class mpd :
         print('Time stamp sync = ',hex(timestamp_sync))
         print('Timestamp length = ',hex(timestamp_length))
         print('Time stamp operation system = ',timestamp)
+        if print_diff and event != 0 : 
+            print( 'Timestamp event', event_number, '=', timestamp ) ; 
+            print( 'Timestamp event', event_number-1, '=', self.time_stamp_event(event-1) ) ; 
+            print( 'Timestamp diff= ', timestamp - self.time_stamp_event(event-1) ) ; 
         print('Event sync number =',hex(event_sync_numb))
         print('Total length event header =',tot_length)
         print('Event Number =',event_number)

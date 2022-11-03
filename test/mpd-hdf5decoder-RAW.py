@@ -20,6 +20,7 @@ def main(filename):
     records_to_process = h5_file.get_all_record_ids()
     print(f'Will process {len(records_to_process)}')
 
+    count_invalid = 0 
     for r in records_to_process:
 
         print(f'Processing (Record Number,Sequence Number)=({r[0],r[1]})')
@@ -49,6 +50,7 @@ def main(filename):
             #Check if Timestamp Sync number is correct
             if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
                 print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
+                count_invalid += 1
             prefix = '\t\t'
             print(f'{prefix} Timestamp Sync: {hex(OSheader.timestamp_sync)}')
             print(f'{prefix} Timestamp size: {OSheader.timestamp_length}')
@@ -73,8 +75,10 @@ def main(filename):
             print(f'{prefix} Trigger Timestamp - Time Stamp = {frag.get_trigger_timestamp() - mpd_f.get_timestamp()}')
             print("\n")
         #end gid loop
- 
+    
     print(f'Processed all requested records')
+    print(f'Valid processed: {len(records_to_process)-count_invalid}')
+    print(f'Invalid processed: {count_invalid}')
 
 if __name__ == '__main__':
     main()
