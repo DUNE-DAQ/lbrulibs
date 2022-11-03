@@ -21,6 +21,7 @@ def main(filename):
     print(f'Will process {len(records_to_process)}')
 
     count_invalid = 0 
+    prev_timestamp = 0 
     for r in records_to_process:
 
         print(f'Processing (Record Number,Sequence Number)=({r[0],r[1]})')
@@ -48,9 +49,6 @@ def main(filename):
             data_header = mpd_f.get_data_header()
             
             #Check if Timestamp Sync number is correct
-            if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
-                print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
-                count_invalid += 1
             prefix = '\t\t'
             print(f'{prefix} Timestamp Sync: {hex(OSheader.timestamp_sync)}')
             print(f'{prefix} Timestamp size: {OSheader.timestamp_length}')
@@ -72,7 +70,13 @@ def main(filename):
             print(f'{prefix} Data length: {data_header.data_length}')
             print(f'{prefix} Channel number: {data_header.channel_number}')
             print(f'{prefix} \033[1mTime Stamp: {mpd_f.get_timestamp()}\033[0m')
-            print(f'{prefix} Trigger Timestamp - Time Stamp = {frag.get_trigger_timestamp() - mpd_f.get_timestamp()}')
+            if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
+                print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
+                count_invalid += 1
+            else :
+                if prev_timestamp != 0 : 
+                    print(f'{prefix} Timestamp({event_header.event_num}) - Timestamp({event_header.event_num -1 }) = {mpd_f.get_timestamp() - prev_timestamp} ')
+                prev_timestamp = mpd_f.get_timestamp()
             print("\n")
         #end gid loop
     
