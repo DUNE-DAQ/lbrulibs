@@ -6,12 +6,15 @@ import integrationtest.config_file_gen as config_file_gen
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-run_duration=60  # seconds
+rate = 0.9
+sleep_time = 10 
+sent_data = 100
+
+run_duration=int(sent_data*rate) + sleep_time  # seconds
 
 # Default values for validation parameters
 expected_number_of_data_files=1
 check_for_logfile_errors=True
-expected_event_count=run_duration
 expected_event_count_tolerance=1
 
 wib1_frag_hsi_trig_params={"fragment_type_description": "MPD",
@@ -39,6 +42,8 @@ hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_p
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
+conf_dict["trigger"]["trigger_window_before_ticks"] = 300000
+conf_dict["trigger"]["trigger_window_after_ticks"] = 300000
 
 confgen_arguments={"MPDSystem": conf_dict}
 
@@ -59,7 +64,7 @@ def test_data_file(run_nanorc):
     for idx in range(len(run_nanorc.data_files)):
         data_file=data_file_checks.DataFile(run_nanorc.data_files[idx])
         assert data_file_checks.sanity_check(data_file)
-        assert data_file_checks.check_event_count(data_file,60,10)
+        assert data_file_checks.check_event_count(data_file,run_duration,10)
         assert data_file_checks.check_fragment_count(data_file, wib1_frag_hsi_trig_params)
 
 import os
@@ -106,7 +111,8 @@ def send_mpd(packets, n_packets):
                 continue
 
         print('Initialising...')
-        time.sleep(1)
+        time.sleep(1.5)
+
         print('Sending ', n_packets, ' MPD messages.')
 
         # Send messages in intervals based on timestamps
@@ -116,10 +122,10 @@ def send_mpd(packets, n_packets):
             
             message_count += 1
             print("Total messages sent:",message_count)        
-            time.sleep(1);
+            time.sleep(rate);
 
         print("Sleeping for 10 seconds before exiting...")
-        time.sleep(10)
+        time.sleep(sleep_time)
     except:
         raise
     finally: #cleanup
@@ -129,7 +135,12 @@ def send_mpd(packets, n_packets):
 print("Starting MPD card(s)")
 import multiprocessing
 
-mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, 60) 
+mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, sent_data) 
+
+run_duration=int(mpd_data.num_packets()*rate) + sleep_time  # seconds
+expected_event_count=run_duration
+print( ' Sending ', mpd_data.num_packets() , ' packets' )
+print( ' Number of expected triggers = ' , run_duration )
 
 process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets(),])
 process.daemon = True
