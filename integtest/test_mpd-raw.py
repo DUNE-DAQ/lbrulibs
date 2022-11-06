@@ -6,9 +6,12 @@ import integrationtest.config_file_gen as config_file_gen
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-rate = 0.2
+rate = 0.1
 sleep_time = 10 
 sent_data = 100
+
+#delay sending
+delay=0
 
 run_duration=int(sent_data*rate) + sleep_time  # seconds
 
@@ -42,13 +45,13 @@ hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_p
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
-conf_dict["trigger"]["trigger_window_before_ticks"] = 150000
-conf_dict["trigger"]["trigger_window_after_ticks"] = 150000
+#conf_dict["trigger"]["trigger_window_before_ticks"] = 3000
+#conf_dict["trigger"]["trigger_window_after_ticks"] = 3000
 
 confgen_arguments={"MPDSystem": conf_dict}
 
 # The commands to run in nanorc, as a list
-nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
+nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + " disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
 
 # The tests themselves
 def test_nanorc_success(run_nanorc):
@@ -111,7 +114,7 @@ def send_mpd(packets, n_packets):
                 continue
 
         print('Initialising...')
-        time.sleep(1.5)
+        time.sleep(1+delay)
 
         print('Sending ', n_packets, ' MPD messages.')
 
