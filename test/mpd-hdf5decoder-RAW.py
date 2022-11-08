@@ -8,7 +8,7 @@ import detdataformats
 import click
 import time
 import numpy as np
-
+import datetime
 
 @click.command()
 @click.argument('filename', type=click.Path(exists=True))
@@ -69,7 +69,7 @@ def main(filename):
             print(f'{prefix} Data type: {data_header.data_type}')
             print(f'{prefix} Data length: {data_header.data_length}')
             print(f'{prefix} Channel number: {data_header.channel_number}')
-            print(f'{prefix} \033[1mTime Stamp: {mpd_f.get_timestamp()}\033[0m')
+            print(f'{prefix} \033[1mEpoch Time Stamp: {mpd_f.get_timestamp()}\033[0m')
             if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
                 print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
                 count_invalid += 1
