@@ -21,6 +21,10 @@
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
 
+#include "lbrulibs/TOADUnpacker.h"
+
+#include "detdataformats/toad/TOADObjectOverlay.hpp"
+
 #include <string>
 #include <mutex>
 #include <atomic>
@@ -179,6 +183,8 @@ private:
 
     ci.add(linkInfo);
   }
+  //Set to TOAD
+  bool is_toad = true;  
   
   void process_STREAMLink() {
 
@@ -188,6 +194,7 @@ private:
     std::ostringstream oss;
 
     zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
+    std::deque<uint8_t> recv_deque;
     while (m_run_marker.load()) {
         TLOG_DEBUG(1) << "Looping";
         
@@ -195,6 +202,7 @@ private:
             TLOG_DEBUG(1) << ": Ready to receive data";
             zmq::message_t id; //routing frame
             zmq::message_t msg;
+            uint8_t mesg[8192];
             zmq::poll (&items [0],1,m_queue_timeout);
 	    if (items[0].revents & ZMQ_POLLIN){
               m_subscriber.recv(&id); //routing frame
@@ -211,7 +219,43 @@ private:
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
-                m_timestamp = Payload->get_timestamp();
+                if(is_toad) {
+                  TOADUnpacker toad_unpacker;
+                  std::vector<dunedaq::detdataformats::toad::TOADFrame> output;
+                  std::memcpy(&mesg, msg.data(), msg.size());
+		  //printf("bytes recv = %d, msg.size() = %d\n", recvd, msg.size()); 
+                  for(int i = 0; i<msg.size(); i++){
+                    recv_deque.push_back(mesg[i]);
+                    //printf("%hhu", mesg[i]);
+                  }
+		  output = toad_unpacker.decode_deque(recv_deque);
+                  int num_ts = output.size();
+		  for(int i=0; i<num_ts; i++) {
+                    //printf("My TS: %lld\n",output[i].get_timestamp());
+                    //m_timestamp = Payload->get_timestamp();
+		    //printf("TIMESTAMP: %lld, %lld, %lld\n", output[i].get_timestamp(), ((uint64_t)output[i].get_timestamp())*50000000, Payload->get_timestamp());
+		    auto t1 = std::chrono::system_clock::now();
+		    output[i].tstmp = (uint32_t)(std::chrono::duration_cast<std::chrono::milliseconds>(t1.time_since_epoch()).count());
+		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay;
+		    size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
+		    printf("nbytes %d\n", nbytes);
+		    char* buffer = new char[nbytes];
+		    toad_obj_overlay.write_toad_overlay(output[i], buffer);
+		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *reinterpret_cast<dunedaq::detdataformats::toad::TOADFrameOverlay*>(buffer);
+		    //std::memcpy(static_cast<void *>(&Payload->data), (void*)(&output[i]), sizeof(&output[i]));
+		    std::memcpy(static_cast<void *>(&Payload->data), (void*)(&overlay), nbytes);
+		    delete[] buffer;
+		    printf("payload size: %d, %d %d\n", sizeof((Payload->data[0])), (int)(Payload->get_payload_size()), sizeof(output[i]));
+                    printf("Timestamps - payload, deque: %lld, %lld\n", ((uint64_t)(Payload->data[0].get_timestamp())*50000000), Payload->get_timestamp());
+		    printf("vector size and first element: %d, %d, %d\n", Payload->data[0].n_samples, Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[1]);
+		    m_sink_queue->send(std::move(*Payload), m_sink_timeout);
+                  }
+                  m_packetsizesum += msg.size(); //sum of data from packets
+                  m_packetsize = msg.size();
+		  m_packetCounter = 226;
+                  continue;
+                }
+		m_timestamp = Payload->get_timestamp();
 		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		m_packetsizesum += msg.size(); //sum of data from packets

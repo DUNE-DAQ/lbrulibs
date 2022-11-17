@@ -364,7 +364,7 @@ def generate(
                         latency_buffer_size=3
                         * CLOCK_SPEED_HZ
                         / (25 * 12 * DATA_RATE_SLOWDOWN_FACTOR),
-                        region_id=0,
+			region_id=0,
                         element_id=idx,
                     ),
                     rawdataprocessorconf=rconf.RawDataProcessorConf(

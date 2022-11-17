@@ -26,7 +26,7 @@ set(DUNEDAQ_DEPENDENCIES appfwk::appfwk readoutlibs::readoutlibs ndreadoutlibs::
 
 ##############################################################################
 # Main library
-daq_add_library(LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES})
+daq_add_library(TOADUnpacker.cpp zeromq.cpp LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES})
 
 ##############################################################################
 # Plugins
