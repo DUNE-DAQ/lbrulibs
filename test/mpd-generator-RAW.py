@@ -90,5 +90,4 @@ if __name__ == "__main__":
             mpd_data.print_packet_info(i)
             print("\n")
 
-    print(args.rate)
     send_mpd(mpd_data.packets, mpd_data.num_packets(), args.rate )
