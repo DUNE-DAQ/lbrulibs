@@ -75,8 +75,8 @@ if __name__ == "__main__":
     parser.add_argument('--num-packets', '-n', dest='num_packets', type=int, default=100, help="Number of packets to send to socket. Default is the number of packets stored in mps example file")
     parser.add_argument('--n_file_evals',     dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
     parser.add_argument('--rate', dest='rate', type=float, default=1.0, help="Rate at which to send data fragments") 
-    parser.add_argument('--print', dest='print', default=False, action='store_true',help='Print events headers' )  
-    parser.add_argument('--print-timestampdiff', dest='printdiff', default=False, action='store_true',help='Print Timestamp(eventi) - Timestamp(eventj)' )  
+    parser.add_argument('--print-eventcontent', dest='print', default=False, action='store_true',help='Print events headers' )  
+
     args = parser.parse_args();
 
     print('Using',args.input_file,'. Decoding its members ...')
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         for i in range(mpd_data.num_packets()) :
             print("Header of packet #"+str(i))
             print("---------------------------")
-            mpd_data.print_packet_info(i,args.printdiff)
+            mpd_data.print_packet_info(i)
             print("\n")
 
     print(args.rate)

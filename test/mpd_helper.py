@@ -25,7 +25,7 @@ class mpd :
                     if len(self.packets) == num_packets :
                         break
                 
-    def print_packet_info( self, event, print_diff ):
+    def print_packet_info( self, event ):
         # This is a helper function that translates the bytes into readable information
         # Only for testing purposes 
 
@@ -44,10 +44,6 @@ class mpd :
         print('Time stamp sync = ',hex(timestamp_sync))
         print('Timestamp length = ',hex(timestamp_length))
         print('Time stamp operation system = ',timestamp)
-        if print_diff and event != 0 : 
-            print( 'Timestamp event', event_number, '=', timestamp ) ; 
-            print( 'Timestamp event', event_number-1, '=', self.time_stamp_event(event-1) ) ; 
-            print( 'Timestamp diff= ', timestamp - self.time_stamp_event(event-1) ) ; 
         print('Event sync number =',hex(event_sync_numb))
         print('Total length event header =',tot_length)
         print('Event Number =',event_number)
