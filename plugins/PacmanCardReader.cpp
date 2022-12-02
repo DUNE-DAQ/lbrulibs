@@ -7,17 +7,17 @@
  */
 
 #include "PacmanCardReader.hpp"
-#include "CreateZMQLink.hpp"
 #include "CreateSTREAMLink.hpp"
-#include "logging/Logging.hpp"
+#include "CreateZMQLink.hpp"
 #include "ZMQIssues.hpp"
+#include "logging/Logging.hpp"
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include <thread>
 #include <utility>
 #include <vector>
-#include <memory>
 
 bool usePUBSUB = 0;
 
@@ -51,8 +51,7 @@ PacmanCardReader::PacmanCardReader(const std::string& name)
 }
 
 inline void
-tokenize(std::string const &str, const char delim,
-         std::vector<std::string>& out)
+tokenize(std::string const& str, const char delim, std::vector<std::string>& out)
 {
   std::size_t start;
   std::size_t end = 0;
@@ -68,37 +67,32 @@ PacmanCardReader::init(const data_t& args)
   auto ini = args.get<appfwk::app::ModInit>();
   TLOG(TLVL_WORK_STEPS) << "ini";
   for (const auto& cr : ini.conn_refs) {
-    if (cr.dir != iomanager::connection::Direction::kOutput) {
-      // ers::error("Only output queues are supported in this module!");
-      TLOG(TLVL_WORK_STEPS) << "PacmanCardReader??? ";
-      continue;
-    } else {
-      TLOG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << cr.uid;
-      const char delim = '_';
-      std::string target = cr.uid;
-      std::vector<std::string> words;
-      tokenize(target, delim, words);
-      if (usePUBSUB) {
-        TLOG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target; 
-        m_zmqlink[0] = createZMQLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
-        if (m_zmqlink[0] == nullptr) {
-          ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
-        }
-        m_zmqlink[0]->init(args, m_queue_capacity);
-      } else {
-        TLOG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target; 
-        m_streamlink[0] = createSTREAMLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
-        if (m_streamlink[0] == nullptr) {
-          ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
-        }
-        m_streamlink[0]->init(args, m_queue_capacity);
+
+    TLOG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << cr.uid;
+    const char delim = '_';
+    std::string target = cr.uid;
+    std::vector<std::string> words;
+    tokenize(target, delim, words);
+    if (usePUBSUB) {
+      TLOG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target;
+      m_zmqlink[0] =
+        createZMQLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
+      if (m_zmqlink[0] == nullptr) {
+        ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
       }
+      m_zmqlink[0]->init(args, m_queue_capacity);
+    } else {
+      TLOG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target;
+      m_streamlink[0] =
+        createSTREAMLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
+      if (m_streamlink[0] == nullptr) {
+        ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
+      }
+      m_streamlink[0]->init(args, m_queue_capacity);
     }
   }
 
-  
   m_cfg = args.get<pacmancardreader::Conf>();
-
 }
 
 void
@@ -106,12 +100,12 @@ PacmanCardReader::do_configure(const data_t& args)
 {
   m_cfg = args.get<pacmancardreader::Conf>();
   m_card_id = m_cfg.card_id;
-  
+
   // Config checks - make some if config values needed, felix example below
   //
-  //if (m_num_links != m_elinks.size()) {
+  // if (m_num_links != m_elinks.size()) {
   //  ers::fatal(ElinkConfigurationInconsistency(ERS_HERE, m_num_links));
-  //} 
+  //}
   //
 
   // Configure components
@@ -122,7 +116,7 @@ PacmanCardReader::do_configure(const data_t& args)
     m_zmqlink[0]->conf(args);
   } else {
     TLOG(TLVL_WORK_STEPS) << "Using Raw TCP Stream";
-    m_streamlink[0]->set_ids(m_card_id,0);
+    m_streamlink[0]->set_ids(m_card_id, 0);
     TLOG(TLVL_WORK_STEPS) << "apply conf";
     m_streamlink[0]->conf(args);
     TLOG(TLVL_WORK_STEPS) << "finish conf";
@@ -149,14 +143,15 @@ PacmanCardReader::do_stop(const data_t& args)
   }
 }
 
-void PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level){
+void
+PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level)
+{
   if (usePUBSUB) {
     m_zmqlink[0]->get_info(ci, level);
   } else {
     m_streamlink[0]->get_info(ci, level);
   }
 }
-
 
 } // namespace lbrulibs
 } // namespace dunedaq
