@@ -1,4 +1,5 @@
 import pytest
+import urllib.request
 import dfmodules.data_file_checks as data_file_checks
 import dfmodules.integtest_file_gen as integtest_file_gen
 import integrationtest.log_file_checks as log_file_checks
@@ -39,6 +40,11 @@ hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_p
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
+try:
+  urllib.request.urlopen('http://localhost:5000').status
+  conf_dict["boot"]["use_connectivity_service"] = True
+except:
+  conf_dict["boot"]["use_connectivity_service"] = False
 conf_dict["trigger"]["trigger_rate_hz"]="1.0"
 conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
 conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
