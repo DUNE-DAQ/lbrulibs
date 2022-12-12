@@ -8,8 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 #define LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 
-#include "STREAMLinkModel.hpp"
 #include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "STREAMLinkModel.hpp"
 
 #include "ZMQIssues.hpp"
 
@@ -18,7 +18,7 @@
 
 namespace dunedaq {
 
-// 09-Dec-2022, KAB: Added the declaration of the message type string for the
+// 09-Dec-2022, KAB: Added the declaration of the message type string for the 
 // PACMAN message struct, needed for serialization of this struct when sending
 // or receiving it over the network with the IOManager ConnectivityService changes.
 // In this header file, this is done in a way that support its declaration in other
@@ -32,7 +32,7 @@ namespace lbrulibs {
 
 std::unique_ptr<STREAMLinkConcept>
 createSTREAMLinkModel(const std::string& target)
-{
+{   
   if (target.find("pacman") != std::string::npos) {
 
     ers::info(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Creating Link for Pacman!"));
