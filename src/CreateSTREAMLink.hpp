@@ -17,6 +17,17 @@
 #include <string>
 
 namespace dunedaq {
+
+// 09-Dec-2022, KAB: Added the declaration of the message type string for the 
+// PACMAN message struct, needed for serialization of this struct when sending
+// or receiving it over the network with the IOManager ConnectivityService changes.
+// In this header file, this is done in a way that support its declaration in other
+// header files in this package (because this level of safety is needed).
+#ifndef LBRULIBS_SRC_DEFINE_TYPESTRINGS_
+#define LBRULIBS_SRC_DEFINE_TYPESTRINGS_
+DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT, "PACMAN")
+#endif // LBRULIBS_SRC_DEFINE_TYPESTRINGS_
+
 namespace lbrulibs {
 
 std::unique_ptr<STREAMLinkConcept>
