@@ -8,8 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 #define LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
 #include "STREAMLinkModel.hpp"
+#include "ndreadoutlibs/NDReadoutTypes.hpp"
 
 #include "ZMQIssues.hpp"
 
@@ -21,7 +21,7 @@ namespace lbrulibs {
 
 std::unique_ptr<STREAMLinkConcept>
 createSTREAMLinkModel(const std::string& target)
-{   
+{
   if (target.find("pacman") != std::string::npos) {
 
     ers::info(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Creating Link for Pacman!"));

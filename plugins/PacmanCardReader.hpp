@@ -8,9 +8,9 @@
 #ifndef LBRULIBS_PLUGINS_PACMANCARDREADER_HPP_
 #define LBRULIBS_PLUGINS_PACMANCARDREADER_HPP_
 
-#include "appfwk/cmd/Structs.hpp"
-#include "appfwk/cmd/Nljs.hpp"
 #include "appfwk/app/Nljs.hpp"
+#include "appfwk/cmd/Nljs.hpp"
+#include "appfwk/cmd/Structs.hpp"
 
 #include "lbrulibs/pacmancardreader/Nljs.hpp"
 #include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
@@ -19,14 +19,14 @@
 #include "appfwk/DAQModule.hpp"
 #include "utilities/WorkerThread.hpp"
 
-#include "ZMQLinkConcept.hpp"
 #include "STREAMLinkConcept.hpp"
+#include "ZMQLinkConcept.hpp"
 
 #include <future>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace dunedaq::lbrulibs {
 
@@ -39,14 +39,10 @@ public:
    */
   explicit PacmanCardReader(const std::string& name);
 
-  PacmanCardReader(const PacmanCardReader&) =
-    delete; ///< PacmanCardReader is not copy-constructible
-  PacmanCardReader& operator=(const PacmanCardReader&) =
-    delete; ///< PacmanCardReader is not copy-assignable
-  PacmanCardReader(PacmanCardReader&&) =
-    delete; ///< PacmanCardReader is not move-constructible
-  PacmanCardReader& operator=(PacmanCardReader&&) =
-    delete; ///< PacmanCardReader is not move-assignable
+  PacmanCardReader(const PacmanCardReader&) = delete;            ///< PacmanCardReader is not copy-constructible
+  PacmanCardReader& operator=(const PacmanCardReader&) = delete; ///< PacmanCardReader is not copy-assignable
+  PacmanCardReader(PacmanCardReader&&) = delete;                 ///< PacmanCardReader is not move-constructible
+  PacmanCardReader& operator=(PacmanCardReader&&) = delete;      ///< PacmanCardReader is not move-assignable
 
   void init(const data_t& args) override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
@@ -54,7 +50,7 @@ public:
 private:
   // Types
   using module_conf_t = dunedaq::lbrulibs::pacmancardreader::Conf;
-  
+
   // Constants
   static constexpr size_t m_queue_capacity = 1000000;
 
@@ -68,12 +64,11 @@ private:
   module_conf_t m_cfg;
 
   int m_card_id;
-  
+
   // ZMQLinkConcept
   std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
   // STREAMLinkConcept
   std::map<int, std::unique_ptr<STREAMLinkConcept>> m_streamlink;
-
 };
 
 } // namespace dunedaq::lbrulibs

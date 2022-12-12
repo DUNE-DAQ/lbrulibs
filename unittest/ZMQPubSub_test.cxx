@@ -19,13 +19,13 @@ BOOST_AUTO_TEST_SUITE(ZMQPubSub_test)
 
 BOOST_AUTO_TEST_CASE(SendReceiveTest)
 {
-  bool m_publisher_connected{false};
-  bool m_subscriber_connected{false};
-  zmq::context_t  m_context;
-  zmq::socket_t m_publisher{m_context, zmq::socket_type::pub};
-  zmq::socket_t m_subscriber{m_context, zmq::socket_type::sub};
+  bool m_publisher_connected{ false };
+  bool m_subscriber_connected{ false };
+  zmq::context_t m_context;
+  zmq::socket_t m_publisher{ m_context, zmq::socket_type::pub };
+  zmq::socket_t m_subscriber{ m_context, zmq::socket_type::sub };
   std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
-  std::chrono::milliseconds m_poller_timeout{10}; //set lower than in actual plugin so the test runs quicker
+  std::chrono::milliseconds m_poller_timeout{ 10 }; // set lower than in actual plugin so the test runs quicker
 
   m_publisher.bind(m_ZMQLink_sourceLink);
   m_publisher_connected = true;
@@ -36,14 +36,14 @@ BOOST_AUTO_TEST_CASE(SendReceiveTest)
   BOOST_REQUIRE(m_publisher_connected);
   BOOST_REQUIRE(m_subscriber_connected);
 
-  std::string test_data{"TEST"};
-  
-  zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
+  std::string test_data{ "TEST" };
+
+  zmq::pollitem_t items[] = { { static_cast<void*>(m_subscriber), 0, ZMQ_POLLIN, 0 } };
   zmq::message_t msg;
-  zmq::poll (&items [0],0,m_poller_timeout);
-  
+  zmq::poll(&items[0], 0, m_poller_timeout);
+
   zmq::message_t packet(test_data.size());
-  memcpy(packet.data(),test_data.data(),test_data.size());
+  memcpy(packet.data(), test_data.data(), test_data.size());
   m_publisher.send(packet);
 
   if (ZMQ_POLLIN) {
