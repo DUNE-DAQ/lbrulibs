@@ -4,6 +4,7 @@ import dfmodules.data_file_checks as data_file_checks
 import dfmodules.integtest_file_gen as integtest_file_gen
 import integrationtest.log_file_checks as log_file_checks
 import integrationtest.config_file_gen as config_file_gen
+import os
 
 # Values that help determine the running conditions
 number_of_data_producers=1
@@ -74,15 +75,16 @@ def test_data_file(run_nanorc):
         assert data_file_checks.check_event_count(data_file,60,10)
         assert data_file_checks.check_fragment_count(data_file, wib1_frag_hsi_trig_params)
 
+lbrulibs_dir=os.path.realpath(os.path.dirname(__file__) + "/../")
 # Set up the message sender here:
 import time
 import sys
-sys.path.insert(1, '../scripts')
+sys.path.insert(1, f"{lbrulibs_dir}/scripts")
 import larpixtools
 import zmq
 
 data_socket = 'tcp://127.0.0.1:5556'
-data_file = '../test/example-pacman-data.h5'
+data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)
