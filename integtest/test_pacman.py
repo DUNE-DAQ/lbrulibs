@@ -31,6 +31,9 @@ confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_dat
 # The commands to run in nanorc, as a list
 nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
 
+# Don't require the --frame-file option since we don't need it
+frame_file_required=False
+
 # The tests themselves
 def test_nanorc_success(run_nanorc):
     # Check that nanorc completed correctly
