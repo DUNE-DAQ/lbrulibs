@@ -18,7 +18,7 @@
 
 namespace dunedaq {
 
-// 09-Dec-2022, KAB: Added the declaration of the message type string for the 
+// 09-Dec-2022, KAB: Added the declaration of the message type string for the
 // PACMAN message struct, needed for serialization of this struct when sending
 // or receiving it over the network with the IOManager ConnectivityService changes.
 // In this header file, this is done in a way that support its declaration in other
