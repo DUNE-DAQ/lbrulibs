@@ -18,10 +18,7 @@ ERS_DECLARE_ISSUE(lbrulibs, InitializationError, " ZMQ Initialization Error: " <
 
 ERS_DECLARE_ISSUE(lbrulibs, GenericNDMessage, " ND Readout: " << initmsg, ((std::string)initmsg))
 
-ERS_DECLARE_ISSUE(lbrulibs,
-                  ReceiveTimeoutExpired,
-                  "Unable to receive within timeout period: " << timeout << " milliseconds.",
-                  ((int)timeout)) // NOLINT
+ERS_DECLARE_ISSUE(lbrulibs, ReceiveTimeoutExpired, "Unable to receive within timeout period: "  << timeout << " milliseconds.",((int)timeout)) // NOLINT
 } // namespace dunedaq
 
 #endif // LBRULIBS_SRC_ZMQISSUES_HPP_
