@@ -70,16 +70,19 @@ def main(filename):
             print(f'{prefix} Data length: {data_header.data_length}')
             print(f'{prefix} Channel number: {data_header.channel_number}')
             print(f'{prefix} \033[1mEpoch Time Stamp: {mpd_f.get_timestamp()}\033[0m')
+
+            N_data = mpd_f.get_nsample()
+            print(f'{prefix} Number samples = {N_data}' )
+            bins = 2048 
+            for i in range(2048): #N_data) : 
+                data = int(mpd_f.get_sample(i))
+                print(f'{prefix} Data {i} : {data}')
             if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
                 print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
                 count_invalid += 1
-            else :
-                if prev_timestamp != 0 : 
-                    print(f'{prefix} Timestamp({event_header.event_num}) - Timestamp({event_header.event_num -1 }) = {mpd_f.get_timestamp() - prev_timestamp} ')
-                prev_timestamp = mpd_f.get_timestamp()
             print("\n")
         #end gid loop
-    
+
     print(f'Processed all requested records')
     print(f'Valid processed: {len(records_to_process)-count_invalid}')
     print(f'Invalid processed: {count_invalid}')
