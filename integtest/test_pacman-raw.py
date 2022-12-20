@@ -1,8 +1,10 @@
 import pytest
+import urllib.request
 import dfmodules.data_file_checks as data_file_checks
 import dfmodules.integtest_file_gen as integtest_file_gen
 import integrationtest.log_file_checks as log_file_checks
 import integrationtest.config_file_gen as config_file_gen
+import os
 
 # Values that help determine the running conditions
 number_of_data_producers=1
@@ -39,6 +41,11 @@ hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_p
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
+try:
+  urllib.request.urlopen('http://localhost:5000').status
+  conf_dict["boot"]["use_connectivity_service"] = True
+except:
+  conf_dict["boot"]["use_connectivity_service"] = False
 conf_dict["trigger"]["trigger_rate_hz"]="1.0"
 conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
 conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
@@ -47,6 +54,9 @@ confgen_arguments={"PACMANSystem": conf_dict}
 
 # The commands to run in nanorc, as a list
 nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
+
+# Don't require the --frame-file option since we don't need it
+frame_file_required=False
 
 # The tests themselves
 def test_nanorc_success(run_nanorc):
@@ -65,15 +75,16 @@ def test_data_file(run_nanorc):
         assert data_file_checks.check_event_count(data_file,60,10)
         assert data_file_checks.check_fragment_count(data_file, wib1_frag_hsi_trig_params)
 
+lbrulibs_dir=os.path.realpath(os.path.dirname(__file__) + "/../")
 # Set up the message sender here:
 import time
 import sys
-sys.path.insert(1, '../scripts')
+sys.path.insert(1, f"{lbrulibs_dir}/scripts")
 import larpixtools
 import zmq
 
 data_socket = 'tcp://127.0.0.1:5556'
-data_file = '../test/example-pacman-data.h5'
+data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)
