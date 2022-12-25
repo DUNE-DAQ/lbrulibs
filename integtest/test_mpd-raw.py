@@ -20,16 +20,12 @@ expected_number_of_data_files=1
 check_for_logfile_errors=True
 expected_event_count_tolerance=1
 
-wib1_frag_hsi_trig_params={"fragment_type_description": "MPD",
-                           "fragment_type": "MPD",
-                           "hdf5_source_subsystem": "Detector_Readout",
-                           "hdf5_detector_group": "NDLAr_PDS", 
-                           "hdf5_region_prefix": "Region",
-                           "element_name_prefix": "Element", 
-                           "element_number_offset": 0, 
-                           "expected_fragment_count": number_of_data_producers,
-                           "min_size_bytes": 28, 
-                           "max_size_bytes": 3724}
+mpd_frag_hsi_trig_params={"fragment_type_description": "MPD",
+                          "fragment_type": "MPD",
+                          "hdf5_source_subsystem": "Detector_Readout",
+                          "expected_fragment_count": number_of_data_producers,
+                          "min_size_bytes": 3796, 
+                          "max_size_bytes": 3796}
 
 # The next three variable declarations *must* be present as globals in the test
 # file. They're read by the "fixtures" in conftest.py to determine how
@@ -47,11 +43,15 @@ conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
 conf_dict["trigger"]["trigger_window_before_ticks"] = 30000
 conf_dict["trigger"]["trigger_window_after_ticks"] = 30000
+conf_dict["readout"]["clock_speed_hz"] = 62500000
 
 confgen_arguments={"MPDSystem": conf_dict}
 
 # The commands to run in nanorc, as a list
 nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + " disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
+
+# Don't require the --frame-file option since we don't need it
+frame_file_required=False
 
 # The tests themselves
 def test_nanorc_success(run_nanorc):
@@ -68,7 +68,8 @@ def test_data_file(run_nanorc):
         data_file=data_file_checks.DataFile(run_nanorc.data_files[idx])
         assert data_file_checks.sanity_check(data_file)
         assert data_file_checks.check_event_count(data_file,run_duration,10)
-        assert data_file_checks.check_fragment_count(data_file, wib1_frag_hsi_trig_params)
+        assert data_file_checks.check_fragment_count(data_file, mpd_frag_hsi_trig_params)
+        assert data_file_checks.check_fragment_sizes(data_file, mpd_frag_hsi_trig_params)
 
 import os
 import numpy as np

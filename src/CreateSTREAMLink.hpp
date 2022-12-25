@@ -26,6 +26,7 @@ namespace dunedaq {
 #ifndef LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 #define LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT, "PACMAN")
+DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::MPD_MESSAGE_STRUCT, "MPD")
 #endif // LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 
 namespace lbrulibs {

@@ -34,3 +34,6 @@
 *.out
 *.app
 scripts/readout-test.h5
+
+# Compiled python scripts
+__pycache__
