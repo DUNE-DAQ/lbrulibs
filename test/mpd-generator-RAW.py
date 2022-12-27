@@ -17,7 +17,7 @@ def store_packets(output_file_name, packets, n_packets):
         for i in range(n_packets) : 
             binary_file.write(packets[i])
 
-def send_mpd(packets, n_packets, rate):
+def send_mpd(packets, n_packets, random_size, rate):
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -76,12 +76,13 @@ if __name__ == "__main__":
     parser.add_argument('--n_file_evals',     dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
     parser.add_argument('--rate', dest='rate', type=float, default=1.0, help="Rate at which to send data fragments") 
     parser.add_argument('--print-eventcontent', dest='print', default=False, action='store_true',help='Print events headers' )  
+    parser.add_argument('--random-size', dest='random_size', default=False, action='store_true',help='It randomly varies the size of the packets')
 
     args = parser.parse_args();
 
     print('Using',args.input_file,'. Decoding its members ...')
 
-    mpd_data = mpd.mpd(args.input_file, args.n_file_evals, args.num_packets)
+    mpd_data = mpd.mpd(args.input_file, args.n_file_evals, args.num_packets, args.random_size)
 
     if args.print : 
         for i in range(mpd_data.num_packets()) :
@@ -90,4 +91,4 @@ if __name__ == "__main__":
             mpd_data.print_packet_info(i)
             print("\n")
 
-    send_mpd(mpd_data.packets, mpd_data.num_packets(), args.rate )
+    send_mpd(mpd_data.packets, mpd_data.num_packets(), args.random_size, args.rate )

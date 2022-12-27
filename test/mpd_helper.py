@@ -3,10 +3,11 @@ import numpy as np
 import argparse
 import sys
 import struct
+import random
 from collections import deque
 
 class mpd :
-    def __init__( self, fileName, n_file_evals, num_packets ) : 
+    def __init__( self, fileName, n_file_evals, num_packets, random_size ) : 
         self.packets = deque()
         self.HEADER_SIZE = 28 ; # bytes
 
@@ -19,7 +20,10 @@ class mpd :
                 fb_f = 0 # last byte in packet
                 while fb_i < file_bytes :
                     fb_f += self.HEADER_SIZE + struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0] 
-                    self.packets.append( fileContent[fb_i:fb_f] ) # store packet information in binary
+                    fb_rand_f = fb_f 
+                    if random_size : 
+                        fb_rand_f -= struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0]*random.randint(0,1)
+                    self.packets.append( fileContent[fb_i:fb_rand_f] ) # store packet information in binary
                     fb_i = fb_f 
 
                     if len(self.packets) == num_packets :
