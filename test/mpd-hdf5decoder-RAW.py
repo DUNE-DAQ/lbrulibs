@@ -46,7 +46,7 @@ def main(filename):
             device_header = mpd_f.get_device_header()
             trigger_header = mpd_f.get_trigger_header()
             trigger_data_header = mpd_f.get_trigger_data_header()
-            data_header = mpd_f.get_data_header()
+            #data_header = mpd_f.get_data_header()
             
             #Check if Timestamp Sync number is correct
             prefix = '\t\t'
@@ -66,21 +66,26 @@ def main(filename):
             print(f'{prefix} Event timestamp 2: {trigger_data_header.event_timestamp_2}')
             print(f'{prefix} Flags: {trigger_data_header.flags}')
             print(f'{prefix} Channel bit mask: {trigger_data_header.channel_bit_mask}')
-            print(f'{prefix} Data type: {data_header.data_type}')
-            print(f'{prefix} Data length: {data_header.data_length}')
-            print(f'{prefix} Channel number: {data_header.channel_number}')
+            #print(f'{prefix} Data type: {data_header.data_type}')
+            #print(f'{prefix} Data length: {data_header.data_length}')
+            #print(f'{prefix} Channel number: {data_header.channel_number}')
             print(f'{prefix} \033[1mEpoch Time Stamp: {mpd_f.get_timestamp()}\033[0m')
+            print(f'{prefix} Size of Frame:{mpd_f.sizeof()')
 
-            N_data = mpd_f.get_nsample()
-            print(f'{prefix} Number samples = {N_data}' )
-            bins = 2048 
-            for i in range(2048): #N_data) : 
-                data = int(mpd_f.get_sample(i))
-                print(f'{prefix} Data {i} : {data}')
-            if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
-                print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
-                count_invalid += 1
-            print("\n")
+            samples = mpd_f.get_samples() ; 
+            for i in range(len(samples)) : 
+                print(f'{prefix} Data {i} : {samples[i]}') 
+
+            #N_data = mpd_f.get_nsample()
+            #print(f'{prefix} Number samples = {N_data}' )
+            #bins = 2048 
+            #for i in range(2048): #N_data) : 
+            #    data = int(mpd_f.get_sample(i))
+            #    print(f'{prefix} Data {i} : {data}')
+            #if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
+            #    print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
+            #    count_invalid += 1
+            #print("\n")
         #end gid loop
 
     print(f'Processed all requested records')

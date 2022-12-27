@@ -22,7 +22,7 @@ class mpd :
                     fb_f += self.HEADER_SIZE + struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0] 
                     fb_rand_f = fb_f 
                     if random_size : 
-                        fb_rand_f -= struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0]*random.randint(0,1)
+                        fb_rand_f -= round(struct.unpack('i', fileContent[fb_i+20:fb_i+24])[0]*random.uniform(0,1))
                     self.packets.append( fileContent[fb_i:fb_rand_f] ) # store packet information in binary
                     fb_i = fb_f 
 
@@ -51,7 +51,8 @@ class mpd :
         print('Event sync number =',hex(event_sync_numb))
         print('Total length event header =',tot_length)
         print('Event Number =',event_number)
-        
+        print('Length packet =',len(fileContent))
+
     def num_packets(self):
         return len(self.packets)
 

@@ -17,7 +17,7 @@ def store_packets(output_file_name, packets, n_packets):
         for i in range(n_packets) : 
             binary_file.write(packets[i])
 
-def send_mpd(packets, n_packets, random_size, rate):
+def send_mpd(packets, n_packets, rate):
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -91,4 +91,4 @@ if __name__ == "__main__":
             mpd_data.print_packet_info(i)
             print("\n")
 
-    send_mpd(mpd_data.packets, mpd_data.num_packets(), args.random_size, args.rate )
+    send_mpd(mpd_data.packets, mpd_data.num_packets(), args.rate )
