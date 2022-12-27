@@ -17,7 +17,6 @@
 
 #include "readoutlibs/utils/ReusableThread.hpp"
 #include "ndreadoutlibs/NDReadoutTypes.hpp"
-#include "detdataformats/mpd/MPDLoadFrame.hpp"
 
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
