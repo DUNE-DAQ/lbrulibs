@@ -17,6 +17,7 @@
 
 #include "readoutlibs/utils/ReusableThread.hpp"
 #include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "detdataformats/mpd/MPDLoadFrame.hpp"
 
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
@@ -35,7 +36,7 @@ enum
   {
     TLVL_ENTER_EXIT_METHODS = 5,
     TLVL_WORK_STEPS = 10,
-  TLVL_BOOKKEEPING = 15
+    TLVL_BOOKKEEPING = 15
   };
 
 
@@ -221,8 +222,11 @@ private:
               }
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
-                TargetPayloadType* Payload = new TargetPayloadType();
-                m_timestamp = Payload->get_timestamp();
+		TargetPayloadType* Payload = new TargetPayloadType();
+		m_timestamp = Payload->get_timestamp() ; 
+
+		Payload -> load_message(msg.data(), msg.size()) ; 
+
 		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		m_packetsizesum += msg.size(); //sum of data from packets
