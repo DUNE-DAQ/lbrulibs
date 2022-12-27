@@ -8,7 +8,7 @@ import integrationtest.config_file_gen as config_file_gen
 number_of_data_producers=1
 rate = 1
 sleep_time = 0 
-sent_data = 100
+sent_data = 5 #100
 
 #delay sending
 delay=0
@@ -24,7 +24,7 @@ mpd_frag_hsi_trig_params={"fragment_type_description": "MPD",
                           "fragment_type": "MPD",
                           "hdf5_source_subsystem": "Detector_Readout",
                           "expected_fragment_count": number_of_data_producers,
-                          "min_size_bytes": 3796, 
+                          "min_size_bytes": 448, 
                           "max_size_bytes": 3796}
 
 # The next three variable declarations *must* be present as globals in the test
@@ -143,9 +143,10 @@ mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, sent_data)
 
 run_duration=int(mpd_data.num_packets()*rate) + sleep_time  # seconds
 expected_event_count=run_duration
+use_random_size = true 
 print( ' Sending ', mpd_data.num_packets() , ' packets' )
 print( ' Number of expected triggers = ' , run_duration )
 
-process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets(),])
+process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets(), use_random_size])
 process.daemon = True
 process.start()
