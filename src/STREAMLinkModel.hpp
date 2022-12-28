@@ -222,8 +222,8 @@ private:
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
 		TargetPayloadType* Payload = new TargetPayloadType();
-		m_timestamp = Payload->get_timestamp() ; 
 		Payload -> load_message(msg.data(), msg.size()) ; 
+		m_timestamp = Payload->get_timestamp() ; 
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		m_packetsizesum += msg.size(); //sum of data from packets
 	       	m_packetsize = msg.size(); //last packet size

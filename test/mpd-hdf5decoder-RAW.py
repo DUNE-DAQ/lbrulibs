@@ -4,7 +4,7 @@ from hdf5libs import HDF5RawDataFile
 
 import daqdataformats
 import detdataformats
-
+import sys
 import click
 import time
 import numpy as np
@@ -36,7 +36,6 @@ def main(filename):
             frag_ts = frag.get_trigger_timestamp()
 
             print(f'\tTrigger timestamp for fragment is {frag_ts}')
-
             mpd_f = detdataformats.mpd.MPDFrame(frag.get_data())
 
             #print header info
@@ -46,7 +45,6 @@ def main(filename):
             device_header = mpd_f.get_device_header()
             trigger_header = mpd_f.get_trigger_header()
             trigger_data_header = mpd_f.get_trigger_data_header()
-            #data_header = mpd_f.get_data_header()
             
             #Check if Timestamp Sync number is correct
             prefix = '\t\t'
@@ -66,27 +64,17 @@ def main(filename):
             print(f'{prefix} Event timestamp 2: {trigger_data_header.event_timestamp_2}')
             print(f'{prefix} Flags: {trigger_data_header.flags}')
             print(f'{prefix} Channel bit mask: {trigger_data_header.channel_bit_mask}')
-            #print(f'{prefix} Data type: {data_header.data_type}')
-            #print(f'{prefix} Data length: {data_header.data_length}')
-            #print(f'{prefix} Channel number: {data_header.channel_number}')
             print(f'{prefix} \033[1mEpoch Time Stamp: {mpd_f.get_timestamp()}\033[0m')
-            print(f'{prefix} Size of Frame:{mpd_f.sizeof()')
+            print(f'{prefix} Size in bytes of all MSTreamBlocks is {frag.get_size()}')
 
-            samples = mpd_f.get_samples() ; 
-            for i in range(len(samples)) : 
-                print(f'{prefix} Data {i} : {samples[i]}') 
+            word_length = 4 #bytes 
+            trigger_words = 5
+            lenght = int( device_header.device_length / word_length ) - trigger_words 
 
-            #N_data = mpd_f.get_nsample()
-            #print(f'{prefix} Number samples = {N_data}' )
-            #bins = 2048 
-            #for i in range(2048): #N_data) : 
-            #    data = int(mpd_f.get_sample(i))
-            #    print(f'{prefix} Data {i} : {data}')
-            #if str(hex(OSheader.timestamp_sync)) != '0x3f60b8a8' : 
-            #    print ("\t\t \033[1m\033[91m*** EMPTY FRAGMENT ***\033[0m\033[0m")
-            #    count_invalid += 1
-            #print("\n")
-        #end gid loop
+            n_channels = 7 
+            n_samples = ( lenght - 3 * n_channels ) / n_channels * 2
+            
+            my_bytes = mpd_f.get_data(0).to_bytes(4,'big')
 
     print(f'Processed all requested records')
     print(f'Valid processed: {len(records_to_process)-count_invalid}')

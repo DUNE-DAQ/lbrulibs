@@ -8,7 +8,7 @@ import integrationtest.config_file_gen as config_file_gen
 number_of_data_producers=1
 rate = 1
 sleep_time = 0 
-sent_data = 5 #100
+sent_data = 100
 
 #delay sending
 delay=0
@@ -139,14 +139,15 @@ def send_mpd(packets, n_packets):
 print("Starting MPD card(s)")
 import multiprocessing
 
-mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, sent_data) 
+use_random_size = False
+mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, sent_data, use_random_size) 
 
 run_duration=int(mpd_data.num_packets()*rate) + sleep_time  # seconds
 expected_event_count=run_duration
-use_random_size = true 
+
 print( ' Sending ', mpd_data.num_packets() , ' packets' )
 print( ' Number of expected triggers = ' , run_duration )
 
-process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets(), use_random_size])
+process = multiprocessing.Process(target=send_mpd,args=[mpd_data.packets, mpd_data.num_packets(),])
 process.daemon = True
 process.start()
