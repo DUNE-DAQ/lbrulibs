@@ -234,20 +234,21 @@ private:
                     //printf("My TS: %lld\n",output[i].get_timestamp());
                     //m_timestamp = Payload->get_timestamp();
 		    //printf("TIMESTAMP: %lld, %lld, %lld\n", output[i].get_timestamp(), ((uint64_t)output[i].get_timestamp())*50000000, Payload->get_timestamp());
-		    auto t1 = std::chrono::system_clock::now();
-		    output[i].tstmp = (uint32_t)(std::chrono::duration_cast<std::chrono::milliseconds>(t1.time_since_epoch()).count());
+		    //auto t1 = std::chrono::system_clock::now();
+		    //output[i].tstmp = (uint32_t)(std::chrono::duration_cast<std::chrono::milliseconds>(t1.time_since_epoch()).count());
 		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay;
 		    size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
 		    printf("nbytes %d\n", nbytes);
 		    char* buffer = new char[nbytes];
-		    toad_obj_overlay.write_toad_overlay(output[i], buffer);
-		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *reinterpret_cast<dunedaq::detdataformats::toad::TOADFrameOverlay*>(buffer);
+		    toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
+		    //dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *reinterpret_cast<dunedaq::detdataformats::toad::TOADFrameOverlay*>(buffer);
 		    //std::memcpy(static_cast<void *>(&Payload->data), (void*)(&output[i]), sizeof(&output[i]));
+		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
 		    std::memcpy(static_cast<void *>(&Payload->data), (void*)(&overlay), nbytes);
 		    delete[] buffer;
-		    printf("payload size: %d, %d %d\n", sizeof((Payload->data[0])), (int)(Payload->get_payload_size()), sizeof(output[i]));
+		    printf("payload size: %d, %d %d %d\n", sizeof((Payload->data[0])), (int)(Payload->data[0].get_size()), (Payload->get_payload_size()), sizeof(output[i]));
                     printf("Timestamps - payload, deque: %lld, %lld\n", ((uint64_t)(Payload->data[0].get_timestamp())*50000000), Payload->get_timestamp());
-		    printf("vector size and first element: %d, %d, %d\n", Payload->data[0].n_samples, Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[1]);
+		    printf("vector size and first, last  element: %d, %d, %d\n", Payload->data[0].n_samples, Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[Payload->data[0].n_samples - 1]);
 		    m_sink_queue->send(std::move(*Payload), m_sink_timeout);
                   }
                   m_packetsizesum += msg.size(); //sum of data from packets
