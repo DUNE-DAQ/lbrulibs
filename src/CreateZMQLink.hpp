@@ -8,7 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATEZMQLINK_HPP_
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 #include "ZMQLinkModel.hpp"
 
 #include "ZMQIssues.hpp"

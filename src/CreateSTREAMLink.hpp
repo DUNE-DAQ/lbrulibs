@@ -8,7 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 #define LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 #include "STREAMLinkModel.hpp"
 
 #include "ZMQIssues.hpp"

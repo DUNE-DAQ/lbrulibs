@@ -16,7 +16,8 @@
 #include "logging/Logging.hpp"
 
 #include "readoutlibs/utils/ReusableThread.hpp"
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
