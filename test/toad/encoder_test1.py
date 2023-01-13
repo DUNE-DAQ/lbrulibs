@@ -4,8 +4,10 @@ from random import gauss, uniform
 import numpy as np
 import sys
 
+timestamp = int(time.time())
+
 for i in range(int(sys.argv[1])):
-    timestamp = int(time.time())
+    timestamp += 1
     hdr_par = 1
     data_par = 0
     res = 0
