@@ -8,7 +8,7 @@ import mpd_helper as mpd
 import time
 import zmq
 import random
-
+lbrulibs_testdir=os.path.realpath(os.path.dirname(__file__) )
 # Prepare ports
 data = 'tcp://127.0.0.1:5556'
 
@@ -71,9 +71,9 @@ def send_mpd(packets, n_packets, rate):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser();
     # Add arguments here for my script
-    parser.add_argument('--input-file', '-i', dest='input_file', type=str, default="example-mpd-data-singal.data", help="Input file which contains data to be sent to stream.")
-    parser.add_argument('--num-packets', '-n', dest='num_packets', type=int, default=100, help="Number of packets to send to socket. Default is the number of packets stored in mps example file")
-    parser.add_argument('--n_file_evals',     dest='n_file_evals', type=int, default=1,     help='Number of times the input file is looped through.')
+    parser.add_argument('--input-file', '-i', dest='input_file', type=str, default=f"{lbrulibs_testdir}/example-mpd-data-100events-noise.data", help="Input file which contains data to be sent to stream.")
+    parser.add_argument('--num-packets', dest='num_packets', type=int, default=100, help="Number of packets to send to socket. Default is the number of packets stored in mps example file")
+    parser.add_argument('--n_file_evals', dest='n_file_evals', type=int, default=1, help='Number of times the input file is looped through.')
     parser.add_argument('--rate', dest='rate', type=float, default=1.0, help="Rate at which to send data fragments") 
     parser.add_argument('--print-eventcontent', dest='print', default=False, action='store_true',help='Print events headers' )  
     parser.add_argument('--random-size', dest='random_size', default=False, action='store_true',help='It randomly varies the size of the packets')
