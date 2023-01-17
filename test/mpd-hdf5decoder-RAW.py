@@ -64,7 +64,7 @@ def main(filename):
             print(f'{prefix} Event timestamp 2: {trigger_data_header.event_timestamp_2}')
             print(f'{prefix} Flags: {trigger_data_header.flags}')
             print(f'{prefix} Channel bit mask: {trigger_data_header.channel_bit_mask}')
-            print(f'{prefix} \033[1mEpoch Time Stamp: {mpd_f.get_timestamp()}\033[0m')
+            print(f'{prefix} \033[1mDUNE Clock tick Time Stamp: {mpd_f.get_timestamp()}\033[0m')
             print(f'{prefix} Size in bytes of all MSTreamBlocks is {frag.get_size()}')
 
             word_length = 4 #bytes 
