@@ -77,7 +77,8 @@ import argparse
 import sys
 import struct
 from collections import deque
-sys.path.insert(1, '../test')
+lbrulibs_dir=os.path.realpath(os.path.dirname(__file__) + "/../")
+sys.path.insert(1, f"{lbrulibs_dir}/test")
 import mpd_helper as mpd
 import time
 import zmq
@@ -140,7 +141,7 @@ print("Starting MPD card(s)")
 import multiprocessing
 
 use_random_size = False
-mpd_data = mpd.mpd("../test/example-mpd-data-100events.data", 1, sent_data, use_random_size) 
+mpd_data = mpd.mpd(f"{lbrulibs_dir}/test/example-mpd-data-100events-noise.data", 1, sent_data, use_random_size) 
 
 run_duration=int(mpd_data.num_packets()*rate) + sleep_time  # seconds
 expected_event_count=run_duration
