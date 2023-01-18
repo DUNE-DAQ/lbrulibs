@@ -65,7 +65,6 @@ def main(filename):
             print(f'{prefix} Flags: {trigger_data_header.flags}')
             print(f'{prefix} Channel bit mask: {trigger_data_header.channel_bit_mask}')
             print(f'{prefix} \033[1mDUNE Clock tick Time Stamp: {mpd_f.get_timestamp()}\033[0m')
-            print(f'{prefix} Size in bytes of all MSTreamBlocks : {frag.get_size()}')
             print(f'{prefix} Number enabled channels : {mpd_f.get_nchannels()}')
             print(f'{prefix} Number of samples per channel : {mpd_f.get_nsamples()}') 
             
