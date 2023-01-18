@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from hdf5libs import HDF5RawDataFile
 
 import daqdataformats
@@ -66,15 +65,9 @@ def main(filename):
             print(f'{prefix} Flags: {trigger_data_header.flags}')
             print(f'{prefix} Channel bit mask: {trigger_data_header.channel_bit_mask}')
             print(f'{prefix} \033[1mDUNE Clock tick Time Stamp: {mpd_f.get_timestamp()}\033[0m')
-            print(f'{prefix} Size in bytes of all MSTreamBlocks is {frag.get_size()}')
-            print(f'{prefix} Number enabled channels {mpd_f.get_nchannels()}')
-
-            word_length = 4 #bytes 
-            trigger_words = 5
-            lenght = int( device_header.device_length / word_length ) - trigger_words 
-            n_channels = mpd_f.get_nchannels()
-            n_samples = int( ( lenght - 3 * n_channels ) / n_channels * 2 )
-            print(f'{prefix} Number of samples per channel : {n_samples}')
+            print(f'{prefix} Size in bytes of all MSTreamBlocks : {frag.get_size()}')
+            print(f'{prefix} Number enabled channels : {mpd_f.get_nchannels()}')
+            print(f'{prefix} Number of samples per channel : {mpd_f.get_nsamples()}') 
             
     print(f'Processed all requested records')
     print(f'Valid processed: {len(records_to_process)-count_invalid}')
