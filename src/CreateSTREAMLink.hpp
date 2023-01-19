@@ -32,7 +32,17 @@ createSTREAMLinkModel(const std::string& target)
     streamlink_model->set_sink(target);
     return streamlink_model;
   }
-
+  else if(target.find("toad") != std::string::npos) {
+    
+    ers::info(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Creating Link for TOAD!"));
+     
+    // Create Model
+    auto streamlink_model = std::make_unique<STREAMLinkModel<ndreadoutlibs::types::TOAD_MESSAGE_STRUCT>>();
+    // Setup sink (acquire pointer from QueueRegistry)
+    streamlink_model->set_sink(target);
+    return streamlink_model;
+  }
+    
   ers::warning(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Could not find target!"));
 
   return nullptr;
