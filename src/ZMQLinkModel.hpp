@@ -74,12 +74,12 @@ public:
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
-      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
+      m_subscriber.set(zmq::sockopt::subscribe, "");
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
       m_subscriber.connect(m_ZMQLink_sourceLink);
       m_subscriber_connected = true;
       TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
-      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
+      m_subscriber.set(zmq::sockopt::subscribe, "");
       TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
 
       m_parser_thread.set_name(m_ZMQLink_sourceLink, m_link_tag);
