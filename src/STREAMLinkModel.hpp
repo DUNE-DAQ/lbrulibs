@@ -209,8 +209,13 @@ private:
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
 	    if (items[0].revents & ZMQ_POLLIN){
-              m_subscriber.recv(&id); //routing frame
-              auto recvd = m_subscriber.recv(msg);
+              auto recvd = m_subscriber.recv(id); //routing frame
+              if (recvd == 0) {
+                m_rcvd_zero++;
+                TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
+                continue;
+              }
+              recvd = m_subscriber.recv(msg);
               if (recvd == 0) {
 		m_rcvd_zero++;
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
