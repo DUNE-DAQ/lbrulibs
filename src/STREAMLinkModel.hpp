@@ -243,10 +243,15 @@ private:
 		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay;
                     size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
                     char* buffer = new char[nbytes];
+		    printf("TIMESTAMP: %lld, %lld, %lld\n", output[i].tstmp, ((uint64_t)output[i].tstmp)*50000000, Payload->get_timestamp());
+		    printf("nbytes %d\n", nbytes);
                     toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
 		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
                     std::memcpy(static_cast<void *>(&Payload->data), (void*)(&overlay), nbytes);
                     delete[] buffer;
+		    //printf("payload size: %d, %d %d %d\n", sizeof((Payload->data[0])), (int)(Payload->data[0].get_size()), (Payload->get_payload_size()), sizeof(output[i]));
+                    printf("Timestamps - payload: %lld\n", (Payload->get_timestamp()));
+		    //printf("vector size and first, last  element: %d, %d, %d\n", Payload->data[0].n_samples, Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[Payload->data[0].n_samples - 1]);
 		    m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		  }
 		  m_packetsizesum += msg.size(); //sum of data from packets
