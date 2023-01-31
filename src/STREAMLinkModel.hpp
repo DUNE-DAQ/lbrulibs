@@ -257,6 +257,7 @@ private:
 		  m_packetsizesum += msg.size(); //sum of data from packets
                   m_packetsize = msg.size();
                   m_packetCounter += num_ts;
+		  continue;
 		}
                 m_timestamp = Payload->get_timestamp();
 		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
