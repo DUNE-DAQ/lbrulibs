@@ -8,7 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 #define LBRULIBS_SRC_CREATESTREAMLINK_HPP_
 
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 #include "STREAMLinkModel.hpp"
 
 #include "ZMQIssues.hpp"
@@ -26,6 +27,7 @@ namespace dunedaq {
 #ifndef LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 #define LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT, "PACMAN")
+DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::MPD_MESSAGE_STRUCT, "MPD")
 #endif // LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 
 namespace lbrulibs {
@@ -42,6 +44,17 @@ createSTREAMLinkModel(const std::string& target)
     // Setup sink (acquire pointer from QueueRegistry)
     streamlink_model->set_sink(target);
     return streamlink_model;
+
+  } else if (target.find("mpd") != std::string::npos) {
+
+    ers::info(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Creating Link for MPD!"));
+
+    // Create Model
+    auto streamlink_model = std::make_unique<STREAMLinkModel<ndreadoutlibs::types::MPD_MESSAGE_STRUCT>>();
+    // Setup sink (acquire pointer from QueueRegistry)
+    streamlink_model->set_sink(target);
+    return streamlink_model;
+
   }
 
   ers::warning(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Could not find target!"));

@@ -16,7 +16,8 @@
 #include "logging/Logging.hpp"
 
 #include "readoutlibs/utils/ReusableThread.hpp"
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
@@ -35,7 +36,7 @@ enum
   {
     TLVL_ENTER_EXIT_METHODS = 5,
     TLVL_WORK_STEPS = 10,
-  TLVL_BOOKKEEPING = 15
+    TLVL_BOOKKEEPING = 15
   };
 
 
@@ -208,8 +209,13 @@ private:
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
 	    if (items[0].revents & ZMQ_POLLIN){
-              m_subscriber.recv(&id); //routing frame
-              auto recvd = m_subscriber.recv(&msg);
+              auto recvd = m_subscriber.recv(id); //routing frame
+              if (recvd == 0) {
+                m_rcvd_zero++;
+                TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
+                continue;
+              }
+              recvd = m_subscriber.recv(msg);
               if (recvd == 0) {
 		m_rcvd_zero++;
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
@@ -221,9 +227,9 @@ private:
               }
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
-                TargetPayloadType* Payload = new TargetPayloadType();
-                m_timestamp = Payload->get_timestamp();
-		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
+		TargetPayloadType* Payload = new TargetPayloadType();
+		Payload -> load_message(msg.data(), msg.size()) ; 
+		m_timestamp = Payload->get_timestamp() ; 
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		m_packetsizesum += msg.size(); //sum of data from packets
 	       	m_packetsize = msg.size(); //last packet size

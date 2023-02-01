@@ -8,7 +8,8 @@
 #ifndef LBRULIBS_SRC_CREATEZMQLINK_HPP_
 #define LBRULIBS_SRC_CREATEZMQLINK_HPP_
 
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 #include "ZMQLinkModel.hpp"
 
 #include "ZMQIssues.hpp"
@@ -26,6 +27,7 @@ namespace dunedaq {
 #ifndef LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 #define LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT, "PACMAN")
+DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::MPD_MESSAGE_STRUCT, "MPD")
 #endif // LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 
 namespace lbrulibs {
@@ -45,6 +47,17 @@ createZMQLinkModel(const std::string& target)
     //auto& sink = zmqlink_model->get_sink();
 
     // Return with setup model
+    return zmqlink_model;
+
+  } else if (target.find("mpd") != std::string::npos) {
+
+    ers::info(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Creating Link for MPD!"));
+
+    // Create Model
+    auto zmqlink_model = std::make_unique<ZMQLinkModel<ndreadoutlibs::types::MPD_MESSAGE_STRUCT>>();
+
+    zmqlink_model->set_sink(target);
+
     return zmqlink_model;
   }
 

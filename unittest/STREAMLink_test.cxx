@@ -17,7 +17,7 @@
 #include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
 #include "appfwk/app/Nljs.hpp"
 #include "nlohmann/json.hpp"
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
 #include <string>
 #include <vector>
 

@@ -16,7 +16,8 @@
 #include "logging/Logging.hpp"
 
 #include "readoutlibs/utils/ReusableThread.hpp"
-#include "ndreadoutlibs/NDReadoutTypes.hpp"
+#include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
+#include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
 #include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
@@ -73,12 +74,12 @@ public:
       m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
-      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
+      m_subscriber.set(zmq::sockopt::subscribe, "");
       TLOG_DEBUG(5) << "ZMQLinkModel conf: connecting subscriber!";
       m_subscriber.connect(m_ZMQLink_sourceLink);
       m_subscriber_connected = true;
       TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
-      m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
+      m_subscriber.set(zmq::sockopt::subscribe, "");
       TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
 
       m_parser_thread.set_name(m_ZMQLink_sourceLink, m_link_tag);
@@ -196,7 +197,7 @@ private:
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
 	    if (items[0].revents & ZMQ_POLLIN){
-              auto recvd = m_subscriber.recv(&msg);
+              auto recvd = m_subscriber.recv(msg);
               if (recvd == 0) {
 		m_rcvd_zero++;
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
@@ -205,7 +206,7 @@ private:
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
-		std::memcpy(static_cast<void *>(&Payload->data), msg.data(), msg.size());
+                Payload -> load_message(msg.data(), msg.size()) ;
                 m_timestamp = Payload->get_timestamp();
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		m_packetsizesum += msg.size(); //sum of data from packets
