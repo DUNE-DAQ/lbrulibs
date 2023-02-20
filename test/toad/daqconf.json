@@ -1,0 +1,25 @@
+{
+  "dataflow": {
+    "host_dfo": "localhost",
+    "apps": [
+      {
+        "app_name": "dataflow0",
+        "token_count": 10,
+        "output_paths": [ "./NDGAr" ],
+        "host_df": "localhost",
+        "max_file_size": 4294967296,
+        "max_trigger_record_window": 0
+      }
+    ]
+  },
+  "readout": {
+    "hardware_map_file": "./HardwareMap.txt",
+    "clock_speed_hz": 56000000
+  },
+  "trigger": {
+    "trigger_activity_config": {"prescale":1000},
+    "trigger_window_before_ticks": 2500,
+    "trigger_window_after_ticks": 2500,
+    "trigger_rate_hz": 1.0
+  }
+}

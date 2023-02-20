@@ -1,0 +1,2 @@
+# DRO_SourceID DetLink DetSlot DetCrate DetID DRO_Host DRO_Card DRO_SLR DRO_Link 
+0 0 0 0 33 localhost 0 0 0
