@@ -230,27 +230,28 @@ private:
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
-		if(is_toad) {
+		if(is_toad) { //run TOAD receive loop
 		  TOADUnpacker toad_unpacker;
                   std::vector<dunedaq::detdataformats::toad::TOADFrame> output;
                   std::memcpy(&mesg, msg.data(), msg.size());
 		  for(int i = 0; i<msg.size(); i++){
-                    recv_deque.push_back(mesg[i]);
+                    recv_deque.push_back(mesg[i]); //received bytes into deque
 		  }
-		  output = toad_unpacker.decode_deque(recv_deque);
+		  output = toad_unpacker.decode_deque(recv_deque); //unpack into vect of TOADFrames
                   int num_ts = output.size();
                   for(int i=0; i<num_ts; i++) {
-		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay;
+		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay; //Overlay class to convert vector of samples into array of samples
                     size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
                     char* buffer = new char[nbytes];
-		    printf("TIMESTAMP: %lld, %lld, %lld\n", output[i].tstmp, ((uint64_t)output[i].tstmp)*50000000, Payload->get_timestamp());
+		    printf("TIMESTAMP: %lu, %lu\n", output[i].tstmp, ((uint64_t)output[i].tstmp));
 		    printf("nbytes %d\n", nbytes);
                     toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
 		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
                     std::memcpy(static_cast<void *>(&Payload->data), (void*)(&overlay), nbytes);
                     delete[] buffer;
-		    //printf("payload size: %d, %d %d %d\n", sizeof((Payload->data[0])), (int)(Payload->data[0].get_size()), (Payload->get_payload_size()), sizeof(output[i]));
-                    printf("Timestamps - payload: %lld\n", (Payload->get_timestamp()));
+		    //printf("payload size: %lld, %d, %d %d %d\n", overlay->tstmp, sizeof((Payload->data[0])), (int)(Payload->data[0].get_size()), (Payload->get_payload_size()), sizeof(output[i]));
+                    printf("Timestamp overlay: %lu\n", (&overlay)->tstmp);
+		    printf("Timestamps - payload: %lu\n", (Payload->get_timestamp()));
 		    //printf("vector size and first, last  element: %d, %d, %d\n", Payload->data[0].n_samples, Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[Payload->data[0].n_samples - 1]);
 		    m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		  }
