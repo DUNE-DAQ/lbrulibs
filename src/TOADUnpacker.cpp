@@ -36,7 +36,10 @@ void TOADUnpacker::read_header(){
   timesample = bitmask(header_in, 10ULL, 7ULL);
   timewindow = bitmask(header_in, 20ULL, 17ULL);
   num_clusters = bitmask(header_in, 10ULL, 48ULL);
-  fec_num = (bitmask(header_in, 5ULL, 58ULL)) | (bitmask(header_in, 11ULL, 37ULL)); 
+  fec_num = (bitmask(header_in, 5ULL, 58ULL));
+  printf("fec %d", (int)fec_num);
+  fec_num = (fec_num << 11) | (bitmask(header_in, 11ULL, 37ULL));
+  printf("fec %d", (int)fec_num);
   outpt.fec = fec_num;
   hdr_id = bitmask(header_in, 1ULL, 63ULL);
 }

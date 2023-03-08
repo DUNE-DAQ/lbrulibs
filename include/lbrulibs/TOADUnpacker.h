@@ -11,7 +11,7 @@ class TOADUnpacker {
     uint64_t header_in;
     uint64_t data_in;
 
-    unsigned fec_num: 9;
+    unsigned fec_num: 16;
     unsigned num_clusters: 10;
     //unsigned channel_id: 5;
     uint64_t timestamp: 64;

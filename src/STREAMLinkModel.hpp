@@ -30,6 +30,7 @@
 #include <memory>
 #include <chrono>
 
+#include <stdlib.h>
 
 /**
  * @brief TRACE debug levels used in this source file
@@ -243,6 +244,13 @@ private:
 		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay; //Overlay class to convert vector of samples into array of samples
                     size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
                     char* buffer = new char[nbytes];
+		    //MANUALLY CHANGING TIMESTAMP TO WALLCLOCK
+		    auto time_now = std::chrono::system_clock::now().time_since_epoch();
+  		    uint64_t current_time = std::chrono::duration_cast<std::chrono::microseconds>(time_now).count();
+ 		    uint64_t clock_frequency = 56000000;
+		    uint64_t random_num = rand() % 1000;
+ 		    output[i].tstmp = ((clock_frequency/ 1000000) * current_time) + random_num;
+		    //END OF CHANGE
 		    printf("TIMESTAMP: %lu, %lu\n", output[i].tstmp, ((uint64_t)output[i].tstmp));
 		    printf("nbytes %d\n", nbytes);
                     toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
