@@ -9,6 +9,7 @@ find_package(appfwk REQUIRED)
 find_package(logging REQUIRED)
 find_package(ers REQUIRED)
 find_package(detdataformats REQUIRED)
+find_package(nddetdataformats REQUIRED)
 find_package(readoutlibs REQUIRED)
 find_package(ndreadoutlibs REQUIRED)
 find_package(ipm REQUIRED)
@@ -20,7 +21,7 @@ daq_codegen(pacmancardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/In
 
 ##############################################################################
 # Dependency sets
-set(DUNEDAQ_DEPENDENCIES appfwk::appfwk readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats ipm::ipm iomanager::iomanager)
+set(DUNEDAQ_DEPENDENCIES appfwk::appfwk readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
 
 
