@@ -2,6 +2,7 @@
 from hdf5libs import HDF5RawDataFile
 
 import daqdataformats
+import nddetdataformats
 import detdataformats
 import sys
 import click
@@ -35,7 +36,7 @@ def main(filename):
             frag_ts = frag.get_trigger_timestamp()
 
             print(f'\tTrigger timestamp for fragment is {frag_ts}')
-            mpd_f = detdataformats.mpd.MPDFrame(frag.get_data())
+            mpd_f = nddetdataformats.mpd.MPDFrame(frag.get_data())
 
             #print header info
             print('\n\t==== MPD HEADER (First Frame) ====')
