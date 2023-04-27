@@ -26,8 +26,8 @@ namespace dunedaq {
 // header files in this package (because this level of safety is needed).
 #ifndef LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 #define LBRULIBS_SRC_DEFINE_TYPESTRINGS_
-DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT, "PACMANFrame")
-DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::MPD_MESSAGE_STRUCT, "MPDFrame")
+DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::NDReadoutPACMANTypeAdapter, "PACMANFrame")
+DUNE_DAQ_TYPESTRING(dunedaq::ndreadoutlibs::types::NDReadoutMPDTypeAdapter, "MPDFrame")
 #endif // LBRULIBS_SRC_DEFINE_TYPESTRINGS_
 
 namespace lbrulibs {
@@ -40,7 +40,7 @@ createSTREAMLinkModel(const std::string& target)
     ers::info(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Creating Link for Pacman!"));
 
     // Create Model
-    auto streamlink_model = std::make_unique<STREAMLinkModel<ndreadoutlibs::types::PACMAN_MESSAGE_STRUCT>>();
+    auto streamlink_model = std::make_unique<STREAMLinkModel<ndreadoutlibs::types::NDReadoutPACMANTypeAdapter>>();
     // Setup sink (acquire pointer from QueueRegistry)
     streamlink_model->set_sink(target);
     return streamlink_model;
@@ -50,7 +50,7 @@ createSTREAMLinkModel(const std::string& target)
     ers::info(GenericNDMessage(ERS_HERE, "CreateSTREAMLinkModel Creating Link for MPD!"));
 
     // Create Model
-    auto streamlink_model = std::make_unique<STREAMLinkModel<ndreadoutlibs::types::MPD_MESSAGE_STRUCT>>();
+    auto streamlink_model = std::make_unique<STREAMLinkModel<ndreadoutlibs::types::NDReadoutMPDTypeAdapter>>();
     // Setup sink (acquire pointer from QueueRegistry)
     streamlink_model->set_sink(target);
     return streamlink_model;
