@@ -6,7 +6,7 @@ import integrationtest.config_file_gen as config_file_gen
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-rate = 0.5
+rate = 1.0
 sleep_time = 0 
 sent_data = 100
 
