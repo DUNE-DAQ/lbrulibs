@@ -253,6 +253,7 @@ private:
 		    dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay; //Overlay class to convert vector of samples into array of samples
                     size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
                     char* buffer = new char[nbytes];
+                    printf("size buffer: %d\n", sizeof(*buffer));
 		    //MANUALLY CHANGING TIMESTAMP TO WALLCLOCK
 		    auto time_now = std::chrono::system_clock::now().time_since_epoch();
   		    uint64_t current_time = std::chrono::duration_cast<std::chrono::microseconds>(time_now).count();
@@ -263,8 +264,8 @@ private:
 		    printf("TIMESTAMP: %lu, %lu\n", output[i].tstmp, ((uint64_t)output[i].tstmp));
 		    printf("nbytes %d\n", nbytes);
                     toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
-		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
-                    std::memcpy(static_cast<void *>(&Payload->data[0]), (void*)(&overlay), nbytes);
+                    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
+                    std::memcpy((void*)(&Payload->data[0]), (void*)(&overlay), nbytes);
                     delete[] buffer;
 		    //printf("payload size: %lld, %d, %d %d %d\n", overlay->tstmp, sizeof((Payload->data[0])), (int)(Payload->data[0].get_size()), (Payload->get_payload_size()), sizeof(output[i]));
                     printf("Timestamp overlay: %lu\n", (&overlay)->tstmp);
