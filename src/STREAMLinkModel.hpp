@@ -199,6 +199,15 @@ private:
   bool is_toad = true;
   bool is_debug = true;
 
+  void load_message(std::deque<uint8_t>& toaddeque, const void * load_data, const unsigned int size ) {
+    uint8_t * message = new uint8_t [size]; 
+    std::memcpy(message, load_data, size);
+    for( unsigned int i = 0 ; i < size ; ++i ) {
+      toaddeque.push_back( *(message+i) ) ;
+    }
+    delete[] message;
+  }
+
   void process_STREAMLink() {
 
     TLOG_DEBUG(1) << "Starting ZMQ link process";
@@ -215,7 +224,7 @@ private:
             TLOG_DEBUG(1) << ": Ready to receive data";
             zmq::message_t id; //routing frame
             zmq::message_t msg;
-	    uint8_t mesg[8192];
+	    //uint8_t mesg[8192];
             zmq::poll (&items [0],1,m_queue_timeout);
 	    if (items[0].revents & ZMQ_POLLIN){
               m_subscriber.recv(&id); //routing frame
@@ -235,10 +244,10 @@ private:
 		if(is_toad) { //run TOAD receive loop
 		  dunedaq::lbrulibs::toadunpacker::TOADUnpacker toad_unpacker;
                   std::vector<dunedaq::detdataformats::toad::TOADFrame> output;
-                  std::memcpy(&mesg, msg.data(), msg.size());
-		  for(int i = 0; i<msg.size(); i++){
-                    recv_deque.push_back(mesg[i]); //received bytes into deque
-		  }
+                  load_message(recv_deque, msg.data(), msg.size());
+		  //for(int i = 0; i<msg.size(); i++){
+                  //  recv_deque.push_back(mesg[i]); //received bytes into deque
+		  //}
 		  output = toad_unpacker.decode_deque(recv_deque); //unpack into vect of TOADFrames
                   int num_ts = output.size();
                   for(int i=0; i<num_ts; i++) {
@@ -254,15 +263,22 @@ private:
  		      output[i].tstmp = ((clock_frequency/ 1000000) * current_time) + random_num;
 		      //END OF CHANGE
 		    }
+                    printf("size buffer: %d\n", sizeof(*buffer));
 		    printf("TIMESTAMP: %lu, %lu\n", output[i].tstmp, ((uint64_t)output[i].tstmp));
 		    printf("nbytes %d\n", nbytes);
                     toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
-		    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
-                    std::memcpy(static_cast<void *>(&Payload->data), (void*)(&overlay), nbytes);
+                    dunedaq::detdataformats::toad::TOADFrameOverlay& overlay = *toad_obj_overlay.overlay;
+                    std::memcpy((void*)(&Payload->data[0]), (void*)(&overlay), nbytes);
                     delete[] buffer;
 		    //printf("payload size: %lld, %d, %d %d %d\n", overlay->tstmp, sizeof((Payload->data[0])), (int)(Payload->data[0].get_size()), (Payload->get_payload_size()), sizeof(output[i]));
                     printf("Timestamp overlay: %lu\n", (&overlay)->tstmp);
+                    printf("samples overlay: %d\n", (&overlay)->n_samples);
 		    printf("Timestamps - payload: %lu\n", (Payload->get_timestamp()));
+                    for(int i =0; i<((&overlay)->n_samples); i++) {
+                      printf("Payload samples: %d\n", (Payload->get_sample(i)));
+                    }
+		    printf("Payload addresses: %d\n", (Payload->get_sample_addr()));
+                    //(&overlay)->get_first_sample();
 		    //printf("vector size and first, last  element: %d, %d, %d\n", Payload->data[0].n_samples, Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[Payload->data[0].n_samples - 1]);
 		    m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		  }

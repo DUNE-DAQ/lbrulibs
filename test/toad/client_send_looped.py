@@ -11,7 +11,7 @@ import sys
 ###
 
 while True:
-    arg = "testdata_newformat.txt"
+    arg = "testdata_18samp.txt"
     subprocess.call(["./encoded_client_test.out", arg])
     time.sleep(2)
     print("one loop finished")

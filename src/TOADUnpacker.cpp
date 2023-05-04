@@ -128,6 +128,7 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
         read_data();
         for(int x = 0; x<(6-padd); x++){
           outpt.toadsamples.push_back(words[x]);
+          printf("word: %d\n", words[x]);
 	}
       }
       vect_samp_sz = outpt.toadsamples.size();

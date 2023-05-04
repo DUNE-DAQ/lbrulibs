@@ -18,8 +18,8 @@
   },
   "trigger": {
     "trigger_activity_config": {"prescale":1000},
-    "trigger_window_before_ticks": 2500,
-    "trigger_window_after_ticks": 2500,
+    "trigger_window_before_ticks": 54500000,
+    "trigger_window_after_ticks": 1000000,
     "trigger_rate_hz": 1.0
   }
 }
