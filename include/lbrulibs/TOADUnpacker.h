@@ -6,6 +6,10 @@
 #include <deque>
 #include "detdataformats/toad/TOADFrame.hpp"
 
+namespace dunedaq {
+namespace lbrulibs {
+namespace toadunpacker {
+
 class TOADUnpacker {
   public:
     uint64_t header_in;
@@ -46,7 +50,9 @@ class TOADUnpacker {
     int sampa_freq = 20000000;
 };
 
-
+} //namespace toadunpacker
+} //namespace lbrulibs
+} //namespace dunedaq
 /*
 class TOADUnpacker {
   public:
