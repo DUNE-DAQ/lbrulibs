@@ -43,7 +43,6 @@ enum
 };
 
 namespace dunedaq::lbrulibs {
-
 template<class TargetPayloadType>
 class STREAMLinkModel : public STREAMLinkConcept
 {
@@ -92,6 +91,7 @@ public:
       m_subscriber_connected = false;
       // m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
       TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: connecting subscriber!";
+      printf("ip address: %s", m_STREAMLink_sourceLink.c_str());
       m_subscriber.bind(m_STREAMLink_sourceLink);
       m_subscriber_connected = true;
       TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: set parser thread name!";
@@ -204,6 +204,7 @@ private:
 
   // Set to TOAD
   bool is_toad = true;
+  bool is_debug = true;
 
   void load_message(std::deque<uint8_t>& toaddeque, const void* load_data, const unsigned int size)
   {
@@ -249,7 +250,7 @@ private:
           try {
             TargetPayloadType* Payload = new TargetPayloadType();
             if (is_toad) { // run TOAD receive loop
-              TOADUnpacker toad_unpacker;
+              dunedaq::lbrulibs::toadunpacker::TOADUnpacker toad_unpacker;
               std::vector<dunedaq::detdataformats::toad::TOADFrame> output;
               load_message(recv_deque, msg.data(), msg.size());
               // for(int i = 0; i<msg.size(); i++){
@@ -262,13 +263,15 @@ private:
                   toad_obj_overlay; // Overlay class to convert vector of samples into array of samples
                 size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
                 char* buffer = new char[nbytes];
-                // MANUALLY CHANGING TIMESTAMP TO WALLCLOCK
-                auto time_now = std::chrono::system_clock::now().time_since_epoch();
-                uint64_t current_time = std::chrono::duration_cast<std::chrono::microseconds>(time_now).count();
-                uint64_t clock_frequency = 56000000;
-                uint64_t random_num = rand() % 1000;
-                output[i].tstmp = ((clock_frequency / 1000000) * current_time) + random_num;
-                // END OF CHANGE
+                if(is_debug) {
+		              //MANUALLY CHANGING TIMESTAMP TO WALLCLOCK
+		              auto time_now = std::chrono::system_clock::now().time_since_epoch();
+  		            uint64_t current_time = std::chrono::duration_cast<std::chrono::microseconds>(time_now).count();
+ 		              uint64_t clock_frequency = 56000000;
+		              uint64_t random_num = rand() % 1000;
+ 		              output[i].tstmp = ((clock_frequency/ 1000000) * current_time) + random_num;
+		              //END OF CHANGE
+		            }
                 printf("TIMESTAMP: %lu, %lu\n", output[i].tstmp, ((uint64_t)output[i].tstmp));
                 printf("nbytes %d\n", nbytes);
                 toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
@@ -287,7 +290,7 @@ private:
                 printf("Payload addresses: %d\n", (Payload->get_sample_addr()));
                 //(&overlay)->get_first_sample();
                 // printf("vector size and first, last  element: %d, %d, %d\n", Payload->data[0].n_samples,
-                // Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[Payload->data[0].n_samples - 1]);
+                // Payload->data[0].toadsamples[0], Payload->data[0].toadsamples[Payload->data[0].n_samples - 1])
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
               }
               m_packetsizesum += msg.size(); // sum of data from packets

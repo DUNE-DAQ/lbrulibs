@@ -1,8 +1,13 @@
 #include "lbrulibs/TOADUnpacker.h"
+#include "ZMQIssues.hpp"
+#include <ers/Issue.hpp>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
 
+namespace dunedaq {
+namespace lbrulibs {
+namespace toadunpacker {
 TOADUnpacker::TOADUnpacker() {
   output_vect = {};
 }
@@ -84,6 +89,7 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
   incrementer1 = 0;
   incrementer = 0;
   int deque_sz = buffer.size();
+  int vect_samp_sz = 0;
   for(int k = 0; k<deque_sz; k+= incrementer){ //k indicates initial position of each header in deque 
     int elmnt_frst_wrd = 0;
     word = buffer[elmnt_frst_wrd];
@@ -92,6 +98,7 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
     }
     unsigned char word_id = read_id(word);
     int prev_outpt_sz = output_vect.size();
+    int prev_samp_sz = vect_samp_sz;
     if(word_id == 1){ // Check if it's a header
       header_in = (uint64_t)word;
       read_header();
@@ -103,6 +110,7 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
       bytes_left = deque_sz_limit - data_packet_limit;
       if(bytes_left < 0){ //check if data packets are split over multiple receive. i.e. if we must wait for the next payload before unpacking
         incrementer = 0;
+        ers::warning(dunedaq::lbrulibs::UnpackingError(ERS_HERE, "Data packets spilt, waiting for more to arrive"));
         break;
       }
       word_ts = buffer[8+elmnt_frst_wrd];
@@ -123,6 +131,7 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
           printf("word: %d\n", words[x]);
 	}
       }
+      vect_samp_sz = outpt.toadsamples.size();
       output_vect.push_back(outpt);
       outpt.toadsamples.clear();
       for(int i=0; i<data_packet_limit; i++){
@@ -131,16 +140,20 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
     }
     //printf("sizes %d, %d, %d\n", deque_sz, buffer.size(), k);
     if(word_id != 1){
+      ers::fatal(dunedaq::lbrulibs::UnpackingError(ERS_HERE, "No Header Found... TOADUnpacker cannot decode data stream"));
       printf("no header... error\n"); //if id is not a header then something has gone wrong when unpacking
     }
     //int output_vect_diff = output_vect.size() - prev_outpt_sz; //number of new samples unpacked
-    //if(output_vect_diff != num_clusters){
-    //  printf("problem ");
-    //}
+    if(vect_samp_sz != num_clusters){
+      ers::warning(dunedaq::lbrulibs::UnpackingError(ERS_HERE, "Number of new decoded data structs in TOADUnpacker does not match number of clusters"));
+      //printf("problem ");
+    }
     incrementer = data_packet_limit;
     incrementer_count = k;
   }
   printf("number of new decoded data structs: %d\n", output_vect.size());
   return output_vect;
 }
-
+} //namespace toadunpacker
+} //namespace lbrulibs
+} //namespace dunedaq

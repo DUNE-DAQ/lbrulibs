@@ -9,10 +9,13 @@
 #define LBRULIBS_SRC_ZMQISSUES_HPP_
 
 #include <ers/Issue.hpp>
+#include "ers/ers.hpp"
 
 #include <string>
 
 namespace dunedaq {
+
+ERS_DECLARE_ISSUE(lbrulibs, UnpackingError, " TOAD Unpacking Error: " << initmsg, ((std::string)initmsg))
 
 ERS_DECLARE_ISSUE(lbrulibs, InitializationError, " ZMQ Initialization Error: " << initerror, ((std::string)initerror))
 
