@@ -41,6 +41,7 @@ void TOADUnpacker::read_header(){
   timesample = bitmask(header_in, 10ULL, 7ULL);
   timewindow = bitmask(header_in, 20ULL, 17ULL);
   num_clusters = bitmask(header_in, 10ULL, 48ULL);
+  printf("num_clusters: %d\n", num_clusters);
   fec_num = (bitmask(header_in, 5ULL, 58ULL));
   printf("fec %d", (int)fec_num);
   fec_num = (fec_num << 11) | (bitmask(header_in, 11ULL, 37ULL));
@@ -58,6 +59,7 @@ void TOADUnpacker::read_data(){
   words[1] = bitmask(data_in, 10ULL, 40ULL);
   words[0] = bitmask(data_in, 10ULL, 50ULL); 
   padd = bitmask(data_in, 3ULL, 60ULL);
+  printf("padding:%d\n", padd);
   data_id = bitmask(data_in, 1ULL, 63ULL);
 }
 
@@ -128,7 +130,8 @@ std::vector<dunedaq::detdataformats::toad::TOADFrame> TOADUnpacker::decode_deque
         read_data();
         for(int x = 0; x<(6-padd); x++){
           outpt.toadsamples.push_back(words[x]);
-          printf("word: %d\n", words[x]);
+          printf("word[x]: %d, %d\n", words[x], x);
+	  printf("padding:%d\n", padd);
 	}
       }
       vect_samp_sz = outpt.toadsamples.size();

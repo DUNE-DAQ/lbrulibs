@@ -59,8 +59,8 @@ protected:
     zmq::socket_t m_subscriber{m_context, zmq::socket_type::stream};
     int m_card_id;
     int m_link_tag;
-//    std::string m_STREAMLink_sourceLink = "tcp://192.168.10.3:50002";
-    std::string m_STREAMLink_sourceLink = "tcp://127.0.0.1:5556";
+    std::string m_STREAMLink_sourceLink = "tcp://192.168.10.3:50002";
+//    std::string m_STREAMLink_sourceLink = "tcp://127.0.0.1:5556";
 private:
 
 };

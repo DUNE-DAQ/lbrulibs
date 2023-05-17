@@ -212,6 +212,7 @@ private:
     std::memcpy(message, load_data, size);
     for (unsigned int i = 0; i < size; ++i) {
       toaddeque.push_back(*(message + i));
+      printf("bytes: %d\n", *(message + i));
     }
     delete[] message;
   }
@@ -249,7 +250,7 @@ private:
           TLOG_DEBUG(1) << ": Pushing data into output_queue";
           try {
             TargetPayloadType* Payload = new TargetPayloadType();
-            if (is_toad) { // run TOAD receive loop
+            if(is_toad) { // run TOAD receive loop
               dunedaq::lbrulibs::toadunpacker::TOADUnpacker toad_unpacker;
               std::vector<dunedaq::detdataformats::toad::TOADFrame> output;
               load_message(recv_deque, msg.data(), msg.size());
@@ -259,19 +260,18 @@ private:
               output = toad_unpacker.decode_deque(recv_deque); // unpack into vect of TOADFrames
               int num_ts = output.size();
               for (int i = 0; i < num_ts; i++) {
-                dunedaq::detdataformats::toad::TOADObjectOverlay
-                  toad_obj_overlay; // Overlay class to convert vector of samples into array of samples
+                dunedaq::detdataformats::toad::TOADObjectOverlay toad_obj_overlay; // Overlay class to convert vector of samples into array of samples
                 size_t nbytes = toad_obj_overlay.get_toad_overlay_nbytes(output[i]);
                 char* buffer = new char[nbytes];
                 if(is_debug) {
-		              //MANUALLY CHANGING TIMESTAMP TO WALLCLOCK
-		              auto time_now = std::chrono::system_clock::now().time_since_epoch();
-  		            uint64_t current_time = std::chrono::duration_cast<std::chrono::microseconds>(time_now).count();
- 		              uint64_t clock_frequency = 56000000;
-		              uint64_t random_num = rand() % 1000;
- 		              output[i].tstmp = ((clock_frequency/ 1000000) * current_time) + random_num;
+		  //MANUALLY CHANGING TIMESTAMP TO WALLCLOCK
+		  auto time_now = std::chrono::system_clock::now().time_since_epoch();
+  		  uint64_t current_time = std::chrono::duration_cast<std::chrono::microseconds>(time_now).count();
+ 		  uint64_t clock_frequency = 56000000;
+		  uint64_t random_num = rand() % 1000;
+ 		  output[i].tstmp = ((clock_frequency/ 1000000) * current_time) + random_num;
 		              //END OF CHANGE
-		            }
+		}
                 printf("TIMESTAMP: %lu, %lu\n", output[i].tstmp, ((uint64_t)output[i].tstmp));
                 printf("nbytes %d\n", nbytes);
                 toad_obj_overlay.write_toad_overlay(output[i], buffer, nbytes);
