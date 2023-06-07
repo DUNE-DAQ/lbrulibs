@@ -37,7 +37,7 @@ confgen_name="daqconf_multiru_gen"
 # output directory (the test framework handles that)
 detid_NDLAr_PDS = 33 
 number_of_apps = 1 
-hardware_map_contents = integtest_file_gen.generate_hwmap_file( number_of_data_producers, number_of_apps, detid_NDLAr_PDS )
+dro_map_contents = integtest_file_gen.generate_dromap_contents( number_of_data_producers, number_of_apps, detid_NDLAr_PDS, 'eth', 'zmq')
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["boot"]["op_env"] = "integtest"
