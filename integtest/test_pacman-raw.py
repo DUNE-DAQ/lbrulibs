@@ -40,10 +40,11 @@ number_of_apps = 1
 dro_map_contents = integtest_file_gen.generate_dromap_contents(number_of_data_producers, number_of_apps, detid_ND_LAr, app_type='eth', eth_protocol='zmq')
 
 conf_dict = config_file_gen.get_default_config_dict()
-conf_dict["boot"]["op_env"] = "integtest"
-conf_dict["trigger"]["trigger_rate_hz"]="1.0"
+conf_dict["detector"]["op_env"] = "integtest"
+conf_dict["hsi"]["random_trigger_rate_hz"]="1.0"
 conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
 conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
+conf_dict["trigger"]["mlt_merge_overlapping_tcs"] = False
 
 confgen_arguments={"PACMANSystem": conf_dict}
 

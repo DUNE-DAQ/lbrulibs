@@ -40,10 +40,11 @@ number_of_apps = 1
 dro_map_contents = integtest_file_gen.generate_dromap_contents( number_of_data_producers, number_of_apps, detid_NDLAr_PDS, app_type='eth', eth_protocol='zmq')
 
 conf_dict = config_file_gen.get_default_config_dict()
-conf_dict["boot"]["op_env"] = "integtest"
+conf_dict["detector"]["op_env"] = "integtest"
+conf_dict["detector"]["clock_speed_hz"] = 62500000
 conf_dict["trigger"]["trigger_window_before_ticks"] = 30000
 conf_dict["trigger"]["trigger_window_after_ticks"] = 30000
-conf_dict["readout"]["clock_speed_hz"] = 62500000
+conf_dict["trigger"]["mlt_merge_overlapping_tcs"] = False
 
 confgen_arguments={"MPDSystem": conf_dict}
 
