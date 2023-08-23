@@ -1,5 +1,5 @@
 import pytest
-import dfmodules.data_file_checks as data_file_checks
+import integrationtest.data_file_checks as data_file_checks
 import integrationtest.log_file_checks as log_file_checks
 # Values that help determine the running conditions
 number_of_data_producers=1

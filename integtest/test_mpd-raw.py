@@ -1,6 +1,6 @@
 import pytest
-import dfmodules.data_file_checks as data_file_checks
-import dfmodules.integtest_file_gen as integtest_file_gen
+import integrationtest.data_file_checks as data_file_checks
+import integrationtest.dro_map_gen as dro_map_gen
 import integrationtest.log_file_checks as log_file_checks
 import integrationtest.config_file_gen as config_file_gen
 
@@ -37,7 +37,7 @@ confgen_name="nddaqconf_multiru_gen"
 # output directory (the test framework handles that)
 detid_NDLAr_PDS = 33 
 number_of_apps = 1 
-dro_map_contents = integtest_file_gen.generate_dromap_contents( number_of_data_producers, number_of_apps, detid_NDLAr_PDS, app_type='eth', eth_protocol='zmq')
+dro_map_contents = dro_map_gen.generate_dromap_contents( number_of_data_producers, number_of_apps, detid_NDLAr_PDS, app_type='eth', eth_protocol='zmq')
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["detector"]["op_env"] = "integtest"
