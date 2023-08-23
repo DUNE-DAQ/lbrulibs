@@ -32,7 +32,7 @@ mpd_frag_hsi_trig_params={"fragment_type_description": "MPD",
 # to run the config generation and nanorc
 
 # The name of the python module for the config generation
-confgen_name="daqconf_multiru_gen"
+confgen_name="nddaqconf_multiru_gen"
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 detid_NDLAr_PDS = 33 
