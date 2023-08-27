@@ -32,7 +32,7 @@ wib1_frag_hsi_trig_params={"fragment_type_description": "PACMAN",
 # to run the config generation and nanorc
 
 # The name of the python module for the config generation
-confgen_name="nddaqconf_multiru_gen"
+confgen_name="nddaqconf_gen"
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 detid_ND_LAr = 32 
