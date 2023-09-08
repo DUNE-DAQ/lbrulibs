@@ -27,10 +27,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: "ghcr.io/dune-daq/sl7-slim-externals:spack-dev-split"
+          - image: "ghcr.io/dune-daq/sl7-slim-externals:spack-dev-v1.1"
             os_name: "c7"
-          - image: "ghcr.io/dune-daq/alma9-slim-externals:spack-dev-split"
-            os_name: "al9"
+          - image: "ghcr.io/dune-daq/c8-slim-externals:spack-dev-v1.1"
+            os_name: "c8"
     container:
       image: ${{ matrix.image }}
     defaults:
@@ -52,7 +52,7 @@ jobs:
           export REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
           source /cvmfs/dunedaq.opensciencegrid.org/setup_dunedaq.sh
           setup_dbt latest|| true
-          release_name="last_nddaq"
+          release_name="last_fddaq"
           #nd_config=$GITHUB_WORKSPACE/daq-release/configs/nddaq/nddaq-develop/release.yaml
           #if grep -q "name: ${REPO}\n" $nd_config; then release_name="last_nddaq"; fi
           dbt-create -n $release_name dev-${{ matrix.os_name }}
