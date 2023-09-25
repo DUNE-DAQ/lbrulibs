@@ -1,7 +1,7 @@
 import pytest
 import urllib.request
-import dfmodules.data_file_checks as data_file_checks
-import dfmodules.integtest_file_gen as integtest_file_gen
+import integrationtest.data_file_checks as data_file_checks
+import integrationtest.dro_map_gen as dro_map_gen
 import integrationtest.log_file_checks as log_file_checks
 import integrationtest.config_file_gen as config_file_gen
 import os
@@ -32,12 +32,12 @@ wib1_frag_hsi_trig_params={"fragment_type_description": "PACMAN",
 # to run the config generation and nanorc
 
 # The name of the python module for the config generation
-confgen_name="daqconf_multiru_gen"
+confgen_name="nddaqconf_gen"
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 detid_ND_LAr = 32 
 number_of_apps = 1 
-dro_map_contents = integtest_file_gen.generate_dromap_contents(number_of_data_producers, number_of_apps, detid_ND_LAr, app_type='eth', eth_protocol='zmq')
+dro_map_contents = dro_map_gen.generate_dromap_contents(number_of_data_producers, number_of_apps, detid_ND_LAr, app_type='eth', eth_protocol='zmq')
 
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["detector"]["op_env"] = "integtest"
