@@ -145,7 +145,7 @@ import multiprocessing
 use_random_size = False
 mpd_data = mpd.mpd(f"{lbrulibs_dir}/test/example-mpd-data-100events-noise.data", 1, sent_data, use_random_size) 
 
-run_duration=int(sent_data*rate) + sleep_time + delay# seconds
+run_duration=int(sent_data*rate) + sleep_time # seconds
 expected_event_count=run_duration
 
 print( ' Sending ', mpd_data.num_packets() , ' packets' )
