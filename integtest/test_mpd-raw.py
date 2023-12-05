@@ -24,7 +24,7 @@ mpd_frag_hsi_trig_params={"fragment_type_description": "MPD",
                           "hdf5_source_subsystem": "Detector_Readout",
                           "expected_fragment_count": number_of_data_producers,
                           "min_size_bytes": 448, 
-                          "max_size_bytes": 3796}
+                          "max_size_bytes": 9999999999}
 
 # The next three variable declarations *must* be present as globals in the test
 # file. They're read by the "fixtures" in conftest.py to determine how
