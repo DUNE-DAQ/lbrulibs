@@ -36,13 +36,10 @@ def main(filename):
             frag_ts = frag.get_trigger_timestamp()
 
             fragment_data_size = frag.get_data_size()
-            frame_size = 0
-            print(f'\t Fragment data size is {fragment_data_size}')
-            fb_i = 0
-            fb_f = fragment_data_size
-            while fragment_data_size > frame_size : 
+            frame_size_i = 0
+            while fragment_data_size > frame_size_i : 
                 print(f'\tTrigger timestamp for fragment is {frag_ts}')
-                data = frag.get_data() # How can i read partial fragments?
+                data = frag.get_data(frame_size_i) 
                 mpd_f = nddetdataformats.MPDFrame(data)
 
                 #print header info
@@ -52,8 +49,8 @@ def main(filename):
                 device_header = mpd_f.get_device_header()
                 trigger_header = mpd_f.get_trigger_header()
                 trigger_data_header = mpd_f.get_trigger_data_header()
-                frame_size = mpd_f.get_frame_size() 
-                print(f'\t Frame size is {frame_size}')
+                frame_size = mpd_f.get_frame_size()
+                frame_size_i += frame_size
             
                 #Check if Timestamp Sync number is correct
                 prefix = '\t\t'
@@ -76,10 +73,6 @@ def main(filename):
                 print(f'{prefix} \033[1mDUNE Clock tick Time Stamp: {mpd_f.get_timestamp()}\033[0m')
                 print(f'{prefix} Number enabled channels : {mpd_f.get_nchannels()}')
                 print(f'{prefix} Number of samples per channel : {mpd_f.get_nsamples()}') 
-
-                if i ==1:
-                    fragment_data_size = frame_size
-                i = 1
                 
     print(f'Processed all requested records')
     print(f'Valid processed: {len(records_to_process)-count_invalid}')
