@@ -43,6 +43,7 @@ conf_dict["detector"]["clock_speed_hz"] = 62500000
 conf_dict["trigger"]["trigger_window_before_ticks"] = 61500000
 conf_dict["trigger"]["trigger_window_after_ticks"] = 1000000
 conf_dict["trigger"]["mlt_merge_overlapping_tcs"] = False
+conf_dict["readout"]["send_partial_fragments"] = True
 
 confgen_arguments={"MPDSystem": conf_dict}
 
