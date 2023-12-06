@@ -6,25 +6,24 @@ import integrationtest.config_file_gen as config_file_gen
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-rate = 1.0
 sleep_time = 0 
 sent_data = 20
 delay=15
+rate = 0.1
 
 run_duration=int(sent_data*rate) + sleep_time + delay# seconds
-print('run duration =', run_duration)
 
 # Default values for validation parameters
 expected_number_of_data_files=1
 check_for_logfile_errors=True
 expected_event_count_tolerance=1
-
+test_packet_size=sent_data*3796
 mpd_frag_hsi_trig_params={"fragment_type_description": "MPD",
                           "fragment_type": "MPD",
                           "hdf5_source_subsystem": "Detector_Readout",
                           "expected_fragment_count": number_of_data_producers,
                           "min_size_bytes": 448, 
-                          "max_size_bytes": 9999999999}
+                          "max_size_bytes": test_packet_size}
 
 # The next three variable declarations *must* be present as globals in the test
 # file. They're read by the "fixtures" in conftest.py to determine how
