@@ -45,6 +45,7 @@ conf_dict["hsi"]["random_trigger_rate_hz"]="1.0"
 conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
 conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
 conf_dict["trigger"]["mlt_merge_overlapping_tcs"] = False
+conf_dict["readout"]["send_partial_fragments"] = True
 
 confgen_arguments={"PACMANSystem": conf_dict}
 
