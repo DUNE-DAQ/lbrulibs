@@ -6,26 +6,24 @@ import integrationtest.config_file_gen as config_file_gen
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-rate = 1.0
 sleep_time = 0 
-sent_data = 100
+sent_data = 20
+delay=15
+rate = 0.1
 
-#delay sending
-delay=0
-
-run_duration=int(sent_data*rate) + sleep_time # seconds
+run_duration=int(sent_data*rate) + sleep_time + delay# seconds
 
 # Default values for validation parameters
 expected_number_of_data_files=1
 check_for_logfile_errors=True
 expected_event_count_tolerance=1
-
+test_packet_size=sent_data*3796
 mpd_frag_hsi_trig_params={"fragment_type_description": "MPD",
                           "fragment_type": "MPD",
                           "hdf5_source_subsystem": "Detector_Readout",
                           "expected_fragment_count": number_of_data_producers,
                           "min_size_bytes": 448, 
-                          "max_size_bytes": 3796}
+                          "max_size_bytes": test_packet_size}
 
 # The next three variable declarations *must* be present as globals in the test
 # file. They're read by the "fixtures" in conftest.py to determine how
@@ -42,9 +40,10 @@ dro_map_contents = dro_map_gen.generate_dromap_contents( number_of_data_producer
 conf_dict = config_file_gen.get_default_config_dict()
 conf_dict["detector"]["op_env"] = "integtest"
 conf_dict["detector"]["clock_speed_hz"] = 62500000
-conf_dict["trigger"]["trigger_window_before_ticks"] = 30000
-conf_dict["trigger"]["trigger_window_after_ticks"] = 30000
+conf_dict["trigger"]["trigger_window_before_ticks"] = 61500000
+conf_dict["trigger"]["trigger_window_after_ticks"] = 1000000
 conf_dict["trigger"]["mlt_merge_overlapping_tcs"] = False
+conf_dict["readout"]["send_partial_fragments"] = True
 
 confgen_arguments={"MPDSystem": conf_dict}
 
@@ -89,6 +88,8 @@ import random
 data = 'tcp://127.0.0.1:5556'
 
 def send_mpd(packets, n_packets):
+    time.sleep(1)
+        
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -102,6 +103,7 @@ def send_mpd(packets, n_packets):
         print("Parsing socket options...")
         for opt in socket_opts:
             data_socket.setsockopt(*opt)
+
         print("Connecting sockets...")
         id = 0
         while id == 0:
@@ -117,7 +119,7 @@ def send_mpd(packets, n_packets):
                 continue
 
         print('Initialising...')
-        time.sleep(1+delay)
+        time.sleep(delay)
 
         print('Sending ', n_packets, ' MPD messages.')
 
@@ -129,7 +131,6 @@ def send_mpd(packets, n_packets):
             message_count += 1
             print("Total messages sent:",message_count)        
             time.sleep(rate);
-
         print("Sleeping for 10 seconds before exiting...")
         time.sleep(sleep_time)
     except:
@@ -144,7 +145,7 @@ import multiprocessing
 use_random_size = False
 mpd_data = mpd.mpd(f"{lbrulibs_dir}/test/example-mpd-data-100events-noise.data", 1, sent_data, use_random_size) 
 
-run_duration=int(mpd_data.num_packets()*rate) + sleep_time  # seconds
+run_duration=int(sent_data*rate) + sleep_time # seconds
 expected_event_count=run_duration
 
 print( ' Sending ', mpd_data.num_packets() , ' packets' )
