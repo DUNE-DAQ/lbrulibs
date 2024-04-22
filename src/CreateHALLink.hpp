@@ -3,6 +3,9 @@
 
 #include "ndreadoutlibs/NDReadoutPATTypeAdapter.hpp"
 #include "HALLinkModel.hpp"
+
+#include "HALIssues.hpp"
+
 #include <memory>
 #include <string>
 
@@ -22,7 +25,6 @@ namespace dunedaq
       if (target.find("pat") != std::string::npos)
 	{
 	  ers::info(GenericNDMessage(ERS_HERE, "CreateHALLinkModel Creating Link for PAT!"));
-
 	  auto hallink_model = std::make_unique<HALLinkModel<ndreadoutlibs::types::NDReadoutPATTypeAdapter>>();
 	  hallink_model->set_sink(target);
 	  return hallink_model;

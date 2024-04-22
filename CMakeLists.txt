@@ -15,13 +15,17 @@ find_package(ndreadoutlibs REQUIRED)
 find_package(ipm REQUIRED)
 find_package(iomanager REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(uhal REQUIRED)
+find_package(pugixml REQUIRED)
 
 daq_codegen(pacmancardreader.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
 daq_codegen(pacmancardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/InfoStructs.hpp.j2 opmonlib/InfoNljs.hpp.j2 )
+daq_codegen(patcardreader.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
+daq_codegen(patcardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/InfoStructs.hpp.j2 opmonlib/InfoNljs.hpp.j2 )
 
 ##############################################################################
 # Dependency sets
-set(DUNEDAQ_DEPENDENCIES appfwk::appfwk readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
+set(DUNEDAQ_DEPENDENCIES appfwk::appfwk readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager uhal::uhal pugixml::pugixml)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
 
 
@@ -32,6 +36,7 @@ daq_add_library(LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES})
 ##############################################################################
 # Plugins
 daq_add_plugin(PacmanCardReader duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES} lbrulibs)
+daq_add_plugin(PATCardReader duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES} lbrulibs)
 
 ##############################################################################
 # Integration tests

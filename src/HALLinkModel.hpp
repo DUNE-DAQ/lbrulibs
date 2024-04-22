@@ -115,8 +115,14 @@ namespace dunedaq::lbrulibs
 
     void set_running(bool should_run)
     {
+      bool was_running = m_run_marker.exchange(should_run);
+      TLOG_DEBUG(5) << "Active state was toggled from " << was_running << " to " << should_run;
+    }
+
+    bool queue_in_message_address(uint64_t addr)
+    {
       if(m_message_addr_queue->write(addr)) return true;
-      else return false;
+      else                                  return false;
     }
 
     void init(const data_t &, const size_t)
@@ -124,7 +130,7 @@ namespace dunedaq::lbrulibs
     
   private:
 
-    using UniqueMessageAddrQueue = std::unique_ptr<folly::ProcuderConsumerQueue<uint64_t>>;
+    using UniqueMessageAddrQueue = std::unique_ptr<folly::ProducerConsumerQueue<uint64_t>>;
 
     std::atomic<bool> m_run_marker;
     bool m_configured{false};
@@ -150,7 +156,7 @@ namespace dunedaq::lbrulibs
     virtual void get_info(opmonlib::InfoCollector &ci, int)
     {
       dunedaq::lbrulibs::patcardreaderinfo::HALLinkInfo linkInfo;
-      std::chronon::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now();
+      std::chrono::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now();
       double elapsed_time = std::chrono::duration<double>(t_end-t_start).count();
       t_start = t_end;
 
@@ -165,10 +171,10 @@ namespace dunedaq::lbrulibs
       linkInfo.sink_name                   = m_sink_queue->get_name();
       linkInfo.subscriber_connected        = m_dev_connected;
       linkInfo.run_marker                  = m_run_marker;
-      linkInfo.sink_is_set                 = m_link_is_set;
-      linkInfo.source_link_string          = m_BOARDLink_sourceLink;
+      linkInfo.sink_is_set                 = m_sink_is_set;
+      linkInfo.source_link_string          = m_BOARD_sourceLink;
       linkInfo.board_name                  = m_board_name; //Extra
-      linkInfo.device_name                 = m_dev_name; //Extra
+      linkInfo.dev_name                    = m_dev_name; //Extra
       
       m_packetsizesum = 0;
       ci.add(linkInfo);
@@ -176,7 +182,7 @@ namespace dunedaq::lbrulibs
 
     void load_temp_buffer(std::vector<uint32_t> buffer)
     {
-      std::vector<int> t_buffer = m_left_over;
+      std::vector<uint32_t> t_buffer = m_left_over;
       for(int i_word = 0; i_word < (int)buffer.size(); i_word++)
 	{
 	  t_buffer.push_back(buffer[i_word]);
@@ -196,14 +202,13 @@ namespace dunedaq::lbrulibs
 
       std::ostringstream oss;
       
-      uhal::Node bufNode = m_dev.getNode("data.fifo_reg");
       while(m_run_marker.load())
 	{
 	  TLOG_DEBUG(1) << "Looping";
 	  if(m_dev_connected)
 	    {
 	      TLOG_DEBUG(1) << ": Ready to receive data";
-	      uhal::ValWord<uint32_t> mon   = bufNode.read();
+	      uhal::ValWord<uint32_t> mon = m_dev.getNode("mon_reg").read();
 	      m_dev.dispatch();
 	      uint16_t bufSize = (uint16_t)mon.value();
 	      if(bufSize == 0)
@@ -212,16 +217,16 @@ namespace dunedaq::lbrulibs
 		  TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
 		  continue;
 		}
-	      uhal::ValVector<uint32_t> msg = bufNode.readBlock(bufSize);
+	      uhal::ValVector<uint32_t> msg = m_dev.getNode("fifo_reg").readBlock(bufSize);
 	      m_dev.dispatch();
 	      try
 		{
-		  TargetPayloadType *Payload = new TargetPayload();
-		  load_temp_data((void*)msg.value()[0],bufSize);
+		  TargetPayloadType *Payload = new TargetPayloadType();
+		  load_temp_buffer(msg.value());
 		  for(int i_pkt = 0; i_pkt < (int)m_data.size(); i_pkt++)
 		    {
 		      Payload->load_message((void*)m_data[i_pkt][0],m_data[i_pkt].size());
-		      m_timestampe = Payload->get_timestamp();
+		      m_timestamp = Payload->get_timestamp();
 		      m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		      m_packetsizesum += m_data[i_pkt].size();
 		    }
