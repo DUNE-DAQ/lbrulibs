@@ -45,10 +45,10 @@ public:
   virtual void stop(const nlohmann::json& args) = 0;
   virtual void get_info(opmonlib::InfoCollector& ci, int level) = 0;
 
-    void set_ids(int card, int tag) {
-        m_card_id = card;
-        m_link_tag = tag;
-    }
+  void set_ids(int card, int tag) {
+    m_card_id = card;
+    m_link_tag = tag;
+  }
 
 protected:
     dunedaq::lbrulibs::pacmancardreader::Conf m_cfg;
