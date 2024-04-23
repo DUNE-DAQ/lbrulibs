@@ -165,7 +165,7 @@ namespace dunedaq::lbrulibs
       linkInfo.bandwidth                   = m_packetsizesum/(elapsed_time*1000000);
       linkInfo.num_packets_received        = m_packetCounter;
       linkInfo.last_packet_size            = m_packetsize;
-      linkInfo.last_message_timestamp      = m_timestam;
+      linkInfo.last_message_timestamp      = m_timestamp;
       linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
       linkInfo.link_tag                    = m_link_tag;
       linkInfo.card_id                     = m_card_id;
