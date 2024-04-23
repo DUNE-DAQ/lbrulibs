@@ -49,7 +49,6 @@ namespace dunedaq::lbrulibs
 	}
       else
 	{
-	  printf("HERE!!!!2\n");
 	  m_sink_queue  = get_iom_sender<TargetPayloadType>(sink_name);
 	  m_sink_is_set = true;
 	}    
@@ -75,10 +74,11 @@ namespace dunedaq::lbrulibs
 	  m_dev_connected = false;
 	  TLOG(TLVL_WORK_STEPS) << "HALLinkModel conf: connecting HAL endpoint!";
 	  set_names(m_cfg.board_name, m_cfg.dev_name);
-	  m_dev = m_cm.getDevice(m_cfg.dev_name);
+	  m_cm  = std::make_unique<uhal::ConnectionManager>(m_board_name);
+	  m_dev = std::make_unique<uhal::HwInterface>(m_cm->getDevice(m_dev_name));
 	  m_dev_connected = true;
 	  TLOG(TLVL_WORK_STEPS) << "HALLinkModel conf: set parser thread name!";
-	  m_parser_thread.set_name(m_BOARD_sourceLink, m_link_tag);
+	  m_parser_thread.set_name(m_BOARDLink_sourceLink, m_link_tag);
 	  m_configured = true;	  
 	}
     }
@@ -143,7 +143,7 @@ namespace dunedaq::lbrulibs
     size_t m_packetCounter = 0;
     int m_packetsizesum    = 0;
     int m_packetsize       = 0;
-    int m_timestamp        = 0;
+    uint64_t m_timestamp   = 0;
     int m_rcvd_zero        = 0;
 
     std::vector<std::vector<uint32_t>> m_data;
@@ -165,7 +165,7 @@ namespace dunedaq::lbrulibs
       linkInfo.bandwidth                   = m_packetsizesum/(elapsed_time*1000000);
       linkInfo.num_packets_received        = m_packetCounter;
       linkInfo.last_packet_size            = m_packetsize;
-      linkInfo.last_message_timestamp      = m_timestamp;
+      linkInfo.last_message_timestamp      = m_timestam;
       linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
       linkInfo.link_tag                    = m_link_tag;
       linkInfo.card_id                     = m_card_id;
@@ -173,7 +173,7 @@ namespace dunedaq::lbrulibs
       linkInfo.subscriber_connected        = m_dev_connected;
       linkInfo.run_marker                  = m_run_marker;
       linkInfo.sink_is_set                 = m_sink_is_set;
-      linkInfo.source_link_string          = m_BOARD_sourceLink;
+      linkInfo.source_link_string          = m_BOARDLink_sourceLink;
       linkInfo.board_name                  = m_board_name; //Extra
       linkInfo.dev_name                    = m_dev_name; //Extra
       
@@ -186,6 +186,7 @@ namespace dunedaq::lbrulibs
       std::vector<uint32_t> t_buffer = m_left_over;
       for(int i_word = 0; i_word < (int)buffer.size(); i_word++)
 	{
+	  TLOG_DEBUG(1) << "Word: " << buffer[i_word];
 	  t_buffer.push_back(buffer[i_word]);
 	  if(buffer[i_word] == 4294967295)
 	    {
@@ -209,8 +210,8 @@ namespace dunedaq::lbrulibs
 	  if(m_dev_connected)
 	    {
 	      TLOG_DEBUG(1) << ": Ready to receive data";
-	      uhal::ValWord<uint32_t> mon = m_dev.getNode("mon_reg").read();
-	      m_dev.dispatch();
+	      uhal::ValWord<uint32_t> mon = m_dev->getNode("mon_reg").read();
+	      m_dev->dispatch();
 	      uint16_t bufSize = (uint16_t)mon.value();
 	      if(bufSize == 0)
 		{
@@ -218,16 +219,21 @@ namespace dunedaq::lbrulibs
 		  TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
 		  continue;
 		}
-	      uhal::ValVector<uint32_t> msg = m_dev.getNode("fifo_reg").readBlock(bufSize);
-	      m_dev.dispatch();
+	      TLOG_DEBUG(1) << "N = " << bufSize << " data to be read!";
+	      uhal::ValVector<uint32_t> msg = m_dev->getNode("fifo_reg").readBlock(bufSize);
+	      m_dev->dispatch();
 	      try
 		{
 		  TargetPayloadType *Payload = new TargetPayloadType();
 		  load_temp_buffer(msg.value());
+		  TLOG_DEBUG(1) << "Data Buffer size: " << (int)m_data[0].size() << " received data: "<< (int)msg.value().size();
 		  for(int i_pkt = 0; i_pkt < (int)m_data.size(); i_pkt++)
 		    {
-		      Payload->load_message((void*)m_data[i_pkt][0],m_data[i_pkt].size());
+		      TLOG_DEBUG(1) << "Pkt: "<< i_pkt;
+		      Payload->load_message((void*)&m_data[i_pkt][0],m_data[i_pkt].size());
+		      TLOG_DEBUG(1) << "Packet loaded!!";
 		      m_timestamp = Payload->get_timestamp();
+		      TLOG_DEBUG(1) << "Time stamp = " << m_timestamp;
 		      m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		      m_packetsizesum += m_data[i_pkt].size();
 		    }

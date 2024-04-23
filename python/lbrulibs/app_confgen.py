@@ -17,6 +17,7 @@ moo.otypes.load_types("nwqueueadapters/queuetonetwork.jsonnet")
 moo.otypes.load_types("nwqueueadapters/networkobjectsender.jsonnet")
 moo.otypes.load_types('networkmanager/nwmgr.jsonnet')
 moo.otypes.load_types('lbrulibs/pacmancardreader.jsonnet')
+moo.otypes.load_types('lbrulibs/patcardreader.jsonnet')
 
 # Import new types
 import dunedaq.cmdlib.cmd as basecmd  # AddressedCmd,
@@ -29,6 +30,7 @@ import dunedaq.nwqueueadapters.queuetonetwork as qton
 import dunedaq.nwqueueadapters.networkobjectsender as nos
 import dunedaq.networkmanager.nwmgr as nwmgr
 import dunedaq.lbrulibs.pacmancardreader as pcr
+import dunedaq.lbrulibs.patcardreader as pat
 
 from appfwk.utils import mcmd, mrccmd, mspec
 
@@ -42,7 +44,7 @@ CLOCK_SPEED_HZ = 50000000
 
 
 def generate(
-    FRONTEND_TYPE="pacman",
+    FRONTEND_TYPE="pat", #Changed
     NUMBER_OF_DATA_PRODUCERS=1,
     NUMBER_OF_TP_PRODUCERS=1,
     DATA_RATE_SLOWDOWN_FACTOR=1,
@@ -110,7 +112,7 @@ def generate(
         [
             mspec(
                 "fake_source",
-                "PacmanCardReader",
+                "PatCardReader",
                 [
                     app.QueueInfo(
                         name=f"output_{idx}",
@@ -247,15 +249,15 @@ def generate(
         [
             (
                 "fake_source",
-                pcr.Conf(
+                pat.Conf(
                     link_confs=[
-                        pcr.LinkConfiguration(
-                            geoid=pcr.GeoID(system="kNDLarTPC", region=0, element=idx),
+                        pat.LinkConfiguration(
+                            geoid=pat.GeoID(system="kND_GAr", region=0, element=idx), #Change
                         )
                         for idx in range(NUMBER_OF_DATA_PRODUCERS)
                     ]
                     + [
-                        pcr.LinkConfiguration(
+                        pat.LinkConfiguration(
                             geoid=sec.GeoID(system="TPC", region=0, element=idx),
                         )
                         for idx in range(
@@ -489,7 +491,7 @@ if __name__ == "__main__":
         "-f",
         "--frontend-type",
         type=click.Choice(
-            ["wib", "wib2", "pds_queue", "pds_list", "pacman"], case_sensitive=True
+            ["wib", "wib2", "pds_queue", "pds_list", "pacman", "pat"], case_sensitive=True
         ),
         default="pacman",
     )
