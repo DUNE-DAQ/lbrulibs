@@ -26,6 +26,7 @@ namespace dunedaq
 	{
 	  ers::info(GenericNDMessage(ERS_HERE, "CreateHALLinkModel Creating Link for PAT!"));
 	  auto hallink_model = std::make_unique<HALLinkModel<ndreadoutlibs::types::NDReadoutPATTypeAdapter>>();
+	  printf("HERE!!!!!1\n");
 	  hallink_model->set_sink(target);
 	  return hallink_model;
 	}

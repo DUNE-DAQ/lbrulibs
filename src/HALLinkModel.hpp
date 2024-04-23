@@ -49,6 +49,7 @@ namespace dunedaq::lbrulibs
 	}
       else
 	{
+	  printf("HERE!!!!2\n");
 	  m_sink_queue  = get_iom_sender<TargetPayloadType>(sink_name);
 	  m_sink_is_set = true;
 	}    

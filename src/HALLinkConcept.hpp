@@ -64,8 +64,8 @@ namespace dunedaq
       uhal::HwInterface m_dev{m_cm.getDevice(m_dev_name)};
       int m_card_id;
       int m_link_tag;
-      std::string m_dev_name;
-      std::string m_board_name;
+      std::string m_dev_name = "aggr0";
+      std::string m_board_name = "$XML_PATH/board.xml";
       std::string m_BOARD_sourceLink = "pat";
 
     private:
