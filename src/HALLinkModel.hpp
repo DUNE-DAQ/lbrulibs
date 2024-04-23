@@ -77,6 +77,7 @@ namespace dunedaq::lbrulibs
 	  m_cm  = std::make_unique<uhal::ConnectionManager>(m_board_name);
 	  m_dev = std::make_unique<uhal::HwInterface>(m_cm->getDevice(m_dev_name));
 	  m_dev_connected = true;
+	  TLOG_DEBUG(5) << "Board Name: " << m_dev_name << " card_id: "<<m_card_id;
 	  TLOG(TLVL_WORK_STEPS) << "HALLinkModel conf: set parser thread name!";
 	  m_parser_thread.set_name(m_BOARDLink_sourceLink, m_link_tag);
 	  m_configured = true;	  
@@ -186,7 +187,7 @@ namespace dunedaq::lbrulibs
       std::vector<uint32_t> t_buffer = m_left_over;
       for(int i_word = 0; i_word < (int)buffer.size(); i_word++)
 	{
-	  TLOG_DEBUG(1) << "Word: " << buffer[i_word];
+	  TLOG_DEBUG(5) << "Word: " << buffer[i_word];
 	  t_buffer.push_back(buffer[i_word]);
 	  if(buffer[i_word] == 4294967295)
 	    {
@@ -219,21 +220,22 @@ namespace dunedaq::lbrulibs
 		  TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
 		  continue;
 		}
-	      TLOG_DEBUG(1) << "N = " << bufSize << " data to be read!";
+	      TLOG_DEBUG(5) << "N = " << bufSize << " data to be read!";
 	      uhal::ValVector<uint32_t> msg = m_dev->getNode("fifo_reg").readBlock(bufSize);
 	      m_dev->dispatch();
 	      try
 		{
 		  TargetPayloadType *Payload = new TargetPayloadType();
 		  load_temp_buffer(msg.value());
-		  TLOG_DEBUG(1) << "Data Buffer size: " << (int)m_data[0].size() << " received data: "<< (int)msg.value().size();
+		  TLOG_DEBUG(5) << "Data Buffer size: " << (int)m_data[0].size() << " received data: "<< (int)msg.value().size();
 		  for(int i_pkt = 0; i_pkt < (int)m_data.size(); i_pkt++)
 		    {
-		      TLOG_DEBUG(1) << "Pkt: "<< i_pkt;
+		      TLOG_DEBUG(5) << "Pkt: "<< i_pkt;
 		      Payload->load_message((void*)&m_data[i_pkt][0],m_data[i_pkt].size());
-		      TLOG_DEBUG(1) << "Packet loaded!!";
+		      TLOG_DEBUG(5) << "Packet loaded!!";
 		      m_timestamp = Payload->get_timestamp();
-		      TLOG_DEBUG(1) << "Time stamp = " << m_timestamp;
+		      //m_timestamp = 6.25e-2*(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+		      TLOG_DEBUG(5) << "Time stamp = " << m_timestamp;
 		      m_sink_queue->send(std::move(*Payload), m_sink_timeout);
 		      m_packetsizesum += m_data[i_pkt].size();
 		    }
