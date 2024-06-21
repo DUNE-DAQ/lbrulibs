@@ -48,13 +48,13 @@ public:
   PacmanCardReader& operator=(PacmanCardReader&&) =
     delete; ///< PacmanCardReader is not move-assignable
 
-  void init(const data_t& args) override;
+  void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Types
   using module_conf_t = dunedaq::lbrulibs::pacmancardreader::Conf;
-  
+
   // Constants
   static constexpr size_t m_queue_capacity = 1000000;
 
@@ -68,7 +68,10 @@ private:
   module_conf_t m_cfg;
 
   int m_card_id;
-  
+  float m_zmq_receiver_timeout;
+  std::vector<int> m_link_confs;
+
+
   // ZMQLinkConcept
   std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
   // STREAMLinkConcept

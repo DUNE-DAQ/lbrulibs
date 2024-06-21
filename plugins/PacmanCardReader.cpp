@@ -12,6 +12,9 @@
 #include "ZMQIssues.hpp"
 #include "logging/Logging.hpp"
 
+// NOTE: This needs to be changed to appmodel
+#include "appdal/PACMANInterface.hpp"
+
 #include <chrono>
 #include <memory>
 #include <string>
@@ -30,118 +33,121 @@ bool usePUBSUB = 0;
  * @brief TRACE debug levels used in this source file
  */
 /*enum
-{
+  {
   TLVL_ENTER_EXIT_METHODS = 5,
   TLVL_WORK_STEPS = 10,
   TLVL_BOOKKEEPING = 15
-};
+  };
 */
 namespace dunedaq {
-namespace lbrulibs {
+  namespace lbrulibs {
 
-PacmanCardReader::PacmanCardReader(const std::string& name)
-  : DAQModule(name)
-  , m_configured(false)
-  , m_card_id(0)
+    PacmanCardReader::PacmanCardReader(const std::string& name)
+      : DAQModule(name)
+      , m_configured(false)
+      , m_card_id(0)
 
-{
-  register_command("conf", &PacmanCardReader::do_configure);
-  register_command("start", &PacmanCardReader::do_start);
-  register_command("stop", &PacmanCardReader::do_stop);
-}
-
-inline void
-tokenize(std::string const& str, const char delim, std::vector<std::string>& out)
-{
-  std::size_t start;
-  std::size_t end = 0;
-  while ((start = str.find_first_not_of(delim, end)) != std::string::npos) {
-    end = str.find(delim, start);
-    out.push_back(str.substr(start, end - start));
-  }
-}
-
-void
-PacmanCardReader::init(const data_t& args)
-{
-  auto ini = args.get<appfwk::app::ModInit>();
-  TLOG(TLVL_WORK_STEPS) << "ini";
-  for (const auto& cr : ini.conn_refs) {
-
-    TLOG(TLVL_WORK_STEPS) << "PacmanCardReader output queue is " << cr.uid;
-    const char delim = '_';
-    std::string target = cr.uid;
-    std::vector<std::string> words;
-    tokenize(target, delim, words);
-    if (usePUBSUB) {
-      TLOG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << target;
-      m_zmqlink[0] =
-        createZMQLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
-      if (m_zmqlink[0] == nullptr) {
-        ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
-      }
-      m_zmqlink[0]->init(args, m_queue_capacity);
-    } else {
-      TLOG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << target;
-      m_streamlink[0] =
-        createSTREAMLinkModel(cr.uid); // FIX ME - need to resolve proper link ID rather than hard code to zero
-      if (m_streamlink[0] == nullptr) {
-        ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
-      }
-      m_streamlink[0]->init(args, m_queue_capacity);
+    {
+      register_command("conf", &PacmanCardReader::do_configure);
+      register_command("start", &PacmanCardReader::do_start);
+      register_command("stop", &PacmanCardReader::do_stop);
     }
-  }
 
-  m_cfg = args.get<pacmancardreader::Conf>();
-}
+    inline void
+    tokenize(std::string const& str, const char delim, std::vector<std::string>& out)
+    {
+      std::size_t start;
+      std::size_t end = 0;
+      while ((start = str.find_first_not_of(delim, end)) != std::string::npos) {
+        end = str.find(delim, start);
+        out.push_back(str.substr(start, end - start));
+      }
+    }
 
-void
-PacmanCardReader::do_configure(const data_t& args)
-{
-  m_cfg = args.get<pacmancardreader::Conf>();
-  m_card_id = m_cfg.card_id;
+    void
+    PacmanCardReader::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg){
+      auto modconf = mcfg->module<appdal::DataReaderModule(get_name());
+      if (modconf->get_connections().size != 1){
+        throw InitialisationError(ERS_HERE, "PACMAN Data Reader does not have a unique associated interface");
+      }
 
-  // Config checks - make some if config values needed, felix example below
-  //
-  // if (m_num_links != m_elinks.size()) {
-  //  ers::fatal(ElinkConfigurationInconsistency(ERS_HERE, m_num_links));
-  //}
-  //
+      const coredal::DetectorToDaqConnection*  det_conn = modconf->get_connections()[0]->cast<confmodel::DetectorToDaqConnection>();
 
-  // Configure components
-  TLOG(TLVL_WORK_STEPS) << "Configuring LinkHandler";
-  if (usePUBSUB) {
-    TLOG(TLVL_WORK_STEPS) << "Using ZMQ Publish/Subscribe";
-    m_zmqlink[0]->set_ids(m_card_id, 0);
-    m_zmqlink[0]->conf(args);
-  } else {
-    TLOG(TLVL_WORK_STEPS) << "Using Raw TCP Stream";
-    m_streamlink[0]->set_ids(m_card_id, 0);
-    TLOG(TLVL_WORK_STEPS) << "apply conf";
-    m_streamlink[0]->conf(args);
-    TLOG(TLVL_WORK_STEPS) << "finish conf";
-  }
-}
+      // Create a source_id to local elink map
 
-void
-PacmanCardReader::do_start(const data_t& args)
-{
-  if (usePUBSUB) {
-    m_zmqlink[0]->start(args);
-  } else {
-    m_streamlink[0]->start(args);
-  }
-}
+      for (const auto & resources : det_con->get_contains()) {
+        const appdal::PACMANInterface* interface = resources->cast<appmodel::PACMANInterface>();
 
-void
-PacmanCardReader::do_stop(const data_t& args)
-{
-  if (usePUBSUB) {
-    m_zmqlink[0]->stop(args);
-  } else {
-    m_streamlink[0]->stop(args);
-  }
-}
+        if (interface != nullptr){
+          m_card_wrapper = std::make_unique<PacmanCardReader>(interface);
+          m_card_id = interface->get_card();
+          m_zmq_receiver_timeout = interface->get_zmq_receiver_timeout();
+          m_link_confs = interface->get_link_confs();
+        }
+      }
+
+      for(auto qi : modconf->get->get_outputs()){
+        auto q_with_id = qi->cast<confmodel::QueueWithSourceId>();
+        if (q_with_id == nullptr) continue;
+        TLOG_DEBUG(TLVL_WORK_STEPS) << ": PacmanCardReader output queue is " << q_with_id->UID();
+        if(usePUBSUB){
+          TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
+
+          // TODO : Resolve proper link ID here
+          m_zmqlink[0] = createZMQLinkModel(q_with_id->UID());
+          if(m_zqmlink[0]==nullptr){
+            ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
+          }
+          m_zmqlink[0]->init(m_queue_capacity);
+
+        } else{
+          TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
+
+          // TODO : Resolve proper link ID here
+          m_std::reamlink[0] = createSTREAMLinkModel(q_with_id->UID());
+          if(m_zqmlink[0]==nullptr){
+            ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
+          }
+          m_streamlink[0]->init(m_queue_capacity);
+        }
+      }
+    }
+
+    void PacmanCardReader::do_configure(const data_t& /*args*/){
+      // Configure Components
+      TLOG(TLVL_WORK_STEPS) << "Configuring LinkHandler";
+      if (usePUBSUB) {
+        TLOG(TLVL_WORK_STEPS) << "Using ZMQ Publish/Subscribe";
+        m_zmqlink[0]->set_ids(m_card_id, 0);
+        m_zmqlink[0]->conf(m_zmq_receiver_timeout);
+      } else {
+        TLOG(TLVL_WORK_STEPS) << "Using Raw TCP Stream";
+        m_streamlink[0]->set_ids(m_card_id, 0);
+        TLOG(TLVL_WORK_STEPS) << "apply conf";
+        m_streamlink[0]->conf(m_zmq_receiver_timeout);
+        TLOG(TLVL_WORK_STEPS) << "finish conf";
+      }
+    }
+
+    void
+    PacmanCardReader::do_start(const data_t& /*args*/)
+    {
+      if (usePUBSUB) {
+        m_zmqlink[0]->start();
+      } else {
+        m_streamlink[0]->start();
+      }
+    }
+
+    void
+    PacmanCardReader::do_stop(const data_t& /*args*/)
+    {
+      if (usePUBSUB) {
+        m_zmqlink[0]->stop();
+      } else {
+        m_streamlink[0]->stop();
+      }
+    }
 
 void
 PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level)
@@ -153,7 +159,7 @@ PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level)
   }
 }
 
-} // namespace lbrulibs
+  } // namespace lbrulibs
 } // namespace dunedaq
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::lbrulibs::PacmanCardReader)
