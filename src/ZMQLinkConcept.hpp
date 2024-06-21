@@ -38,9 +38,9 @@ public:
   ZMQLinkConcept& operator=(ZMQLinkConcept&&)
     = delete; ///< ZMQLinkConcept is not move-assignable
 
-  virtual void init() = 0;
+  virtual void init(const size_t queue_capacity) = 0;
   virtual void set_sink(const std::string& sink_name) = 0;
-  virtual void conf(float zmq_receiver_time_out) = 0; //add configuration variables later if needed
+  virtual void conf(int zmq_receiver_time_out) = 0; //add configuration variables later if needed
   virtual void start() = 0;
   virtual void stop() = 0;
   virtual void get_info(opmonlib::InfoCollector& ci, int level) = 0;

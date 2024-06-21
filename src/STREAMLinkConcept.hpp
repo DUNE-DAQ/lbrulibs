@@ -36,7 +36,7 @@ public:
   STREAMLinkConcept& operator=(STREAMLinkConcept&&)
     = delete; ///< STREAMLinkConcept is not move-assignable
 
-  virtual void init(const size_t queue_capacity) = 0;
+  virtual void init(const size_t /*queue_capacity*/) = 0;
   virtual void set_sink(const std::string& sink_name) = 0;
   virtual void conf(int zmq_receiver_timeout) = 0; //add configuration variables later if needed
   virtual void start() = 0;

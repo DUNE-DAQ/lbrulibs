@@ -69,8 +69,10 @@ private:
 
   int m_card_id;
   float m_zmq_receiver_timeout;
-  std::vector<int> m_link_confs;
+  std::vector<unsigned int> m_link_confs;
 
+  // Card object
+  //std::unique_ptr<PacmanCardReader> m_card_wrapper;
 
   // ZMQLinkConcept
   std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;

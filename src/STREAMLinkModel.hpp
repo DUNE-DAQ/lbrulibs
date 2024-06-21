@@ -89,10 +89,10 @@ public:
       m_subscriber_connected = true;
       TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: set parser thread name!";
       //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "");
-     
+
       m_parser_thread.set_name(m_STREAMLink_sourceLink, m_link_tag);
       m_configured=true;
-    } 
+    }
   }
 
   void start() {
@@ -129,7 +129,7 @@ public:
     } else { // failed write
       return false;
     }
-  } 
+  }
 
    void init(const size_t /*block_queue_capacity*/)
   {
@@ -193,7 +193,7 @@ private:
 
     TLOG_DEBUG(1) << "Starting ZMQ link process";
 
-    
+
     std::ostringstream oss;
 
     zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
