@@ -19,7 +19,6 @@
 #include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
 #include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
-#include <nlohmann/json.hpp>
 #include <folly/ProducerConsumerQueue.h>
 
 #include <string>
@@ -46,7 +45,6 @@ template<class TargetPayloadType>
 class STREAMLinkModel : public STREAMLinkConcept {
 public:
   using sink_t = iomanager::SenderConcept<TargetPayloadType>;
-  using data_t = nlohmann::json;
 
   /**
    * @brief STREAMLinkModel Constructor
@@ -72,18 +70,17 @@ public:
   //  return m_sink_queue;
   //}
 
-  void init(const data_t& /*args*/) {
+  void init() {
     TLOG_DEBUG(5) << "STREAMLinkModel init: nothing to do!";
   }
 
-  void conf(const data_t& args) {
+  void conf(int zmq_receiver_timeout) {
     if (m_configured) {
       TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel is already configured!";
     } else {
 
-      m_cfg = args.get<pacmancardreader::Conf>();
       TLOG(TLVL_WORK_STEPS) << "Configuring STREAMLinkModel!";
-      m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
+      m_queue_timeout = std::chrono::milliseconds(zmq_receiver_timeout);
       TLOG(TLVL_WORK_STEPS) << "STREAMLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
       //m_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
@@ -98,7 +95,7 @@ public:
     } 
   }
 
-  void start(const data_t& /*args*/) {
+  void start() {
     if (!m_run_marker.load()) {
       set_running(true);
       m_parser_thread.set_work(&STREAMLinkModel::process_STREAMLink, this);
@@ -108,7 +105,7 @@ public:
     }
   }
 
-  void stop(const data_t& /*args*/) {
+  void stop() {
     if (m_run_marker.load()) {
       set_running(false);
       while (!m_parser_thread.get_readiness()) {
@@ -134,7 +131,7 @@ public:
     }
   } 
 
-   void init(const data_t& /*args*/, const size_t /*block_queue_capacity*/)
+   void init(const size_t /*block_queue_capacity*/)
   {
     //Required by parent class
   }
@@ -208,7 +205,7 @@ private:
             zmq::message_t id; //routing frame
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
-	    if (items[0].revents & ZMQ_POLLIN){
+            if (items[0].revents & ZMQ_POLLIN){
               auto recvd = m_subscriber.recv(id); //routing frame
               if (recvd == 0) {
                 m_rcvd_zero++;
@@ -217,7 +214,7 @@ private:
               }
               recvd = m_subscriber.recv(msg);
               if (recvd == 0) {
-		m_rcvd_zero++;
+                m_rcvd_zero++;
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
                 continue;
               }
@@ -227,12 +224,12 @@ private:
               }
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
               try {
-		TargetPayloadType* Payload = new TargetPayloadType();
-		Payload -> load_message(msg.data(), msg.size()) ; 
-		m_timestamp = Payload->get_timestamp() ; 
+                TargetPayloadType* Payload = new TargetPayloadType();
+                Payload -> load_message(msg.data(), msg.size()) ;
+                m_timestamp = Payload->get_timestamp() ;
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
-		m_packetsizesum += msg.size(); //sum of data from packets
-	       	m_packetsize = msg.size(); //last packet size
+                m_packetsizesum += msg.size(); //sum of data from packets
+                m_packetsize = msg.size(); //last packet size
               } catch (const iomanager::TimeoutExpired& ex) {
                 ers::warning(ex);
               }

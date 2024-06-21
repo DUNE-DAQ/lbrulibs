@@ -19,7 +19,10 @@
 #include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
 #include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
-#include <nlohmann/json.hpp>
+// XML Schema
+//TODO HW, This is temporary for testing and needs to be updated inline with other libraries
+// for now I'm just using a version that seems to compile before
+
 #include <folly/ProducerConsumerQueue.h>
 
 #include <string>
@@ -34,12 +37,14 @@ template<class TargetPayloadType>
 class ZMQLinkModel : public ZMQLinkConcept {
 public:
   using sink_t = iomanager::SenderConcept<TargetPayloadType>;
-  using data_t = nlohmann::json;
+  //using data_t = nlohmann::json;
+  //TODO: HW: Keeping things as close as possible to old style as possible. Need to change
 
   /**
    * @brief ZMQLinkModel Constructor
    * @param name Instance name for this ZMQLinkModel instance
-   */
+   *
+   * B*/
   ZMQLinkModel()
     : ZMQLinkConcept()
     , m_run_marker{false}
@@ -56,22 +61,17 @@ public:
     }
   }
 
-  //std::shared_ptr<sink_t> get_sink() {
-  //  return m_sink_queue;
-  //}
-
-  void init(const data_t& /*args*/) {
+  void init() {
     TLOG_DEBUG(5) << "ZMQLinkModel init: nothing to do!";
   }
 
-  void conf(const data_t& args) {
+  void conf(int zmq_receiver_timeout) {
     if (m_configured) {
       TLOG_DEBUG(5) << "ZMQLinkModel is already configured!";
     } else {
 
-      m_cfg = args.get<pacmancardreader::Conf>();
+      m_queue_timeout = std::chrono::milliseconds(zmq_receiver_timeout);
 
-      m_queue_timeout = std::chrono::milliseconds(m_cfg.zmq_receiver_timeout);
       TLOG_DEBUG(5) << "ZMQLinkModel conf: initialising subscriber!";
       m_subscriber_connected = false;
       m_subscriber.set(zmq::sockopt::subscribe, "");
@@ -81,13 +81,13 @@ public:
       TLOG_DEBUG(5) << "ZMQLinkModel conf: enacting subscription!";
       m_subscriber.set(zmq::sockopt::subscribe, "");
       TLOG_DEBUG(5) << "Configuring ZMQLinkModel!";
-
       m_parser_thread.set_name(m_ZMQLink_sourceLink, m_link_tag);
       m_configured=true;
     } 
   }
 
-  void start(const data_t& /*args*/) {
+
+  void start() {
     if (!m_run_marker.load()) {
       set_running(true);
       m_parser_thread.set_work(&ZMQLinkModel::process_ZMQLink, this);
@@ -97,7 +97,7 @@ public:
     }
   }
 
-  void stop(const data_t& /*args*/) {
+  void stop() {
     if (m_run_marker.load()) {
       set_running(false);
       while (!m_parser_thread.get_readiness()) {
@@ -123,7 +123,7 @@ public:
     }
   } 
 
-   void init(const data_t& /*args*/, const size_t /*block_queue_capacity*/)
+   void init(const size_t /*block_queue_capacity*/)
   {
     //Required by parent class
   }
@@ -154,6 +154,7 @@ private:
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
   readoutlibs::ReusableThread m_parser_thread;
 
+
   virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
     dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
 
@@ -165,7 +166,7 @@ private:
     linkInfo.bandwidth = m_packetsizesum/(elapsed_time*1000000);
     linkInfo.num_packets_received = m_packetCounter;
     linkInfo.last_packet_size = m_packetsize;
-    linkInfo.last_message_timestamp = m_timestamp; 
+    linkInfo.last_message_timestamp = m_timestamp;
     linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
     linkInfo.link_tag = m_link_tag; //ZMQLinkConcept Variable
     linkInfo.card_id = m_card_id; //ZMQLinkConcept Variable
@@ -180,7 +181,8 @@ private:
 
     ci.add(linkInfo);
   }
-  
+
+
   void process_ZMQLink() {
 
     TLOG_DEBUG(1) << "Starting ZMQ link process";
@@ -196,11 +198,12 @@ private:
             TLOG_DEBUG(1) << ": Ready to receive data";
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
-	    if (items[0].revents & ZMQ_POLLIN){
+            if (items[0].revents & ZMQ_POLLIN){
               auto recvd = m_subscriber.recv(msg);
               if (recvd == 0) {
-		m_rcvd_zero++;
+                m_rcvd_zero++;
                 TLOG_DEBUG(1) << "No data received, moving to next loop iteration";
+                printf("ah it's because there's nothing\n");
                 continue;
               }
               TLOG_DEBUG(1) << ": Pushing data into output_queue";
@@ -209,8 +212,8 @@ private:
                 Payload -> load_message(msg.data(), msg.size()) ;
                 m_timestamp = Payload->get_timestamp();
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
-		m_packetsizesum += msg.size(); //sum of data from packets
-	       	m_packetsize = msg.size(); //last packet size
+                m_packetsizesum += msg.size(); //sum of data from packets
+                m_packetsize = msg.size(); //last packet size
               } catch (const iomanager::TimeoutExpired& ex) {
                 ers::warning(ex);
               }
@@ -218,7 +221,6 @@ private:
               TLOG_DEBUG(1) << ": End of do_work loop";
               m_packetCounter++;
             }
-
         } else {
             TLOG_DEBUG(1) << "Subscriber not yet connected";
         }
