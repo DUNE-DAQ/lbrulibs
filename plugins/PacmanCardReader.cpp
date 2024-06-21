@@ -13,7 +13,7 @@
 #include "logging/Logging.hpp"
 
 // NOTE: This needs to be changed to appmodel
-#include "appdal/PACMANInterface.hpp"
+#include "appmodel/PACMANInterface.hpp"
 
 #include <chrono>
 #include <memory>
@@ -66,7 +66,7 @@ namespace dunedaq {
 
     void
     PacmanCardReader::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg){
-      auto modconf = mcfg->module<appdal::DataReaderModule(get_name());
+      auto modconf = mcfg->module<appmodel::DataReaderModule(get_name());
       if (modconf->get_connections().size != 1){
         throw InitialisationError(ERS_HERE, "PACMAN Data Reader does not have a unique associated interface");
       }
@@ -76,7 +76,7 @@ namespace dunedaq {
       // Create a source_id to local elink map
 
       for (const auto & resources : det_con->get_contains()) {
-        const appdal::PACMANInterface* interface = resources->cast<appmodel::PACMANInterface>();
+        const appmodel::PACMANInterface* interface = resources->cast<appmodel::PACMANInterface>();
 
         if (interface != nullptr){
           m_card_wrapper = std::make_unique<PacmanCardReader>(interface);

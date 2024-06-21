@@ -6,6 +6,7 @@ find_package(daq-cmake REQUIRED)
 daq_setup_environment()
 
 find_package(appfwk REQUIRED)
+find_package(appdal REQUIRED)
 find_package(logging REQUIRED)
 find_package(ers REQUIRED)
 find_package(detdataformats REQUIRED)
@@ -21,7 +22,7 @@ daq_codegen(pacmancardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/In
 
 ##############################################################################
 # Dependency sets
-set(DUNEDAQ_DEPENDENCIES appfwk::appfwk readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
+set(DUNEDAQ_DEPENDENCIES appfwk::appfwk appmodel::appmodel confmodel::confmodel readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
 
 
