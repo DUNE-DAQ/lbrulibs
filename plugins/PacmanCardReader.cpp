@@ -74,12 +74,12 @@ namespace dunedaq {
 
     void
     PacmanCardReader::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg){
-    auto modconf = mcfg->module<appmodel::DataReaderModule>(get_name());
-    if (modconf->get_connections().size() != 1){
-    throw InitializationError(ERS_HERE, "PACMAN Data Reader does not have a unique associated interface");
-  }
+      auto modconf = mcfg->module<appmodel::DataReaderModule>(get_name());
+      if (modconf->get_connections().size() != 1){
+        throw InitializationError(ERS_HERE, "PACMAN Data Reader does not have a unique associated interface");
+      }
 
-    const confmodel::DetectorToDaqConnection*  det_con = modconf->get_connections()[0]->cast<confmodel::DetectorToDaqConnection>();
+      const confmodel::DetectorToDaqConnection*  det_con = modconf->get_connections()[0]->cast<confmodel::DetectorToDaqConnection>();
 
       // Create a source_id to local elink map
 
@@ -157,15 +157,15 @@ namespace dunedaq {
       }
     }
 
-void
-PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level)
-{
-  if (usePUBSUB) {
-    m_zmqlink[0]->get_info(ci, level);
-  } else {
-    m_streamlink[0]->get_info(ci, level);
-  }
-}
+    void
+    PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level)
+    {
+      if (usePUBSUB) {
+        m_zmqlink[0]->get_info(ci, level);
+      } else {
+        m_streamlink[0]->get_info(ci, level);
+      }
+    }
 
   } // namespace lbrulibs
 } // namespace dunedaq

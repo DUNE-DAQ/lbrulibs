@@ -1,6 +1,7 @@
 import pytest
 import integrationtest.data_file_checks as data_file_checks
 import integrationtest.log_file_checks as log_file_checks
+import os
 # Values that help determine the running conditions
 number_of_data_producers=1
 run_duration=60  # seconds
@@ -29,7 +30,10 @@ confgen_name="nddaqconf_gen"
 # output directory (the test framework handles that)
 confgen_arguments=[ "--host-ru", "localhost", "-o", ".", "-n", str(number_of_data_producers), "--frontend-type", "pacman", "-b", "2500000", "-a", "2500000", "-t", "1.0" ]
 # The commands to run in nanorc, as a list
-nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
+nanorc_command_list="boot conf wait 2".split()
+nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
+nanorc_command_list+="scrap terminate".split()
+
 
 # Don't require the --frame-file option since we don't need it
 frame_file_required=False
@@ -58,9 +62,12 @@ sys.path.insert(1, '../scripts')
 import larpixtools
 import zmq
 
-data_socket = 'tcp://127.0.0.1:5556'
+data_socket = 'tcp://127.0.0.1:55569'
 #data_file = '../test/example-pacman-data.h5'
-data_file = '/nfs/home/jpanduro/dunedaq-v3.1.0-1/sourcecode/lbrulibs/test/example-pacman-data.h5'
+#
+lbrulibs_dir=os.path.realpath(os.path.dirname(__file__) + "/../")
+sys.path.insert(1, f"{lbrulibs_dir}/scripts")
+data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)

@@ -9,8 +9,9 @@ import time
 import zmq
 import random
 lbrulibs_testdir=os.path.realpath(os.path.dirname(__file__) )
+
 # Prepare ports
-data = 'tcp://127.0.0.1:5556'
+data = 'tcp://127.0.0.1:55560'
 
 def store_packets(output_file_name, packets, n_packets):
     with open(output_file_name, "wb") as binary_file:

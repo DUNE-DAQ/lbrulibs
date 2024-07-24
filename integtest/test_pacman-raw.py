@@ -1,14 +1,17 @@
 import pytest
 import urllib.request
 import integrationtest.data_file_checks as data_file_checks
-import integrationtest.dro_map_gen as dro_map_gen
+import integrationtest.oks_dro_map_gen as dro_map_gen
 import integrationtest.log_file_checks as log_file_checks
 import integrationtest.config_file_gen as config_file_gen
+import integrationtest.integrationtest_drunc as integrationtest_drunc
 import os
+
+pytest_plugins="integrationtest.integrationtest_drunc"
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-run_duration=60  # seconds
+run_duration=140  # seconds
 
 # Default values for validation parameters
 expected_number_of_data_files=1
@@ -50,7 +53,12 @@ conf_dict["readout"]["send_partial_fragments"] = True
 confgen_arguments={"PACMANSystem": conf_dict}
 
 # The commands to run in nanorc, as a list
-nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
+#nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
+nanorc_command_list="boot conf wait 2".split()
+nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
+nanorc_command_list+="scrap terminate".split()
+
+
 
 # Don't require the --frame-file option since we don't need it
 frame_file_required=False
@@ -59,6 +67,7 @@ frame_file_required=False
 def test_nanorc_success(run_nanorc):
     # Check that nanorc completed correctly
     assert run_nanorc.completed_process.returncode==0
+
 def test_log_files(run_nanorc):
     if check_for_logfile_errors:
         # Check that there are no warnings or errors in the log files
@@ -72,15 +81,18 @@ def test_data_file(run_nanorc):
         assert data_file_checks.check_event_count(data_file,60,10)
         assert data_file_checks.check_fragment_count(data_file, wib1_frag_hsi_trig_params)
 
+
 lbrulibs_dir=os.path.realpath(os.path.dirname(__file__) + "/../")
 # Set up the message sender here:
 import time
 import sys
+
 sys.path.insert(1, f"{lbrulibs_dir}/scripts")
+
 import larpixtools
 import zmq
 
-data_socket = 'tcp://127.0.0.1:5556'
+data_socket = 'tcp://127.0.0.1:55561'
 data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
 
 def hdf5ToPackets(datafile): 
