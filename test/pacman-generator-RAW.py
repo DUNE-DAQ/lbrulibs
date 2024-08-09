@@ -14,9 +14,9 @@ import larpixtools
 import zmq
 
 # Prepare ports
-echo = 'tcp://127.0.0.1:35523'
-cmd = 'tcp://127.0.0.1:35524'
-data = 'tcp://127.0.0.1:35525'
+echo = 'tcp://127.0.0.1:35530'
+cmd = 'tcp://127.0.0.1:35531'
+data = 'tcp://127.0.0.1:35532'
 
 
 # Converts HDF5 files into a list of PACMAN messegaes (bytes)

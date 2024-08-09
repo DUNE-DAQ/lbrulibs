@@ -11,7 +11,7 @@ pytest_plugins="integrationtest.integrationtest_drunc"
 
 # Values that help determine the running conditions
 number_of_data_producers=1
-run_duration=140  # seconds
+run_duration=30  # seconds
 
 # Default values for validation parameters
 expected_number_of_data_files=1

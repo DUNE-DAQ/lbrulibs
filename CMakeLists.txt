@@ -33,7 +33,7 @@ daq_add_library(LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES})
 
 ##############################################################################
 # Plugins
-daq_add_plugin(PacmanCardReader duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES} lbrulibs)
+daq_add_plugin(PACMANReaderModule duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES} lbrulibs)
 
 ##############################################################################
 # Integration tests

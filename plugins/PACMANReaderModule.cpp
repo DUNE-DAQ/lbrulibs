@@ -1,19 +1,20 @@
 /**
- * @file PacmanCardReader.cc PacmanCardReader DAQModule implementation
+ * @file PACMANReaderModule.cc PACMANReaderModule DAQModule implementation
  *
  * This is part of the DUNE DAQ Application Framework, copyright 2021.
  * Licensing/copyright details are in the COPYING file that you should have
  * received with this code.
  */
 
-#include "PacmanCardReader.hpp"
+#include "PACMANReaderModule.hpp"
 #include "CreateSTREAMLink.hpp"
 #include "CreateZMQLink.hpp"
 #include "ZMQIssues.hpp"
 #include "logging/Logging.hpp"
 
 // TODO: Remove unecessary includes
-#include "appmodel/PACMANInterface.hpp"
+#include "appmodel/PACMANReceiver.hpp"
+#include "appmodel/PACMANConfiguration.hpp"
 #include "confmodel/ResourceSetAND.hpp"
 #include "confmodel/Connection.hpp"
 #include "confmodel/QueueWithSourceId.hpp"
@@ -22,7 +23,6 @@
 #include "confmodel/GeoId.hpp"
 #include "appmodel/DataReaderModule.hpp"
 
-
 #include <chrono>
 #include <memory>
 #include <string>
@@ -30,12 +30,12 @@
 #include <utility>
 #include <vector>
 
-bool usePUBSUB = 0;
+bool usePUBSUB = 1;
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
  */
-#define TRACE_NAME "PacmanCardReader" // NOLINT
+#define TRACE_NAME "PACMANReaderModule" // NOLINT
 
 /**
  * @brief TRACE debug levels used in this source file
@@ -50,15 +50,15 @@ bool usePUBSUB = 0;
 namespace dunedaq {
   namespace lbrulibs {
 
-    PacmanCardReader::PacmanCardReader(const std::string& name)
+    PACMANReaderModule::PACMANReaderModule(const std::string& name)
       : DAQModule(name)
       , m_configured(false)
       , m_card_id(0)
 
     {
-      register_command("conf", &PacmanCardReader::do_configure);
-      register_command("start", &PacmanCardReader::do_start);
-      register_command("stop", &PacmanCardReader::do_stop);
+      register_command("conf", &PACMANReaderModule::do_configure);
+      register_command("start", &PACMANReaderModule::do_start);
+      register_command("stop", &PACMANReaderModule::do_stop);
     }
 
     inline void
@@ -73,7 +73,8 @@ namespace dunedaq {
     }
 
     void
-    PacmanCardReader::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg){
+    PACMANReaderModule::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg){
+      TLOG() << "Running init on PACMAN cards";
       auto modconf = mcfg->module<appmodel::DataReaderModule>(get_name());
       if (modconf->get_connections().size() != 1){
         throw InitializationError(ERS_HERE, "PACMAN Data Reader does not have a unique associated interface");
@@ -84,23 +85,28 @@ namespace dunedaq {
       // Create a source_id to local elink map
 
       for (const auto & resources : det_con->get_contains()) {
-        const appmodel::PACMANInterface* interface = resources->cast<appmodel::PACMANInterface>();
+        const appmodel::PACMANReceiver* interface = resources->cast<appmodel::PACMANReceiver>();
 
         if (interface != nullptr){
-          //m_card_wrapper = std::make_unique<PacmanCardReader>(interface);
-          m_card_id = interface->get_card();
-          m_zmq_receiver_timeout = interface->get_zmq_receiver_timeout();
-          m_link_confs = interface->get_link_confs();
+          //m_card_wrapper = std::make_unique<PACMANReaderModule>(interface);
+          auto module_conf = interface->get_configuration()->cast<appmodel::PACMANConfiguration>();
+          m_card_id = module_conf->get_card();
+          m_zmq_receiver_timeout = module_conf->get_zmq_receiver_timeout();
+          m_link_confs = module_conf->get_link_confs();
         }
       }
 
+
+
       for(auto qi : modconf->get_outputs()){
         auto q_with_id = qi->cast<confmodel::QueueWithSourceId>();
-        if (q_with_id == nullptr) continue;
-        TLOG_DEBUG(TLVL_WORK_STEPS) << ": PacmanCardReader output queue is " << q_with_id->UID();
-        if(usePUBSUB){
-          TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating ZMQLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
+        if (q_with_id == nullptr) {
+          ers::fatal(InitializationError(ERS_HERE, "AGGGGGGGH NOTHING"));
+          continue;
+        }
 
+        if(usePUBSUB){
+          TLOG() << "Creating ZMQLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
           // TODO : Resolve proper link ID here
           m_zmqlink[0] = createZMQLinkModel(q_with_id->UID());
           if(m_zmqlink[0]==nullptr){
@@ -111,21 +117,29 @@ namespace dunedaq {
         } else{
           TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
 
-          // TODO : Resolve proper link ID here
-          m_streamlink[0] = createSTREAMLinkModel(q_with_id->UID());
           if(m_streamlink[0]==nullptr){
             ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
           }
           m_streamlink[0]->init(m_queue_capacity);
         }
       }
+      if(m_streamlink.empty() && m_zmqlink.empty()){
+        ers::fatal(InitializationError(ERS_HERE, "No Cards have been initialised, this will just break"));
+      }
+
     }
 
-    void PacmanCardReader::do_configure(const data_t& /*args*/){
+    void PACMANReaderModule::do_configure(const data_t& /*args*/){
       // Configure Components
-      TLOG(TLVL_WORK_STEPS) << "Configuring LinkHandler";
+      TLOG() << get_name() << ": Entering do_conf() method";
+
       if (usePUBSUB) {
         TLOG(TLVL_WORK_STEPS) << "Using ZMQ Publish/Subscribe";
+
+        if(!m_zmqlink[0]){
+          ers::fatal(InitializationError(ERS_HERE, "No ZMQ Card Exists!!"));
+        }
+
         m_zmqlink[0]->set_ids(m_card_id, 0);
         m_zmqlink[0]->conf(m_zmq_receiver_timeout);
       } else {
@@ -138,7 +152,7 @@ namespace dunedaq {
     }
 
     void
-    PacmanCardReader::do_start(const data_t& /*args*/)
+    PACMANReaderModule::do_start(const data_t& /*args*/)
     {
       if (usePUBSUB) {
         m_zmqlink[0]->start();
@@ -148,7 +162,7 @@ namespace dunedaq {
     }
 
     void
-    PacmanCardReader::do_stop(const data_t& /*args*/)
+    PACMANReaderModule::do_stop(const data_t& /*args*/)
     {
       if (usePUBSUB) {
         m_zmqlink[0]->stop();
@@ -158,7 +172,7 @@ namespace dunedaq {
     }
 
     void
-    PacmanCardReader::get_info(opmonlib::InfoCollector& ci, int level)
+    PACMANReaderModule::get_info(opmonlib::InfoCollector& ci, int level)
     {
       if (usePUBSUB) {
         m_zmqlink[0]->get_info(ci, level);
@@ -170,4 +184,4 @@ namespace dunedaq {
   } // namespace lbrulibs
 } // namespace dunedaq
 
-DEFINE_DUNE_DAQ_MODULE(dunedaq::lbrulibs::PacmanCardReader)
+DEFINE_DUNE_DAQ_MODULE(dunedaq::lbrulibs::PACMANReaderModule)

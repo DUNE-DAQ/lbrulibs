@@ -1,5 +1,5 @@
 /**
- * @file PacmanCardReader.hpp PACMAN card reader DAQ Module.
+ * @file PACMANReaderModule.hpp PACMAN card reader DAQ Module.
  *
  * This is part of the DUNE DAQ , copyright 2021.
  * Licensing/copyright details are in the COPYING file that you should have
@@ -30,23 +30,23 @@
 
 namespace dunedaq::lbrulibs {
 
-class PacmanCardReader : public dunedaq::appfwk::DAQModule
+class PACMANReaderModule : public dunedaq::appfwk::DAQModule
 {
 public:
   /**
-   * @brief PacmanCardReader Constructor
-   * @param name Instance name for this PacmanCardReader instance
+   * @brief PACMANReaderModule Constructor
+   * @param name Instance name for this PACMANReaderModule instance
    */
-  explicit PacmanCardReader(const std::string& name);
+  explicit PACMANReaderModule(const std::string& name);
 
-  PacmanCardReader(const PacmanCardReader&) =
-    delete; ///< PacmanCardReader is not copy-constructible
-  PacmanCardReader& operator=(const PacmanCardReader&) =
-    delete; ///< PacmanCardReader is not copy-assignable
-  PacmanCardReader(PacmanCardReader&&) =
-    delete; ///< PacmanCardReader is not move-constructible
-  PacmanCardReader& operator=(PacmanCardReader&&) =
-    delete; ///< PacmanCardReader is not move-assignable
+  PACMANReaderModule(const PACMANReaderModule&) =
+    delete; ///< PACMANReaderModule is not copy-constructible
+  PACMANReaderModule& operator=(const PACMANReaderModule&) =
+    delete; ///< PACMANReaderModule is not copy-assignable
+  PACMANReaderModule(PACMANReaderModule&&) =
+    delete; ///< PACMANReaderModule is not move-constructible
+  PACMANReaderModule& operator=(PACMANReaderModule&&) =
+    delete; ///< PACMANReaderModule is not move-assignable
 
   void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
@@ -72,7 +72,7 @@ private:
   std::vector<unsigned int> m_link_confs;
 
   // Card object
-  //std::unique_ptr<PacmanCardReader> m_card_wrapper;
+  //std::unique_ptr<PACMANReaderModule> m_card_wrapper;
 
   // ZMQLinkConcept
   std::map<int, std::unique_ptr<ZMQLinkConcept>> m_zmqlink;
