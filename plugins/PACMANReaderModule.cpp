@@ -90,9 +90,9 @@ namespace dunedaq {
         if (interface != nullptr){
           //m_card_wrapper = std::make_unique<PACMANReaderModule>(interface);
           auto module_conf = interface->get_configuration()->cast<appmodel::PACMANConfiguration>();
-          m_card_id = module_conf->get_card();
+          // m_card_id = module_conf->get_card();
           m_zmq_receiver_timeout = module_conf->get_zmq_receiver_timeout();
-          m_link_confs = module_conf->get_link_confs();
+          // m_link_confs = module_conf->get_link_confs();
         }
       }
 
@@ -101,7 +101,7 @@ namespace dunedaq {
       for(auto qi : modconf->get_outputs()){
         auto q_with_id = qi->cast<confmodel::QueueWithSourceId>();
         if (q_with_id == nullptr) {
-          ers::fatal(InitializationError(ERS_HERE, "AGGGGGGGH NOTHING"));
+          ers::fatal(InitializationError(ERS_HERE, "No Queues Found"));
           continue;
         }
 
@@ -171,15 +171,15 @@ namespace dunedaq {
       }
     }
 
-    void
-    PACMANReaderModule::get_info(opmonlib::InfoCollector& ci, int level)
-    {
-      if (usePUBSUB) {
-        m_zmqlink[0]->get_info(ci, level);
-      } else {
-        m_streamlink[0]->get_info(ci, level);
-      }
-    }
+    // void
+    // PACMANReaderModule::get_info(opmonlib::InfoCollector& ci, int level)
+    // {
+    //   if (usePUBSUB) {
+    //     m_zmqlink[0]->get_info(ci, level);
+    //   } else {
+    //     m_streamlink[0]->get_info(ci, level);
+    //   }
+    // }
 
   } // namespace lbrulibs
 } // namespace dunedaq

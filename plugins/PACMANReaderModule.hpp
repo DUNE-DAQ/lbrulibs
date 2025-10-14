@@ -9,11 +9,11 @@
 #define LBRULIBS_PLUGINS_PACMANCARDREADER_HPP_
 
 #include "appfwk/cmd/Structs.hpp"
-#include "appfwk/cmd/Nljs.hpp"
-#include "appfwk/app/Nljs.hpp"
+// #include "appfwk/cmd/Nljs.hpp"
+// #include "appfwk/app/Nljs.hpp"
 
-#include "lbrulibs/pacmancardreader/Nljs.hpp"
-#include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
+// #include "lbrulibs/pacmancardreader/Nljs.hpp"
+// #include "lbrulibs/pacmancardreaderinfo/InfoNljs.hpp"
 
 // From appfwk
 #include "appfwk/DAQModule.hpp"
@@ -49,11 +49,11 @@ public:
     delete; ///< PACMANReaderModule is not move-assignable
 
   void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
-  void get_info(opmonlib::InfoCollector& ci, int level) override;
+  // void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Types
-  using module_conf_t = dunedaq::lbrulibs::pacmancardreader::Conf;
+  // using module_conf_t = dunedaq::lbrulibs::pacmancardreader::Conf;
 
   // Constants
   static constexpr size_t m_queue_capacity = 1000000;
@@ -65,7 +65,7 @@ private:
 
   // Configuration
   bool m_configured;
-  module_conf_t m_cfg;
+  // module_conf_t m_cfg;
 
   int m_card_id;
   float m_zmq_receiver_timeout;

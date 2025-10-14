@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 
+
 namespace dunedaq {
 namespace lbrulibs {
 
@@ -43,7 +44,7 @@ public:
   virtual void conf(int zmq_receiver_time_out) = 0; //add configuration variables later if needed
   virtual void start() = 0;
   virtual void stop() = 0;
-  virtual void get_info(opmonlib::InfoCollector& ci, int level) = 0;
+  // virtual void get_info(opmonlib::InfoCollector& ci, int level) = 0;
 
   void set_ids(int card, int tag) {
     m_card_id = card;
@@ -62,7 +63,6 @@ protected:
     zmq::socket_t m_subscriber{m_context, zmq::socket_type::sub};
     int m_card_id;
     int m_link_tag;
-    //std::string m_ZMQLink_commandLink = "tcp://127.0.0.1:5555";
     std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
   private:
 

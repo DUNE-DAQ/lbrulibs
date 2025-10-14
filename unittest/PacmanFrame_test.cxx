@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(PacmanHeader_Methods)
   
   BOOST_REQUIRE_EQUAL(frame->get_msg_header((void *)&message)->unix_ts,1631536304);
   BOOST_REQUIRE_EQUAL(frame->get_msg_header((void *)&message)->words,1);
-  
+
   dunedaq::nddetdataformats::PACMANFrame::PACMANMessageWord* theWord = frame->get_msg_word((void *)&message,  0);
 
   BOOST_REQUIRE_EQUAL(theWord->data_word.type,0x44);

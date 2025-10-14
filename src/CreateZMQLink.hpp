@@ -45,7 +45,7 @@ createZMQLinkModel(const std::string& target)
     zmqlink_model->set_sink(target);
     // Get sink
     //auto& sink = zmqlink_model->get_sink();
-
+ 
     // Return with setup model
     return zmqlink_model;
 

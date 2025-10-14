@@ -73,7 +73,7 @@ def main(filename):
                 print(f'{prefix} \033[1mDUNE Clock tick Time Stamp: {mpd_f.get_timestamp()}\033[0m')
                 print(f'{prefix} Number enabled channels : {mpd_f.get_nchannels()}')
                 print(f'{prefix} Number of samples per channel : {mpd_f.get_nsamples()}') 
-                
+
     print(f'Processed all requested records')
     print(f'Valid processed: {len(records_to_process)-count_invalid}')
     print(f'Invalid processed: {count_invalid}')

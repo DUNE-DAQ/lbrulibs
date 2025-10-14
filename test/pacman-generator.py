@@ -203,7 +203,7 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
                     next_sleep = random.randrange(1,3)
                     if message_count != len(word_lists)*n_file_evals:
                         print("Next message in: %ds" %(next_sleep))
-
+ 
                 time.sleep(next_sleep)
             
         print("Sleeping for 10 seconds before exiting...")

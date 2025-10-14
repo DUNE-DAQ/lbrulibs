@@ -14,10 +14,9 @@ import larpixtools
 import zmq
 
 # Prepare ports
-echo = 'tcp://127.0.0.1:35530'
+echo = 'tcp://127.0.0.1:35531'
 cmd = 'tcp://127.0.0.1:35531'
-data = 'tcp://127.0.0.1:35532'
-
+data = 'tcp://127.0.0.1:5030'
 
 # Converts HDF5 files into a list of PACMAN messegaes (bytes)
 def hdf5ToPackets(datafile): 
@@ -175,36 +174,36 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
         # Send messages in intervals based on timestamps
         message_count = 0
         
-        for n in range(n_file_evals):
+        for _ in range(n_file_evals):
             for i in word_lists:
                 #data_socket.send(b"", zmq.SNDMORE)
                 data_socket.send_multipart([id,larpixtools.format_msg('DATA',i)])
                 print(larpixtools.parse_msg(larpixtools.format_msg('DATA',i)))
                 message_count += 1
                 print("Total messages sent:",message_count)
-                if mode == 2: break;
+                if mode == 2: 
+                    break
                 elif mode > 0:
                     if message_count % this_n_messages_total == 0: 
-                        time.sleep(next_sleep);
-                        break;
+                        time.sleep(next_sleep)
+                        break
                     if message_count % this_n_messages_group == 0: 
-                        next_sleep = this_group_interval;
-                    else: continue;
+                        next_sleep = this_group_interval
+                    else: 
+                        continue
                 else:
                     next_sleep = random.randrange(1,3)
                     if message_count != len(word_lists)*n_file_evals:
                         print("Next message in: %ds" %(next_sleep))
 
                 time.sleep(next_sleep)
-            
+
         print("Sleeping for 10 seconds before exiting...")
         time.sleep(10)
     except:
         raise
     finally: #cleanup
         data_socket.close()
-        #cmd_socket.close()
-        #echo_socket.close()
         ctx.destroy()
 
 

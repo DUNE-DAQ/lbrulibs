@@ -1,85 +1,18 @@
 import pytest
 import urllib.request
-import integrationtest.data_file_checks as data_file_checks
-import integrationtest.oks_dro_map_gen as dro_map_gen
-import integrationtest.log_file_checks as log_file_checks
-import integrationtest.config_file_gen as config_file_gen
-import integrationtest.integrationtest_drunc as integrationtest_drunc
 import os
+import copy
+import re
+import math
+import multiprocessing 
 
-pytest_plugins="integrationtest.integrationtest_drunc"
+import socket
 
-# Values that help determine the running conditions
-number_of_data_producers=1
-run_duration=30  # seconds
+import integrationtest.data_file_checks as data_file_checks
+import integrationtest.log_file_checks as log_file_checks
+import integrationtest.data_classes as data_classes
 
-# Default values for validation parameters
-expected_number_of_data_files=1
-check_for_logfile_errors=True
-expected_event_count=run_duration
-expected_event_count_tolerance=2
-
-wib1_frag_hsi_trig_params={"fragment_type_description": "PACMAN",
-                           "fragment_type": "PACMAN",
-                           "hdf5_source_subsystem": "Detector_Readout",
-                           "hdf5_detector_group": "NDLArTPC", 
-                           "hdf5_region_prefix": "Region",
-                           "element_name_prefix": "Element", 
-                           "element_number_offset": 0, 
-                           "expected_fragment_count": number_of_data_producers,
-                           "min_size_bytes": 80, 
-                           "max_size_bytes": 1048656}
-
-# The next three variable declarations *must* be present as globals in the test
-# file. They're read by the "fixtures" in conftest.py to determine how
-# to run the config generation and nanorc
-
-# The name of the python module for the config generation
-confgen_name="nddaqconf_gen"
-# The arguments to pass to the config generator, excluding the json
-# output directory (the test framework handles that)
-detid_ND_LAr = 32 
-number_of_apps = 1 
-dro_map_contents = dro_map_gen.generate_dromap_contents(number_of_data_producers, number_of_apps, detid_ND_LAr, app_type='eth', eth_protocol='zmq')
-
-conf_dict = config_file_gen.get_default_config_dict()
-conf_dict["detector"]["op_env"] = "integtest"
-conf_dict["hsi"]["random_trigger_rate_hz"]="1.0"
-conf_dict["trigger"]["trigger_window_before_ticks"] = "2500000"
-conf_dict["trigger"]["trigger_window_after_ticks"]  = "2500000"
-conf_dict["trigger"]["mlt_merge_overlapping_tcs"] = False
-conf_dict["readout"]["send_partial_fragments"] = True
-
-confgen_arguments={"PACMANSystem": conf_dict}
-
-# The commands to run in nanorc, as a list
-#nanorc_command_list="integtest-partition boot conf start 101 wait 1 enable_triggers wait ".split() + [str(run_duration)] + "disable_triggers wait 2 stop_run wait 2 scrap terminate".split()
-nanorc_command_list="boot conf wait 2".split()
-nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
-nanorc_command_list+="scrap terminate".split()
-
-
-
-# Don't require the --frame-file option since we don't need it
-frame_file_required=False
-
-# The tests themselves
-def test_nanorc_success(run_nanorc):
-    # Check that nanorc completed correctly
-    assert run_nanorc.completed_process.returncode==0
-
-def test_log_files(run_nanorc):
-    if check_for_logfile_errors:
-        # Check that there are no warnings or errors in the log files
-        assert log_file_checks.logs_are_error_free(run_nanorc.log_files)
-def test_data_file(run_nanorc):
-    # Run some tests on the output data file
-    assert len(run_nanorc.data_files)==expected_number_of_data_files
-    for idx in range(len(run_nanorc.data_files)):
-        data_file=data_file_checks.DataFile(run_nanorc.data_files[idx])
-        assert data_file_checks.sanity_check(data_file)
-        assert data_file_checks.check_event_count(data_file,60,10)
-        assert data_file_checks.check_fragment_count(data_file, wib1_frag_hsi_trig_params)
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
 
 
 lbrulibs_dir=os.path.realpath(os.path.dirname(__file__) + "/../")
@@ -92,8 +25,128 @@ sys.path.insert(1, f"{lbrulibs_dir}/scripts")
 import larpixtools
 import zmq
 
-data_socket = 'tcp://127.0.0.1:55561'
-data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
+
+pytest_plugins="integrationtest.integrationtest_drunc"
+# Values that help determine the running conditions
+number_of_data_producers = 2
+data_rate_slowdown_factor = 1  # 10 for ProtoWIB/DuneWIB
+run_duration = 20  # seconds
+readout_window_time_before = 1000
+readout_window_time_after = 1001
+
+# Default values for validation parameters
+expected_number_of_data_files = 1
+check_for_logfile_errors = True
+expected_event_count = run_duration
+expected_event_count_tolerance = 4
+
+
+pacman_frag_params = {
+    "fragment_type_description": "PACMAN",
+    "fragment_type": "PACMAN",
+    "hdf5_source_subsystem": "Detector_Readout",
+    "expected_fragment_count": number_of_data_producers,
+    "min_size_bytes": 80,
+    "max_size_bytes": 1048656,
+}
+
+
+ignored_logfile_problems = {
+    "-controller": [
+        "Worker with pid \\d+ was terminated due to signal",
+        "Connection '.*' not found on the application registry",
+    ],
+    "local-connection-server": [
+        "errorlog: -",
+        "Worker with pid \\d+ was terminated due to signal",
+    ],
+    "log_.*_minimal_": ["connect: Connection refused"],
+}
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind(("127.0.0.1", 0))  # Bind to any free port
+    # print(s.getsockname())
+    # not sure why, doing socket + 1 works best....
+    data_stream_sock_id=s.getsockname()[1]+1
+    data_stream_socket = f"tcp://{s.getsockname()[0]}:{s.getsockname()[1]+1}"
+    s.close()
+
+
+# The next three variable declarations *must* be present as globals in the test
+# file. They're read by the "fixtures" in conftest.py to determine how
+# to run the config generation and nanorc
+conf_dict = data_classes.drunc_config()
+conf_dict.op_env = "integtest"
+conf_dict.session = "minimal"
+conf_dict.use_fakedataprod = False
+conf_dict.dro_map_config.n_streams = number_of_data_producers
+
+
+# conf_dict.config_substitutions.append(
+#     data_classes.config_substitution(
+#         obj_class="Service",
+#         obj_id="dataRequests",
+#         updates={"port": f"{data_stream_sock_id}"}
+#     )
+# )
+
+conf_dict.config_substitutions.append(
+    data_classes.config_substitution(
+        obj_class="PACMANDataReaderConf",
+        obj_id="def-pac-receiver-conf",
+        updates={"emulation_mode": "0"}
+    )
+)
+
+
+# conf_dict.config_substitutions.append(
+#     data_classes.config_substitution(
+#         obj_id="dummy-detector",
+#         obj_class="DetectorConfig",
+#         updates={"clock_speed_hz": 1000000000}, # FakeDataProd uses nanoseconds as its timestamps
+#     )
+# )
+object_databases = ["config/daqsystemtest/integrationtest-objects.data.xml"]
+
+
+hsi_frag_params = {
+    "fragment_type_description": "HSI",
+    "fragment_type": "Hardware_Signal",
+    "hdf5_source_subsystem": "HW_Signals_Interface",
+    "expected_fragment_count": 0,
+    "min_size_bytes": 72,
+    "max_size_bytes": 100,
+}
+ignored_logfile_problems = {
+    "-controller": [
+        "Worker with pid \\d+ was terminated due to signal",
+        "Connection '.*' not found on the application registry",
+    ],
+    "connectivity-service": [
+        "errorlog: -",
+        "Worker with pid \\d+ was terminated due to signal",
+    ],
+    "log_.*_minimal_": ["connect: Connection refused"],
+}
+
+# conf_dict = data_classes.drunc_config()
+# conf_dict.dro_map_config.n_streams = number_of_data_producers
+# conf_dict.op_env = "integtest"
+# conf_dict.session = "minimal"
+# conf_dict.tpg_enabled = False
+
+detid_ND_LAr = 32
+number_of_apps = 1
+
+
+confgen_arguments = {"MinimalSystem": conf_dict}
+# The commands to run in nanorc, as a list
+nanorc_command_list = (
+    "boot conf start --run-number 101 wait 1 enable-triggers wait ".split()
+    + [str(run_duration)]
+    + "disable-triggers wait 2 drain-dataflow wait 2 stop-trigger-sources stop scrap terminate".split()
+)
+
 
 def hdf5ToPackets(datafile): 
     print("Reading from:",datafile)
@@ -107,7 +160,10 @@ def hdf5ToPackets(datafile):
     print("Read complete. PACMAN style messages prepared.")
     return word_lists
 
-def sender(_data_server,word_lists):
+
+
+def sender(_data_server, word_lists,ready_event):
+    
     try:
         # Set up sockets
         print("Setting up ZMQ sockets...")
@@ -123,17 +179,19 @@ def sender(_data_server,word_lists):
             data_socket.setsockopt(*opt)
         print("Binding sockets...")
         
+
         id = 0
         while id == 0:
             try:
                 data_socket.connect(_data_server)
                 id = data_socket.recv()
-                message = data_socket.recv()
-            except:
-                print("No receiver ready to connect to. Retrying...")
+                ready_event.set()
+                
+            except Exception as e:
+                # print(f"\n{e}")
                 time.sleep(1)
-                continue
 
+        print(f"Connected to {_data_server}")
         print('Initialising...')
         time.sleep(1)
 
@@ -148,10 +206,113 @@ def sender(_data_server,word_lists):
         ctx.destroy()
 
 
-word_lists = hdf5ToPackets(data_file)
-print("Starting PACMAN card(s)")
-import multiprocessing
-process = multiprocessing.Process(target=sender,args=[data_socket,word_lists])
-process.daemon = True
-process.start()
+# data_socket = 'tcp://127.0.0.1:55561'
+# data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
+
+# word_lists = hdf5ToPackets(data_file)
+# print("Starting PACMAN card(s)")
+# process = multiprocessing.Process(target=sender,args=[data_socket,word_lists])
+# process.daemon = True
+# process.start()
+
+@pytest.fixture(scope="session")
+def pacman_sender():
+    """
+    Pytest fixture to ensure the PACMAN sender process is running before tests.
+    """
+    # data_socket = 'tcp://127.0.0.5102'
+    data_file = f"{lbrulibs_dir}/test/example-pacman-data.h5"
+
+    # Prepare word lists from the data file
+    word_lists = hdf5ToPackets(data_file)
+
+    ready_event = multiprocessing.Event()
+
+
+    print("Starting PACMAN card(s) simulation...")
+    process = multiprocessing.Process(target=sender, args=[data_stream_socket, word_lists, ready_event])
+    process.daemon = True
+    process.start()
+
+    # Wait for cards to connect
+    timeout = 300
+    start_time = time.time()
+    with Progress(
+        TextColumn("[bold red]Timeout: "),
+        SpinnerColumn(),
+        BarColumn(),
+        TextColumn("{task.description}"),
+        transient=True,
+    ) as progress:
+        task = progress.add_task("[cyan]Waiting for PACMAN sender to connect...", total=timeout)
+        while not ready_event.is_set() and time.time() - start_time < timeout:
+            progress.update(task, advance=1, description=f"[cyan]{int(time.time() - start_time)}s/{timeout}s elapsed")
+            time.sleep(1)
+
+    if not ready_event.is_set():
+        process.terminate()
+        process.join()
+        pytest.fail("PACMAN sender process failed to connect within the timeout period.")
+
+    yield process  # Provide the process to tests if needed
+
+
+    # Cleanup after tests
+    print("Testing done!")
+    process.terminate()
+    process.join()
+
+# The tests themselves
+def test_nanorc_success(run_nanorc, pacman_sender):
+    # Check that nanorc completed correctly
+    assert run_nanorc.completed_process.returncode == 0
+
+def test_log_files(run_nanorc):
+    local_check_flag = check_for_logfile_errors
+
+    if local_check_flag:
+        # Check that there are no warnings or errors in the log files
+        assert log_file_checks.logs_are_error_free(
+            run_nanorc.log_files, True, True, ignored_logfile_problems
+        )
+
+
+def test_data_files(run_nanorc):
+    local_expected_event_count = expected_event_count
+    local_event_count_tolerance = expected_event_count_tolerance
+    # frag_params=wib1_frag_hsi_trig_params # ProtoWIB
+    # frag_params=wib2_frag_params # DuneWIB
+    frag_params = pacman_frag_params # pacman
+    current_test = os.environ.get("PYTEST_CURRENT_TEST")
+    if "Double" in current_test:
+        # frag_params["min_size_bytes"]=72+(464*161) # 161 frames of 464 bytes each with 72-byte Fragment header # ProtoWIB
+        # frag_params["max_size_bytes"]=72+(464*161)
+        # frag_params["min_size_bytes"]=72+(472*math.ceil(4001/32)) # 126 frames of 472 bytes each with 72-byte Fragment header # DuneWIB
+        # frag_params["max_size_bytes"]=72+(472*math.ceil(4001/32))
+        frag_params["min_size_bytes"] = 72 + (
+            7200 * math.ceil(4001 / 2048)
+        )  # 2 frames of 7200 bytes each with 72-byte Fragment header # WIBEth
+        frag_params["max_size_bytes"] = 72 + (7200 * (1 + math.ceil(4001 / 2048)))
+    fragment_check_list = [frag_params]
+
+    # Run some tests on the output data file
+    all_ok = True
+    all_ok &= len(run_nanorc.data_files) == expected_number_of_data_files
+
+    for idx in range(len(run_nanorc.data_files)):
+        data_file = data_file_checks.DataFile(run_nanorc.data_files[idx])
+        all_ok &= data_file_checks.sanity_check(data_file)
+        all_ok &= data_file_checks.check_file_attributes(data_file)
+        all_ok &= data_file_checks.check_event_count(
+            data_file, local_expected_event_count, local_event_count_tolerance
+        )
+        for jdx in range(len(fragment_check_list)):
+            all_ok &= data_file_checks.check_fragment_count(
+                data_file, fragment_check_list[jdx]
+            )
+            all_ok &= data_file_checks.check_fragment_sizes(
+                data_file, fragment_check_list[jdx]
+            )
+
+    assert all_ok
 

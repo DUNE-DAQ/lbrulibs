@@ -12,18 +12,17 @@ find_package(logging REQUIRED)
 find_package(ers REQUIRED)
 find_package(detdataformats REQUIRED)
 find_package(nddetdataformats REQUIRED)
-find_package(readoutlibs REQUIRED)
 find_package(ndreadoutlibs REQUIRED)
 find_package(ipm REQUIRED)
 find_package(iomanager REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-daq_codegen(pacmancardreader.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
-daq_codegen(pacmancardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/InfoStructs.hpp.j2 opmonlib/InfoNljs.hpp.j2 )
+# daq_codegen(pacmancardreader.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
+# daq_codegen(pacmancardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/InfoStructs.hpp.j2 opmonlib/InfoNljs.hpp.j2 )
 
 ##############################################################################
 # Dependency sets
-set(DUNEDAQ_DEPENDENCIES appfwk::appfwk appmodel::appmodel confmodel::confmodel readoutlibs::readoutlibs ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
+set(DUNEDAQ_DEPENDENCIES appfwk::appfwk appmodel::appmodel confmodel::confmodel ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
 
 

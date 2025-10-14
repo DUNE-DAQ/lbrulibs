@@ -41,7 +41,7 @@ public:
   virtual void conf(int zmq_receiver_timeout) = 0; //add configuration variables later if needed
   virtual void start() = 0;
   virtual void stop() = 0;
-  virtual void get_info(opmonlib::InfoCollector& ci, int level) = 0;
+  // virtual void get_info(opmonlib::InfoCollector& ci, int level) = 0;
 
     void set_ids(int card, int tag) {
         m_card_id = card;

@@ -56,7 +56,7 @@ def send_mpd(packets, n_packets, rate):
         message_count = 0
         for i in range(n_packets-1):
             data_socket.send_multipart([id,packets[i]])
-            
+
             message_count += 1
             print("Total messages sent:",message_count)        
             time.sleep(rate);

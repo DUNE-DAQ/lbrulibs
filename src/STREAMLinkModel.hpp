@@ -15,7 +15,7 @@
 #include "iomanager/Sender.hpp"
 #include "logging/Logging.hpp"
 
-#include "readoutlibs/utils/ReusableThread.hpp"
+#include "datahandlinglibs/utils/ReusableThread.hpp"
 #include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
 #include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
@@ -160,34 +160,34 @@ private:
 
   // Processor
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
-  readoutlibs::ReusableThread m_parser_thread;
+  dunedaq::datahandlinglibs::ReusableThread m_parser_thread;
 
-  virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
-    dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
+  // virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
+  //   dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
 
-    std::chrono::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now(); //End time when monitoring period ends
-    double elapsed_time = std::chrono::duration<double>(t_end-t_start).count(); //Monitoring period quantified
-    t_start = t_end; //restarts system clock for next monitoring period
+  //   std::chrono::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now(); //End time when monitoring period ends
+  //   double elapsed_time = std::chrono::duration<double>(t_end-t_start).count(); //Monitoring period quantified
+  //   t_start = t_end; //restarts system clock for next monitoring period
 
-    //Pacman variables -----------
-    linkInfo.bandwidth = m_packetsizesum/(elapsed_time*1000000);
-    linkInfo.num_packets_received = m_packetCounter;
-    linkInfo.last_packet_size = m_packetsize;
-    linkInfo.last_message_timestamp = m_timestamp; 
-    linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
-    linkInfo.link_tag = m_link_tag; //ZMQLinkConcept Variable
-    linkInfo.card_id = m_card_id; //ZMQLinkConcept Variable
-    linkInfo.sink_name = m_sink_queue->get_name(); //sink queue name
-    linkInfo.subscriber_connected = m_subscriber_connected;
-    linkInfo.run_marker = m_run_marker; //predefined
-    linkInfo.sink_is_set = m_sink_is_set; //If sink succeeded - predefined
-    linkInfo.source_link_string = m_STREAMLink_sourceLink; //string variable from ZMQLinkConcept
-    //linkInfo.info_type = "ZMQ Link Info";
+  //   //Pacman variables -----------
+  //   linkInfo.bandwidth = m_packetsizesum/(elapsed_time*1000000);
+  //   linkInfo.num_packets_received = m_packetCounter;
+  //   linkInfo.last_packet_size = m_packetsize;
+  //   linkInfo.last_message_timestamp = m_timestamp; 
+  //   linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
+  //   linkInfo.link_tag = m_link_tag; //ZMQLinkConcept Variable
+  //   linkInfo.card_id = m_card_id; //ZMQLinkConcept Variable
+  //   linkInfo.sink_name = m_sink_queue->get_name(); //sink queue name
+  //   linkInfo.subscriber_connected = m_subscriber_connected;
+  //   linkInfo.run_marker = m_run_marker; //predefined
+  //   linkInfo.sink_is_set = m_sink_is_set; //If sink succeeded - predefined
+  //   linkInfo.source_link_string = m_STREAMLink_sourceLink; //string variable from ZMQLinkConcept
+  //   //linkInfo.info_type = "ZMQ Link Info";
 
-    m_packetsizesum = 0; //resets the variable, so the sum starts from 0 again
+  //   m_packetsizesum = 0; //resets the variable, so the sum starts from 0 again
 
-    ci.add(linkInfo);
-  }
+  //   ci.add(linkInfo);
+  // }
   
   void process_STREAMLink() {
 
