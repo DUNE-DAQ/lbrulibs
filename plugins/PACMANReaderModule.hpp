@@ -48,7 +48,7 @@ public:
   PACMANReaderModule& operator=(PACMANReaderModule&&) =
     delete; ///< PACMANReaderModule is not move-assignable
 
-  void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
+  void init(std::shared_ptr<appfwk::ConfigurationManager> mcfg) override;
   // void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
@@ -59,9 +59,9 @@ private:
   static constexpr size_t m_queue_capacity = 1000000;
 
   // Commands
-  void do_configure(const data_t& args);
-  void do_start(const data_t& args);
-  void do_stop(const data_t& args);
+  void do_configure(const CommandData_t& args);
+  void do_start(const CommandData_t& args);
+  void do_stop(const CommandData_t &args);
 
   // Configuration
   bool m_configured;

@@ -15,7 +15,7 @@
 // TODO: Remove unecessary includes
 #include "appmodel/PACMANReceiver.hpp"
 #include "appmodel/PACMANConfiguration.hpp"
-#include "confmodel/ResourceSetAND.hpp"
+#include "confmodel/ResourceSetDisableAND.hpp"
 #include "confmodel/Connection.hpp"
 #include "confmodel/QueueWithSourceId.hpp"
 #include "confmodel/DetectorStream.hpp"
@@ -73,9 +73,9 @@ namespace dunedaq {
     }
 
     void
-    PACMANReaderModule::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg){
+    PACMANReaderModule::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg){
       TLOG() << "Running init on PACMAN cards";
-      auto modconf = mcfg->module<appmodel::DataReaderModule>(get_name());
+      auto modconf = mcfg->get_dal<appmodel::DataReaderModule>(get_name());
       if (modconf->get_connections().size() != 1){
         throw InitializationError(ERS_HERE, "PACMAN Data Reader does not have a unique associated interface");
       }
@@ -84,7 +84,8 @@ namespace dunedaq {
 
       // Create a source_id to local elink map
 
-      for (const auto & resources : det_con->get_contains()) {
+      for (const auto &resources : det_con->contained_resources())
+      {
         const appmodel::PACMANReceiver* interface = resources->cast<appmodel::PACMANReceiver>();
 
         if (interface != nullptr){
@@ -95,8 +96,6 @@ namespace dunedaq {
           // m_link_confs = module_conf->get_link_confs();
         }
       }
-
-
 
       for(auto qi : modconf->get_outputs()){
         auto q_with_id = qi->cast<confmodel::QueueWithSourceId>();
@@ -129,7 +128,7 @@ namespace dunedaq {
 
     }
 
-    void PACMANReaderModule::do_configure(const data_t& /*args*/){
+    void PACMANReaderModule::do_configure(const CommandData_t& /*args*/){
       // Configure Components
       TLOG() << get_name() << ": Entering do_conf() method";
 
@@ -152,7 +151,7 @@ namespace dunedaq {
     }
 
     void
-    PACMANReaderModule::do_start(const data_t& /*args*/)
+    PACMANReaderModule::do_start(const CommandData_t& /*args*/)
     {
       if (usePUBSUB) {
         m_zmqlink[0]->start();
@@ -162,7 +161,7 @@ namespace dunedaq {
     }
 
     void
-    PACMANReaderModule::do_stop(const data_t& /*args*/)
+    PACMANReaderModule::do_stop(const CommandData_t& /*args*/)
     {
       if (usePUBSUB) {
         m_zmqlink[0]->stop();

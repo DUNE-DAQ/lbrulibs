@@ -22,7 +22,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 ##############################################################################
 # Dependency sets
-set(DUNEDAQ_DEPENDENCIES appfwk::appfwk appmodel::appmodel confmodel::confmodel ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats  ipm::ipm iomanager::iomanager)
+set(DUNEDAQ_DEPENDENCIES appfwk::appfwk appmodel::appmodel confmodel::confmodel ndreadoutlibs::ndreadoutlibs detdataformats::detdataformats nddetdataformats::nddetdataformats iomanager::iomanager)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
 
 
@@ -40,7 +40,7 @@ daq_add_plugin(PACMANReaderModule duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDE
 
 ##############################################################################
 # Test configurations
-file(COPY test/pacmanreadout-commands.json DESTINATION test)
+# file(COPY test/pacmanreadout-commands.json DESTINATION test)
 
 ##############################################################################
 # Unit Tests

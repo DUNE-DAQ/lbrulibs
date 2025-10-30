@@ -15,7 +15,7 @@
 #include "iomanager/Sender.hpp"
 #include "logging/Logging.hpp"
 
-#include "datahandlinglibs/utils/ReusableThread.hpp"
+#include "utilities/ReusableThread.hpp"
 #include "ndreadoutlibs/NDReadoutPACMANTypeAdapter.hpp"
 #include "ndreadoutlibs/NDReadoutMPDTypeAdapter.hpp"
 
@@ -160,7 +160,7 @@ private:
 
   // Processor
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
-  dunedaq::datahandlinglibs::ReusableThread m_parser_thread;
+  utilities::ReusableThread m_parser_thread;
 
   // virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
   //   dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
