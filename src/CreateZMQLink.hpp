@@ -52,7 +52,6 @@ createZMQLinkModel(const std::string& target)
   } else if (target.find("mpd") != std::string::npos) {
 
     ers::info(GenericNDMessage(ERS_HERE, "CreateZMQLinkModel Creating Link for MPD!"));
-
     // Create Model
     auto zmqlink_model = std::make_unique<ZMQLinkModel<ndreadoutlibs::types::NDReadoutMPDTypeAdapter>>();
 

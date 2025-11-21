@@ -16,7 +16,7 @@ import zmq
 # Prepare ports
 echo = 'tcp://127.0.0.1:35531'
 cmd = 'tcp://127.0.0.1:35531'
-data = 'tcp://127.0.0.1:5030'
+data = 'tcp://127.0.0.1:5556'
 
 # Converts HDF5 files into a list of PACMAN messegaes (bytes)
 def hdf5ToPackets(datafile): 
@@ -128,6 +128,9 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
             data_socket.setsockopt(*opt)
         print("Connecting sockets...")
         id = 0
+        
+        print(f"Data server {_data_server}")
+        
         while id == 0:
             try: 
             
@@ -136,7 +139,8 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
                 # need to receive two messages to get target ID
                 id = data_socket.recv()
                 message = data_socket.recv()
-            except:
+            except Exception as e:
+                print(e)
                 print("No receiver ready to connect to. Retrying...")
                 time.sleep(1) #wait 1s before retrying
                 continue

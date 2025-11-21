@@ -184,7 +184,7 @@ def pacman(_echo_server,_cmd_server,_data_server,word_lists,mode,n_messages_tota
         # Send messages in intervals based on timestamps
         message_count = 0
         
-        for n in range(n_file_evals):
+        for _ in range(n_file_evals):
             for i in word_lists:
                 #data_socket.send(b"", zmq.SNDMORE)
                 data_socket.send(larpixtools.format_msg('DATA',i))

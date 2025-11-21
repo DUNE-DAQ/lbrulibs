@@ -193,17 +193,17 @@ private:
 
     zmq::pollitem_t items[] = {{static_cast<void*>(m_subscriber),0,ZMQ_POLLIN,0}};
     while (m_run_marker.load()) {
-        TLOG() << "Looping";
+        TLOG_DEBUG(10) << "Looping";
         
         if (m_subscriber_connected) {
-            TLOG() << ": Ready to receive data";
+            TLOG_DEBUG(10) << ": Ready to receive data";
             zmq::message_t msg;
             zmq::poll (&items [0],1,m_queue_timeout);
             if (items[0].revents & ZMQ_POLLIN){
               auto recvd = m_subscriber.recv(msg);
               if (recvd == 0) {
                 m_rcvd_zero++;
-                TLOG() << "No data received, moving to next loop iteration";
+                TLOG_DEBUG(10) << "No data received, moving to next loop iteration";
                 printf("ah it's because there's nothing\n");
                 continue;
               }
@@ -219,11 +219,11 @@ private:
                 ers::warning(ex);
               }
 
-              TLOG() << ": End of do_work loop";
+              TLOG_DEBUG(10) << ": End of do_work loop";
               m_packetCounter++;
             }
         } else {
-            TLOG() << "Subscriber not yet connected";
+          TLOG_DEBUG(10) << "Subscriber not yet connected";
         }
     }
   }
