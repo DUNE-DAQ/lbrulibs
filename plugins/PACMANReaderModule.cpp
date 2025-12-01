@@ -36,7 +36,7 @@ bool usePUBSUB = 1;
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
- */w
+ */
 #define TRACE_NAME "PACMANReaderModule" // NOLINT
 
 /**
@@ -116,7 +116,7 @@ namespace dunedaq
         {
           TLOG() << "Creating ZMQLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
           // TODO : Resolve proper link ID here
-          m_zmqlink[0] = createZMQLinkModel(confmodel::QueueWithSourceId);
+          m_zmqlink[0] = createZMQLinkModel(q_with_id->UID());
           if (m_zmqlink[0] == nullptr)
           {
             ers::fatal(InitializationError(ERS_HERE, "CreateZMQLink failed to provide an appropriate model for queue!"));
@@ -126,8 +126,7 @@ namespace dunedaq
         else
         {
           TLOG_DEBUG(TLVL_WORK_STEPS) << "Creating STREAMLinkModel for target queue: " << q_with_id->UID() << " DLH number: " << q_with_id->get_source_id();
-          m_streamlink[0] = createZMQLinkModel(confmodel::QueueWithSourceId);
-
+          m_streamlink[0] = createSTREAMLinkModel(q_with_id->UID());
           if (m_streamlink[0] == nullptr)
           {
             ers::fatal(InitializationError(ERS_HERE, "CreateSTREAMLink failed to provide an appropriate model for queue!"));
