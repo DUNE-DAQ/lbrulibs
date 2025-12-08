@@ -17,8 +17,7 @@ find_package(ipm REQUIRED)
 find_package(iomanager REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-# daq_codegen(pacmancardreader.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
-# daq_codegen(pacmancardreaderinfo.jsonnet DEP_PKGS opmonlib TEMPLATES opmonlib/InfoStructs.hpp.j2 opmonlib/InfoNljs.hpp.j2 )
+daq_protobuf_codegen(opmon/*.proto)
 
 ##############################################################################
 # Dependency sets
@@ -32,7 +31,7 @@ daq_add_library(LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES})
 
 ##############################################################################
 # Plugins
-daq_add_plugin(PACMANReaderModule duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES} lbrulibs)
+daq_add_plugin(PACMANReaderModule duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDENCIES} lbrulibs opmonlib::opmonlib)
 
 ##############################################################################
 # Integration tests
@@ -44,9 +43,9 @@ daq_add_plugin(PACMANReaderModule duneDAQModule LINK_LIBRARIES ${DUNEDAQ_DEPENDE
 
 ##############################################################################
 # Unit Tests
-daq_add_unit_test(ZMQPubSub_test                LINK_LIBRARIES lbrulibs)
-daq_add_unit_test(ZMQStream_test                LINK_LIBRARIES lbrulibs)
-daq_add_unit_test(PacmanFrame_test              LINK_LIBRARIES lbrulibs)
+daq_add_unit_test(ZMQPubSub_test                LINK_LIBRARIES lbrulibs opmonlib::opmonlib)
+daq_add_unit_test(ZMQStream_test                LINK_LIBRARIES lbrulibs opmonlib::opmonlib)
+daq_add_unit_test(PacmanFrame_test              LINK_LIBRARIES lbrulibs opmonlib::opmonlib)
 ##daq_add_unit_test(ZMQLink_test                  LINK_LIBRARIES lbrulibs)
 #daq_add_unit_test(STREAMLink_test               LINK_LIBRARIES lbrulibs)
 

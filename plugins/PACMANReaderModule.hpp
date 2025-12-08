@@ -49,7 +49,7 @@ public:
     delete; ///< PACMANReaderModule is not move-assignable
 
   void init(std::shared_ptr<appfwk::ConfigurationManager> mcfg) override;
-  // void get_info(opmonlib::InfoCollector& ci, int level) override;
+  void generate_opmon_data() override;
 
 private:
   // Types

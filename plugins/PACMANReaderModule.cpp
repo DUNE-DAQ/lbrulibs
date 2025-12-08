@@ -191,15 +191,15 @@ namespace dunedaq
       }
     }
 
-    // void
-    // PACMANReaderModule::get_info(opmonlib::InfoCollector& ci, int level)
-    // {
-    //   if (usePUBSUB) {
-    //     m_zmqlink[0]->get_info(ci, level);
-    //   } else {
-    //     m_streamlink[0]->get_info(ci, level);
-    //   }
-    // }
+    void
+    PACMANReaderModule::generate_opmon_data()
+    {
+      if (usePUBSUB) {
+        publish(std::move(m_zmqlink[0]->get_info()),  {{"pacman-card", std::to_string(m_card_id)}});
+      } else {
+        publish(std::move(m_streamlink[0]->get_info()), {{"pacman-card", std::to_string(m_card_id)}});
+      }
+    }
 
   } // namespace lbrulibs
 } // namespace dunedaq

@@ -116,7 +116,7 @@ public:
   }
 
 
-  bool queue_in_message_address(uint64_t addr) { // NOLINT
+  bool queue_in_message_address(uint64_t addr) {
     if (m_message_addr_queue->write(addr)) { // ok write
       return true;
     } else { // failed write
@@ -155,33 +155,32 @@ private:
   inline static const std::string m_parser_thread_name = "ZMQLinkp";
   utilities::ReusableThread m_parser_thread;
 
+  opmon::ZMQLinkInfo get_info(){
+    opmon::ZMQLinkInfo linkInfo;
 
-  // virtual void get_info(opmonlib::InfoCollector& ci, int /*level*/){
-  //   dunedaq::lbrulibs::pacmancardreaderinfo::ZMQLinkInfo linkInfo;
+    std::chrono::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now(); //End time when monitoring period ends
+    double elapsed_time = std::chrono::duration<double>(t_end-t_start).count(); //Monitoring period quantified
+    t_start = t_end; //restarts system clock for next monitoring period
 
-  //   std::chrono::time_point<std::chrono::system_clock> t_end = std::chrono::high_resolution_clock::now(); //End time when monitoring period ends
-  //   double elapsed_time = std::chrono::duration<double>(t_end-t_start).count(); //Monitoring period quantified
-  //   t_start = t_end; //restarts system clock for next monitoring period
+    //Pacman variables -----------
+    linkInfo.set_bandwidth(m_packetsizesum/(elapsed_time*1000000));
+    linkInfo.set_num_packets_received(m_packetCounter);
+    linkInfo.set_last_packet_size(m_packetsize);
+    linkInfo.set_last_message_timestamp(m_timestamp);
+    linkInfo.set_subscriber_num_zero_packets(m_rcvd_zero);
+    linkInfo.set_link_tag(m_link_tag); //ZMQLinkConcept Variable
+    linkInfo.set_card_id(m_card_id); //ZMQLinkConcept Variable
+    linkInfo.set_sink_name(m_sink_queue->get_name()); //sink queue name
+    linkInfo.set_subscriber_connected(m_subscriber_connected);
+    linkInfo.set_run_marker(m_run_marker); //predefined
+    linkInfo.set_sink_is_set(m_sink_is_set); //If sink succeeded - predefined
+    linkInfo.set_source_link_string(m_ZMQLink_sourceLink); //string variable from ZMQLinkConcept
+    //linkInfo.info_type = "ZMQ Link Info";
 
-  //   //Pacman variables -----------
-  //   linkInfo.bandwidth = m_packetsizesum/(elapsed_time*1000000);
-  //   linkInfo.num_packets_received = m_packetCounter;
-  //   linkInfo.last_packet_size = m_packetsize;
-  //   linkInfo.last_message_timestamp = m_timestamp;
-  //   linkInfo.subscriber_num_zero_packets = m_rcvd_zero;
-  //   linkInfo.link_tag = m_link_tag; //ZMQLinkConcept Variable
-  //   linkInfo.card_id = m_card_id; //ZMQLinkConcept Variable
-  //   linkInfo.sink_name = m_sink_queue->get_name(); //sink queue name
-  //   linkInfo.subscriber_connected = m_subscriber_connected;
-  //   linkInfo.run_marker = m_run_marker; //predefined
-  //   linkInfo.sink_is_set = m_sink_is_set; //If sink succeeded - predefined
-  //   linkInfo.source_link_string = m_ZMQLink_sourceLink; //string variable from ZMQLinkConcept
-  //   //linkInfo.info_type = "ZMQ Link Info";
+    m_packetsizesum = 0; //resets the variable, so the sum starts from 0 again
 
-  //   m_packetsizesum = 0; //resets the variable, so the sum starts from 0 again
-
-  //   ci.add(linkInfo);
-  // }
+    return linkInfo;
+  }
 
 
   void process_ZMQLink() {
@@ -207,11 +206,12 @@ private:
                 printf("ah it's because there's nothing\n");
                 continue;
               }
-              TLOG() << ": Pushing data into output_queue";
+              TLOG_DEBUG(10) << ": Pushing data into output_queue";
               try {
                 TargetPayloadType* Payload = new TargetPayloadType();
                 Payload -> load_message(msg.data(), msg.size()) ;
                 m_timestamp = Payload->get_timestamp();
+
                 m_sink_queue->send(std::move(*Payload), m_sink_timeout);
                 m_packetsizesum += msg.size(); //sum of data from packets
                 m_packetsize = msg.size(); //last packet size
