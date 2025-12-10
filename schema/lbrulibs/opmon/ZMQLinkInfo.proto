@@ -1,14 +1,12 @@
 syntax = "proto3";
 package dunedaq.lbrulibs.opmon;
 
-
-
 message ZMQLinkInfo {
     uint32 num_packets_received = 1;
     uint32 num_payloads = 2;
     float last_packet_size = 3;
     float bandwidth = 4;
-    float last_message_timestamp = 6;
+    uint64 last_message_timestamp = 6;
     bool subscriber_connected = 5;
     float run_marker = 7;
     string sink_name = 8;
@@ -17,5 +15,4 @@ message ZMQLinkInfo {
     float card_id = 11;
     float link_tag = 12;
     string source_link_string = 13;
-
 }

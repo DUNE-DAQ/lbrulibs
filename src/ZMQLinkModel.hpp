@@ -152,7 +152,7 @@ private:
   std::chrono::time_point<std::chrono::system_clock> t_start = std::chrono::high_resolution_clock::now(); //Initial time when monitoring period starts
 
   // Processor
-  inline static const std::string m_parser_thread_name = "ZMQLinkp";
+  inline static const std::string m_parser_thread_name = "ZMQLink";
   utilities::ReusableThread m_parser_thread;
 
   opmon::ZMQLinkInfo get_info(){
@@ -212,7 +212,9 @@ private:
                 Payload -> load_message(msg.data(), msg.size()) ;
                 m_timestamp = Payload->get_timestamp();
 
-                m_sink_queue->send(std::move(*Payload), m_sink_timeout);
+                if(!m_sink_queue->try_send(std::move(*Payload), m_sink_timeout)){
+                  TLOG()<<"FAILED TO SEND PAYLOAD!";
+                }
                 m_packetsizesum += msg.size(); //sum of data from packets
                 m_packetsize = msg.size(); //last packet size
               } catch (const iomanager::TimeoutExpired& ex) {
@@ -221,6 +223,7 @@ private:
 
               TLOG_DEBUG(10) << ": End of do_work loop";
               m_packetCounter++;
+              TLOG()<<"Num packets "<<m_packetCounter;
             }
         } else {
           TLOG_DEBUG(10) << "Subscriber not yet connected";
