@@ -69,6 +69,7 @@ private:
 
   int m_card_id;
   float m_zmq_receiver_timeout;
+  std::string m_source_link;
   std::vector<unsigned int> m_link_confs;
 
   // Card object

@@ -44,10 +44,16 @@ public:
   virtual void stop() = 0;
   virtual opmon::ZMQLinkInfo get_info() = 0; 
 
-    void set_ids(int card, int tag) {
-        m_card_id = card;
-        m_link_tag = tag;
-    }
+  void set_ids(int card, int tag) {
+      m_card_id = card;
+      m_link_tag = tag;
+  }
+
+
+  void set_source_link(std::string source_link){
+    m_ZMQLink_sourceLink = source_link;
+  }
+
 
 protected:
     std::chrono::milliseconds m_queue_timeout;
@@ -57,7 +63,7 @@ protected:
     zmq::socket_t m_subscriber{m_context, zmq::socket_type::stream};
     int m_card_id;
     int m_link_tag;
-    std::string m_STREAMLink_sourceLink = "tcp://127.0.0.1:5556";
+    std::string m_STREAMLink_sourceLink;
 private:
 
 };

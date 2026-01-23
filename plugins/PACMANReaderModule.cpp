@@ -100,6 +100,7 @@ namespace dunedaq
         {
           auto module_conf = interface->get_configuration()->cast<appmodel::PACMANConfiguration>();
           m_zmq_receiver_timeout = module_conf->get_zmq_receiver_timeout();
+          m_source_link = module_conf->get_source_link();
         }
       }
 
@@ -155,6 +156,7 @@ namespace dunedaq
         }
 
         m_zmqlink[0]->set_ids(m_card_id, 0);
+        m_zmqlink[0]->set_source_link(m_source_link);
         m_zmqlink[0]->conf(m_zmq_receiver_timeout);
       }
       else

@@ -51,6 +51,10 @@ public:
     m_link_tag = tag;
   }
 
+  void set_source_link(std::string source_link){
+    m_ZMQLink_sourceLink = source_link;
+  }
+
 protected:
     std::chrono::milliseconds m_queue_timeout;
     std::chrono::milliseconds m_sink_timeout{10};
@@ -60,7 +64,7 @@ protected:
     int m_card_id;
     int m_link_tag;
     /// TODO: De-hardcode!!!
-    std::string m_ZMQLink_sourceLink = "tcp://127.0.0.1:5556";
+    std::string m_ZMQLink_sourceLink;
   private:
 
 };
