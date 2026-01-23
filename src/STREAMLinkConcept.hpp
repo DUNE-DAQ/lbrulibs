@@ -51,7 +51,7 @@ public:
 
 
   void set_source_link(std::string source_link){
-    m_ZMQLink_sourceLink = source_link;
+    m_STREAMLink_sourceLink = source_link;
   }
 
 
